@@ -13,7 +13,7 @@ public class StartProcessController
 	@PostMapping("/startProcessIDE")
 	public ResponseEntity<?> login(@RequestBody StartProcessRequestBean startProcess)
 	{
-		return new ResponseEntity("Successfully Login", new HttpHeaders(),HttpStatus.OK);
+		return new ResponseEntity("Status : Process Started", new HttpHeaders(),HttpStatus.OK);
 	}
 	
 }
