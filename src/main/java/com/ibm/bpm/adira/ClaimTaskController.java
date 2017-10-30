@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 public class ClaimTaskController {
-	//Test Commit Controller 2 
+	
 	@PostMapping("/claimTask")
 	public ResponseEntity<?> login(@RequestBody ClaimTaskRequestBean claimtaskReq)
 	{
