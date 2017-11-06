@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.client.RestTemplate;
 
 @Controller
 public class LoginController 
@@ -13,7 +14,10 @@ public class LoginController
 	@PostMapping("/api/login")
 	public ResponseEntity<?> login(@RequestBody Login login)
 	{
-		return new ResponseEntity("Successfully Login", new HttpHeaders(),HttpStatus.OK);
+		final String uri = "http://www.nba.com";
+		RestTemplate restTemplate = new RestTemplate();
+		String result = restTemplate.getForObject(uri, String.class);
+		return new ResponseEntity("Successfully Login"+result, new HttpHeaders(),HttpStatus.OK);
 	}
 	
 }
