@@ -8,6 +8,7 @@ C:\Work\adira-api-git\src\main\java\com\ibm\bpm\adira\StartProcessResponseBean.j
 C:\Work\adira-api-git\src\main\java\com\ibm\bpm\adira\CallRejectRequestBean.java
 C:\Work\adira-api-git\src\main\java\com\ibm\bpm\adira\CompleteTaskRequestBean.java
 C:\Work\adira-api-git\src\main\java\com\ibm\bpm\adira\Greeting.java
+C:\Work\adira-api-git\src\main\java\com\ibm\bpm\adira\Authentication.java
 C:\Work\adira-api-git\src\main\java\com\ibm\bpm\adira\LoginController.java
 C:\Work\adira-api-git\src\main\java\com\ibm\bpm\adira\ClaimTaskController.java
 C:\Work\adira-api-git\src\main\java\com\ibm\bpm\adira\ReleaseTaskRequestBean.java
