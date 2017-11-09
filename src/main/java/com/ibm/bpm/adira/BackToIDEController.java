@@ -2,16 +2,20 @@ package com.ibm.bpm.adira;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
-public class BackToIDEController {
-	@PostMapping("/backToIDE")
+public class BackToIDEController 
+{
+	@RequestMapping(value="/backToIDE", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> login(@RequestBody BackToIDERequestBean backToIDEReq)
 	{
-		return new ResponseEntity("Status : Task has been sucesfully directed to IDE."+backToIDEReq.getTaskID(), new HttpHeaders(),HttpStatus.OK);
+		return new ResponseEntity("{\"status\": \"Success\"}", new HttpHeaders(),HttpStatus.OK);
 	}
 }
