@@ -1,7 +1,7 @@
-package com.ibm.bpm.adira;
+package com.ibm.bpm.adira.domain;
 
-public class StartProcessRequestBean {
-	
+public class CompleteTaskRequestBean {
+
 	public String orderID;
 	public int processID;
 	public int taskID;
@@ -9,8 +9,7 @@ public class StartProcessRequestBean {
 	public int brmsScoring;
 	
 	
-	
-	public StartProcessRequestBean()
+	public CompleteTaskRequestBean()
 	{
 		this.orderID = orderID;
 		this.processID = processID;
@@ -19,7 +18,7 @@ public class StartProcessRequestBean {
 		this.brmsScoring = brmsScoring;
 	}
 	
-	public StartProcessRequestBean(String orderID, int processID, int taskID, Boolean mayor, int brmsScoring)
+	public CompleteTaskRequestBean(String orderID, int processID, int taskID, Boolean mayor, int brmsScoring)
 	{
 		this.orderID = orderID;
 		this.processID = processID;
@@ -60,8 +59,5 @@ public class StartProcessRequestBean {
 	public void setBrmsScoring(int brmsScoring) {
 		this.brmsScoring = brmsScoring;
 	}
-	
-	
-	
 	
 }

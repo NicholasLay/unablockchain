@@ -1,7 +1,7 @@
-package com.ibm.bpm.adira;
+package com.ibm.bpm.adira.domain;
 
-public class CallRejectRequestBean {
-
+public class GoToCorrectionRequest {
+	
 	public String orderID;
 	public int processID;
 	public int taskID;
@@ -9,7 +9,7 @@ public class CallRejectRequestBean {
 	public int brmsScoring;
 	
 	
-	public CallRejectRequestBean()
+	public GoToCorrectionRequest()
 	{
 		this.orderID = orderID;
 		this.processID = processID;
@@ -18,7 +18,7 @@ public class CallRejectRequestBean {
 		this.brmsScoring = brmsScoring;
 	}
 	
-	public CallRejectRequestBean(String orderID, int processID, int taskID, Boolean mayor, int brmsScoring)
+	public GoToCorrectionRequest(String orderID, int processID, int taskID, Boolean mayor, int brmsScoring)
 	{
 		this.orderID = orderID;
 		this.processID = processID;

@@ -1,6 +1,6 @@
-package com.ibm.bpm.adira;
+package com.ibm.bpm.adira.domain;
 
-public class BackToIDEResponseBean {
+public class ClaimTaskResponseBean {
 
 	private int processId;
 	private int taskId;
@@ -45,5 +45,7 @@ public class BackToIDEResponseBean {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+	
+	
 	
 }

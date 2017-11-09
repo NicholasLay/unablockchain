@@ -1,6 +1,6 @@
-package com.ibm.bpm.adira;
+package com.ibm.bpm.adira.domain;
 
-public class ClaimTaskResponseBean {
+public class GoToCorrectionResponse {
 
 	private int processId;
 	private int taskId;
@@ -45,7 +45,5 @@ public class ClaimTaskResponseBean {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	
-	
 	
 }

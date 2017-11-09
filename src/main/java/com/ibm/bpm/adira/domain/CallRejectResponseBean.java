@@ -1,6 +1,6 @@
-package com.ibm.bpm.adira;
+package com.ibm.bpm.adira.domain;
 
-public class StartProcessResponseBean {
+public class CallRejectResponseBean {
 
 	private int processId;
 	private int taskId;
@@ -45,8 +45,4 @@ public class StartProcessResponseBean {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	
-	
-	
-	
 }

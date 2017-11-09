@@ -1,4 +1,4 @@
-package com.ibm.bpm.adira;
+package com.ibm.bpm.adira.domain;
 
 public class Greeting 
 {

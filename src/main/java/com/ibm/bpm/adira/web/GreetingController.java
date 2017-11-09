@@ -1,10 +1,12 @@
-package com.ibm.bpm.adira;
+package com.ibm.bpm.adira.web;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.ibm.bpm.adira.domain.Greeting;
 
 @RestController
 	public class GreetingController

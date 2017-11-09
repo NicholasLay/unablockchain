@@ -1,4 +1,4 @@
-package com.ibm.bpm.adira;
+package com.ibm.bpm.adira.domain;
 
 import com.google.gson.Gson;
 

@@ -1,7 +1,7 @@
-package com.ibm.bpm.adira;
+package com.ibm.bpm.adira.web;
 
-public class ReleaseTaskResponseBean {
-
+public class CompleteTaskResponseBean {
+	
 	private int processId;
 	private int taskId;
 	private String displayName; 
@@ -45,5 +45,6 @@ public class ReleaseTaskResponseBean {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+	
 	
 }

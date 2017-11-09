@@ -1,4 +1,4 @@
-package com.ibm.bpm.adira;
+package com.ibm.bpm.adira.web;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -10,12 +10,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.ibm.bpm.adira.domain.StartProcessRequestBean;
+
 @Controller
-public class CallRejectController {
-	
-	@RequestMapping(value="/callReject", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> login(@RequestBody CallRejectRequestBean callRejReq)
+public class StartProcessController 
+{
+	@RequestMapping(value="/startProcessIDE", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> login(@RequestBody StartProcessRequestBean startProcess)
 	{
 		return new ResponseEntity("{\"status\": \"Success\"}", new HttpHeaders(),HttpStatus.OK);
 	}
+	
 }

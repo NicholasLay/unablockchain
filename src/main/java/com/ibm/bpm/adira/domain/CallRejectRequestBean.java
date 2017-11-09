@@ -1,6 +1,6 @@
-package com.ibm.bpm.adira;
+package com.ibm.bpm.adira.domain;
 
-public class ReleaseTaskRequestBean {
+public class CallRejectRequestBean {
 
 	public String orderID;
 	public int processID;
@@ -9,7 +9,7 @@ public class ReleaseTaskRequestBean {
 	public int brmsScoring;
 	
 	
-	public ReleaseTaskRequestBean()
+	public CallRejectRequestBean()
 	{
 		this.orderID = orderID;
 		this.processID = processID;
@@ -18,7 +18,7 @@ public class ReleaseTaskRequestBean {
 		this.brmsScoring = brmsScoring;
 	}
 	
-	public ReleaseTaskRequestBean(String orderID, int processID, int taskID, Boolean mayor, int brmsScoring)
+	public CallRejectRequestBean(String orderID, int processID, int taskID, Boolean mayor, int brmsScoring)
 	{
 		this.orderID = orderID;
 		this.processID = processID;
@@ -59,6 +59,5 @@ public class ReleaseTaskRequestBean {
 	public void setBrmsScoring(int brmsScoring) {
 		this.brmsScoring = brmsScoring;
 	}
-	
 	
 }

@@ -1,7 +1,7 @@
-package com.ibm.bpm.adira;
+package com.ibm.bpm.adira.domain;
 
-public class GoToCorrectionRequest {
-	
+public class ReleaseTaskRequestBean {
+
 	public String orderID;
 	public int processID;
 	public int taskID;
@@ -9,7 +9,7 @@ public class GoToCorrectionRequest {
 	public int brmsScoring;
 	
 	
-	public GoToCorrectionRequest()
+	public ReleaseTaskRequestBean()
 	{
 		this.orderID = orderID;
 		this.processID = processID;
@@ -18,7 +18,7 @@ public class GoToCorrectionRequest {
 		this.brmsScoring = brmsScoring;
 	}
 	
-	public GoToCorrectionRequest(String orderID, int processID, int taskID, Boolean mayor, int brmsScoring)
+	public ReleaseTaskRequestBean(String orderID, int processID, int taskID, Boolean mayor, int brmsScoring)
 	{
 		this.orderID = orderID;
 		this.processID = processID;
@@ -59,5 +59,6 @@ public class GoToCorrectionRequest {
 	public void setBrmsScoring(int brmsScoring) {
 		this.brmsScoring = brmsScoring;
 	}
+	
 	
 }

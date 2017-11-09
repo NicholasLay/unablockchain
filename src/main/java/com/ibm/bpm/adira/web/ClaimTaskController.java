@@ -1,4 +1,4 @@
-package com.ibm.bpm.adira;
+package com.ibm.bpm.adira.web;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -10,11 +10,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.ibm.bpm.adira.domain.ClaimTaskRequestBean;
+
 @Controller
-public class CompleteTaskController {
-	@RequestMapping(value="/completeTask", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> login(@RequestBody CompleteTaskRequestBean completeTaskReq)
+public class ClaimTaskController {
+	
+	@RequestMapping(value="/claimTask", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> login(@RequestBody ClaimTaskRequestBean claimtaskReq)
 	{
 		return new ResponseEntity("{\"status\": \"Success\"}", new HttpHeaders(),HttpStatus.OK);
 	}
 }
+
+

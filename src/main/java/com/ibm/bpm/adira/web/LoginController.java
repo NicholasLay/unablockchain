@@ -1,9 +1,8 @@
-package com.ibm.bpm.adira;
+package com.ibm.bpm.adira.web;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

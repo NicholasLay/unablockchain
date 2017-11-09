@@ -1,6 +1,6 @@
-package com.ibm.bpm.adira;
+package com.ibm.bpm.adira.domain;
 
-public class GoToCorrectionResponse {
+public class BackToIDEResponseBean {
 
 	private int processId;
 	private int taskId;
