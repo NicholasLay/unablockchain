@@ -20,11 +20,12 @@
     <artifactId>spring-security-config</artifactId>
     <version>4.2.3.RELEASE</version>
 </dependency>
+
 <!-- Http Client -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.1</version>
+			<version>4.5.3</version>
 		</dependency>
 <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-core -->
 <dependency>
