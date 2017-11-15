@@ -18,7 +18,15 @@ public class StartProcessController
 	@RequestMapping(value="/startProcessIDE", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> login(@RequestBody StartProcessRequestBean startProcess)
 	{
-		return new ResponseEntity("{\"status\": \"Success\"}", new HttpHeaders(),HttpStatus.OK);
+		String response = "{\"orderID\":\"" +startProcess.getOrderID()+ "\","+
+        		"\"processID\":\"" +startProcess.getProcessID()+ "\","+
+        		"\"taskID\":\"" +startProcess.getTaskID()+ "\","+
+        		"\"displayName\":\"Submit IDE\","+
+				"\"assignToType\":\"IDE\","+
+				"\"startTime\":\"1/23/2017  12:00:00 AM\","+
+        		"\"status\":\"Complete\""+ 
+        		"}";
+		return new ResponseEntity(response, new HttpHeaders(),HttpStatus.OK);
 	}
 	
 }
