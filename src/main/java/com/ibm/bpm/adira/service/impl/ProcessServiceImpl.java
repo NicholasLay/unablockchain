@@ -26,7 +26,6 @@ public class ProcessServiceImpl implements ProcessService {
         BasicAuthRestTemplate restTemplate = new BasicAuthRestTemplate(username, password);
        
         String url = "http://localhost:8080/gs-rest-service-0.1.0/backToIDE";
-<<<<<<< HEAD
         String acctionUrl = "http://10.61.5.247:9091/adira-acction/acction/service/bpm/callback";
         String acctionCallback = "{\"orderID\":\"" +orderID+ "\","+
         		"\"processID\":\"" +processID+ "\","+
@@ -35,9 +34,7 @@ public class ProcessServiceImpl implements ProcessService {
 				"\"displayName\":\"sa\","+
         		"\"assignToType\":\"sa\""+ 
         		"}";
-=======
-     
->>>>>>> c2a4823890d75341b5afcfce9742b3e18c852e30
+
         String requestJson = "{\"orderID\":\"" +orderID+ "\","+
         		"\"processID\":\"" +processID+ "\","+
         		"\"taskID\":\"" +taskID+ "\","+
