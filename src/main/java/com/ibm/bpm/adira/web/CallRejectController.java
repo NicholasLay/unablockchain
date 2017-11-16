@@ -43,7 +43,7 @@ private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.
 		
 		logger.info(logTracker);
 		
-		processService.process(orderId,processId,taskId);
+		processService.process("CallReject",orderId,processId,taskId);
 		
 		
 		return new ResponseEntity("{\"status\": \"Success\"}", new HttpHeaders(),HttpStatus.OK);

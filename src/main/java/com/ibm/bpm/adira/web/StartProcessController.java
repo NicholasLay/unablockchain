@@ -40,7 +40,7 @@ import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 @Controller
 public class StartProcessController 
 {
-	private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(StartProcessController.class);
 	@RequestMapping(value="/startProcessIDE", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> login(@RequestBody StartProcessRequestBean startProcess) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException
 	{

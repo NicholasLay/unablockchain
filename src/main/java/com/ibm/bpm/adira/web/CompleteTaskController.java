@@ -42,10 +42,7 @@ private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.
 				"Mayor ="+mayor;
 		
 		logger.info(logTracker);
-		
-		processService.process(orderId,processId,taskId);
-		
-		
+		processService.process("CompleteTask",orderId,processId,taskId);
 		return new ResponseEntity("{\"status\": \"Success\"}", new HttpHeaders(),HttpStatus.OK);
 	}
 	

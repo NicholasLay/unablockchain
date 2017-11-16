@@ -44,7 +44,7 @@ public class ReleaseTaskController {
 		
 		logger.info(logTracker);
 		
-		processService.process(orderId,processId,taskId);
+		processService.process("ReleaseTask",orderId,processId,taskId);
 		
 		
 		return new ResponseEntity("{\"status\": \"Success\"}", new HttpHeaders(),HttpStatus.OK);
