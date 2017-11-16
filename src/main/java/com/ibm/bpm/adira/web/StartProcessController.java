@@ -51,7 +51,7 @@ public class StartProcessController
 		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/process?action=start&bpdId=25.9a0484ab-9ece-44e0-8cc2-e086172e2cc1&snapshotId=2064.a6d5833c-bf89-4687-ae69-38206c30fef2&branchId=2063.b06bda07-3d67-4084-8f37-3d6053dc2d24&processAppId=2066.c464e5f1-3399-406f-a208-eddaad75b871&parts=all";
 
 		logger.info("Masuk Auth");
-		String plainCreds = "ariadana:password";
+		String plainCreds = "acction:ADira2017";
 		byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
 		String base64Creds = new String(base64CredsBytes);
