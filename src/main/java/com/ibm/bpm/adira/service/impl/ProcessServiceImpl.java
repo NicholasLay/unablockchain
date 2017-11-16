@@ -122,7 +122,7 @@ public class ProcessServiceImpl implements ProcessService {
     	logger.info("Process Service Impl:"+completeTaskURL);
     	
     	logger.info("Masuk Auth");
-		String plainCreds = "ariadana:password";
+		String plainCreds = "acction:ADira2017";
 		byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
 		String base64Creds = new String(base64CredsBytes);
