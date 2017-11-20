@@ -34,65 +34,85 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.StartProcessRequestBean;
+import com.ibm.bpm.adira.domain.StartProcessResponseBean;
+import com.ibm.bpm.adira.domain.StartProcessResponseBean.tasks;
 import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
 @Controller
 public class StartProcessController 
 {
 	private static final Logger logger = LoggerFactory.getLogger(StartProcessController.class);
+	
 	@RequestMapping(value="/startProcessIDE", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> login(@RequestBody StartProcessRequestBean startProcess) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException
+	public ResponseEntity<?> login(@RequestBody StartProcessRequestBean startProcess) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, JsonProcessingException
 	{
-		logger.info("From acction: Order ID "+startProcess.getOrderID()+
-				"Process ID "+startProcess.getProcessID()+"Task ID "+startProcess.getTaskID()
-			+"BRMS "+startProcess.getBrmsScoring()+"Mayor "+startProcess.getMayor());
+		String orderId				= startProcess.getOrderID();
+		int processId				= startProcess.getProcessID();
+		int brmsScoring				= startProcess.getBrmsScoring();
+		int taskId 					= startProcess.getTaskID();
+		Boolean mayor 				= startProcess.getMayor();
+		
+		//Response BPM Initialize
+		String name					= "";
+		String assignedToType 		= "";
+		String displayName			= "";
+		String dueTime				= "";
+		String processInstanceName	= "";
+		int tkiid					= 0;
+		
+		logger.info(
+				"From acction: Order ID "+orderId+
+				"Process ID "+processId+
+				"Task ID "+taskId+
+				"BRMS "+brmsScoring+
+				"Mayor "+mayor);
 
-		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/process?action=start&bpdId=25.9a0484ab-9ece-44e0-8cc2-e086172e2cc1&snapshotId=2064.a6d5833c-bf89-4687-ae69-38206c30fef2&branchId=2063.b06bda07-3d67-4084-8f37-3d6053dc2d24&processAppId=2066.c464e5f1-3399-406f-a208-eddaad75b871&parts=all";
-
-		logger.info("Masuk Auth");
+		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/process?action=start&bpdId=25.9a0484ab-9ece-44e0-8cc2-e086172e2cc1&snapshotId=2064.a2df1324-d433-4018-954d-553dde8f64fd&parts=all";
+		
+			logger.info("-------------------------------ENTERING AUTHORIZATION----------------------------------");
+		
 		String plainCreds = "acction:ADira2017";
 		byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
 		String base64Creds = new String(base64CredsBytes);
+		
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add("Authorization", "Basic " + base64Creds);
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
-		logger.info("Auth is being processed");
+		
+		logger.info("\"------------------------------PROCESSING AUTHORIZATION----------------------------------\"");
 
 		RestTemplate restTemplate = getRestTemplate();
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
-
+		
 		String response = restTemplate.postForObject(walletBalanceUrl, entity, String.class);
 		
-		JsonParser springParser = JsonParserFactory.getJsonParser();
+		logger.info("----------------------------Response = "+response+"---------------------------------------");
 		
-		Map<String, Object> result = springParser.parseMap(response);
-		String inner = "";
-		try {
-			inner = new ObjectMapper().writeValueAsString(result.get("data"));
-			result = springParser.parseMap(inner);
-			inner = new ObjectMapper().writeValueAsString(result.get("tasks"));
-			inner = inner.substring(1);
-			inner = inner.substring(0,inner.length()-1);
-			result = springParser.parseMap(inner);
-			inner = new ObjectMapper().writeValueAsString(result.get("tkiid"));
-			inner = inner.substring(1);
-			inner = inner.substring(0,inner.length()-1);
-			logger.info("Task ID :" + inner);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss a").format(new java.util.Date()); 
-		String responseToAcction = "{\"orderID\":\"" +startProcess.getOrderID()+ "\","+
-        		"\"processID\":\"" +startProcess.getProcessID()+ "\","+
-        		"\"taskID\":\"" +inner+ "\","+
-        		"\"displayName\":\"Submit IDE\","+
-				"\"assignToType\":\"IDE\","+
-				"\"startTime\":\""+ timestamp  +"\","+
-        		"\"status\":\"Complete\""+ 
+		Gson json = new Gson();
+		StartProcessResponseBean responseBeanBPM = json.fromJson(response, StartProcessResponseBean.class);
+
+		for(tasks responseTask : responseBeanBPM.getData().getTasks()) {
+			processInstanceName = responseTask.getProcessInstanceName();
+			displayName 		= responseTask.getDisplayName();
+			tkiid 				= responseTask.getTkiid();
+			assignedToType 		= responseTask.getAssignedToType();
+			dueTime		 		= responseTask.getDueTime();
+			}
+
+		String responseToAcction = "{"+ 
+				"\"orderID\"			 :\"" +orderId+ "\","+
+        		"\"processID\"			 :\"" +processId+ "\","+
+        		"\"processInstanceName\" :\"" +processInstanceName+ "\","+
+        		"\"taskID\"				 :\"" +tkiid+ "\","+
+        		"\"assignedToType\"		 :\"" +assignedToType+ "\","+
+				"\"assignTo\"			 :\"IDE\","+
+				"\"startTime\"			 :\""+ dueTime  +"\","+
+				"\"dueTime\"			 :\""+ dueTime  +"\","+
         		"}";
+		
 		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
 	}
 	
@@ -113,3 +133,24 @@ public class StartProcessController
 	}
 	
 }
+
+
+
+//String inner = "";	
+//try{
+//	inner = new ObjectMapper().writeValueAsString(result.get("data"));
+//	result = springParser.parseMap(inner);
+//	inner = new ObjectMapper().writeValueAsString(result.get("tasks"));
+//	inner = inner.substring(1);
+//	inner = inner.substring(0,inner.length()-1);
+//	result = springParser.parseMap(inner);
+//	inner = new ObjectMapper().writeValueAsString(result.get("tkiid"));
+//	inner = inner.substring(1);
+//	inner = inner.substring(0,inner.length()-1);
+//	logger.info("Task ID :" + inner);
+//} catch () {
+//	// TODO Auto-generated catch block
+//	
+//}
+
+//String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss a").format(new java.util.Date()); 
