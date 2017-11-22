@@ -7,7 +7,6 @@ public class StartProcessResponseBean {
 	private DataDetail data;
 	private Object status;
 	
-	
 	public Object getStatus() {
 		return status;
 	}
@@ -26,25 +25,24 @@ public class StartProcessResponseBean {
 public class DataDetail{
 		
 		private String name;
-		private List<tasks> tasks;
+		private List<Tasks> tasks;
 		
 		public String getName() {
 			return name;
 		}
 		public void setName(String name) {
-			this.name = name;
 		}
-		public List<tasks> getTasks() {
+		public List<Tasks> getTasks() {
 			return tasks;
 		}
-		public void setTasks(List<tasks> tasks) {
+		public void setTasks(List<Tasks> tasks) {
 			this.tasks = tasks;
 		}
 		
 		
 	}
 	
-	public class tasks{
+	public class Tasks{
 		
 		private String displayName;
 		private String processInstanceName;

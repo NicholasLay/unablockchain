@@ -52,13 +52,14 @@ public class ClaimTaskController {
 				"Process ID "+processId+
 				"Task ID "+taskId+
 				"BRMS "+brmsScoring+
-				"Mayor "+mayor);
+				"Mayor "+mayor
+				);
 		
 		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/task/"+taskId+"?action=assign&toMe=true&parts=all";
 	
 		logger.info("URL:"+ walletBalanceUrl);
 
-		logger.info("-------------------------------ENTERING AUTHORIZATION----------------------------------");
+		logger.info("-----------ENTERING AUTHORIZATION-----------");
 	
 		String plainCreds = "acction:ADira2017";
 		byte[] plainCredsBytes = plainCreds.getBytes();
@@ -69,15 +70,15 @@ public class ClaimTaskController {
 		httpHeaders.add("Authorization", "Basic " + base64Creds);
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
 	
-		logger.info("\"------------------------------PROCESSING AUTHORIZATION----------------------------------\"");
+		logger.info("\"-----------PROCESSING AUTHORIZATION-----------\"");
 
 		RestTemplate restTemplate = getRestTemplate();
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
 
 		String response = restTemplate.postForObject(walletBalanceUrl, entity, String.class);
-		
-		logger.info("----------------------------Response = "+response+"---------------------------------------");
-		
+		String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()); 
+
+		logger.info("-----------RESPONSE JSON BPM ("+timestamp+") = "+response+"-----------");
 		
 		Gson jsonDeserialize = new Gson();
 		
@@ -85,8 +86,8 @@ public class ClaimTaskController {
 		
 		String responseToAcction = ""+ 
 				"{\"orderID\":\"" +orderId+ "\","+
-        		"\"taskID\":\"" +taskId+ "\","+
-        		"\"status\":\"" +responseBpmClaim.getStatus()+ "\","+
+        		"\"taskID\":"+taskId+","+
+        		"\"status\":\"" +responseBpmClaim.getStatus()+ "\""+
         		"}";
 		
 		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);

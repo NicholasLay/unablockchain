@@ -37,7 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.StartProcessRequestBean;
 import com.ibm.bpm.adira.domain.StartProcessResponseBean;
-import com.ibm.bpm.adira.domain.StartProcessResponseBean.tasks;
+import com.ibm.bpm.adira.domain.StartProcessResponseBean.Tasks;
 import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
 @Controller
@@ -48,14 +48,15 @@ public class StartProcessController
 	@RequestMapping(value="/startProcessIDE", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> login(@RequestBody StartProcessRequestBean startProcess) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, JsonProcessingException
 	{
-		String orderId				= startProcess.getOrderID();
-		int processId				= startProcess.getProcessID();
-		int brmsScoring				= startProcess.getBrmsScoring();
-		int taskId 					= startProcess.getTaskID();
-		Boolean mayor 				= startProcess.getMayor();
+		String orderId	= startProcess.getOrderID();
+		int processId	= startProcess.getProcessID();
+		int brmsScoring	= startProcess.getBrmsScoring();
+		int taskId 		= startProcess.getTaskID();
+		Boolean mayor 	= startProcess.getMayor();
 		
 		//Response BPM Initialize
-		String name					= "";
+		StartProcessResponseBean startProcessResp = new StartProcessResponseBean();
+		
 		String assignedToType 		= "";
 		String displayName			= "";
 		String dueTime				= "";
@@ -67,11 +68,12 @@ public class StartProcessController
 				"Process ID "+processId+
 				"Task ID "+taskId+
 				"BRMS "+brmsScoring+
-				"Mayor "+mayor);
+				"Mayor "+mayor
+				);
 
 		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/process?action=start&bpdId=25.9a0484ab-9ece-44e0-8cc2-e086172e2cc1&snapshotId=2064.a2df1324-d433-4018-954d-553dde8f64fd&parts=all";
 		
-			logger.info("-------------------------------ENTERING AUTHORIZATION----------------------------------");
+		logger.info("-----------ENTERING AUTHORIZATION-----------");
 		
 		String plainCreds = "acction:ADira2017";
 		byte[] plainCredsBytes = plainCreds.getBytes();
@@ -82,19 +84,22 @@ public class StartProcessController
 		httpHeaders.add("Authorization", "Basic " + base64Creds);
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
 		
-		logger.info("\"------------------------------PROCESSING AUTHORIZATION----------------------------------\"");
+		logger.info("\"-----------PROCESSING AUTHORIZATION-----------\"");
 
 		RestTemplate restTemplate = getRestTemplate();
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
 		
 		String response = restTemplate.postForObject(walletBalanceUrl, entity, String.class);
 		
-		logger.info("----------------------------Response = "+response+"---------------------------------------");
+		String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()); 
+		
+		
+		logger.info("-----------RESPONSE JSON BPM ("+timestamp+") = "+response+"-----------");
 		
 		Gson json = new Gson();
 		StartProcessResponseBean responseBeanBPM = json.fromJson(response, StartProcessResponseBean.class);
 
-		for(tasks responseTask : responseBeanBPM.getData().getTasks()) {
+		for(Tasks responseTask : responseBeanBPM.getData().getTasks()) {
 			processInstanceName = responseTask.getProcessInstanceName();
 			displayName 		= responseTask.getDisplayName();
 			tkiid 				= responseTask.getTkiid();
@@ -103,15 +108,16 @@ public class StartProcessController
 			}
 
 		String responseToAcction = "{"+ 
-				"\"orderID\"			 :\"" +orderId+ "\","+
-        		"\"processID\"			 :\"" +processId+ "\","+
-        		"\"processInstanceName\" :\"" +processInstanceName+ "\","+
-        		"\"taskID\"				 :\"" +tkiid+ "\","+
-        		"\"assignedToType\"		 :\"" +assignedToType+ "\","+
+				"\"orderID\"			 :\""+orderId+"\","+
+        		"\"processID\"			 :"+processId+","+
+        		"\"processInstanceName\" :\""+processInstanceName+"\","+
+        		"\"displayName\"		 :\""+displayName+"\","+
+        		"\"taskID\"				 :"+tkiid+","+
+        		"\"assignedToType\"		 :\""+assignedToType+ "\","+
 				"\"assignTo\"			 :\"IDE\","+
-				"\"startTime\"			 :\""+ dueTime  +"\","+
-				"\"dueTime\"			 :\""+ dueTime  +"\","+
-        		"}";
+				"\"startTime\"			 :\""+dueTime+"\","+
+				"\"dueTime\"			 :\""+dueTime+"\""+
+        	"}";
 		
 		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
 	}

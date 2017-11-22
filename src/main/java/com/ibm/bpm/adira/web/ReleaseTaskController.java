@@ -29,7 +29,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
+
+import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.ReleaseTaskRequestBean;
+import com.ibm.bpm.adira.domain.ReleaseTaskResponseBean;
 import com.ibm.bpm.adira.service.ProcessService;
 import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
@@ -50,22 +53,21 @@ public class ReleaseTaskController {
 		int taskId 		= releaseTask.getTaskID();
 		Boolean mayor 	= releaseTask.getMayor();
 		
-		String logTracker = 
+		String RequestLog = 
 				"From acction: "+ 
-				"Order ID ="+orderId+
+				"Order ID 	="+orderId+
 				"Process ID ="+processId+
-				"Task ID = "+taskId+
-				"BRMS ="+brmsScoring+
-				"Mayor ="+mayor;
+				"Task ID 	= "+taskId+
+				"BRMS 		="+brmsScoring+
+				"Mayor 		="+mayor;
 		
-		logger.info(logTracker);
+		logger.info(RequestLog);
 		
 		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/task/"+taskId+"?action=cancel";
 		
 		logger.info("URL:"+ walletBalanceUrl);
-		
-		logger.info("Entering Authorization..");
-		
+
+		logger.info("-----------ENTERING AUTHORIZATION-----------");
 		
 		String plainCreds = "acction:ADira2017";
 		byte[] plainCredsBytes = plainCreds.getBytes();
@@ -75,26 +77,25 @@ public class ReleaseTaskController {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add("Authorization", "Basic " + base64Creds);
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
+		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
 		
-		logger.info("Release Task Controller - plainCreds :"+plainCreds);
+		logger.info("\"-----------PROCESSING AUTHORIZATION-----------\"");
 		
 		RestTemplate restTemplate = getRestTemplate();
-		
-		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
-
 		String response = restTemplate.postForObject(walletBalanceUrl, entity, String.class);
 		
-		String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()); 
+		String responseToAcction = "";
 		
-		String responseToAcction = 
-				"{\"orderID\":\"" +orderId+ "\","+
-        		"\"processID\":\"" +processId+ "\","+
-        		"\"taskID\":\"" +taskId+ "\","+
-        		"\"displayName\":\"Submit IDE\","+
-				"\"assignToType\":\"IDE\","+
-				"\"startTime\":\""+timestamp+"\","+
-        		"\"status\":\"Task has been released\""+ 
-        		"}";
+		if(response == null || response.isEmpty()) {
+			ReleaseTaskResponseBean responseReleaseSucessBPM = new ReleaseTaskResponseBean();
+			responseReleaseSucessBPM.setStatus("200");
+			
+			 responseToAcction = ""+ 
+					"{\"orderID\":\"" +orderId+ "\","+
+	        		"\"taskID\":"+taskId+","+
+	        		"\"status\":\"" +responseReleaseSucessBPM.getStatus()+ "\""+
+	        		"}";
+		}
 		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
 	}
 	
