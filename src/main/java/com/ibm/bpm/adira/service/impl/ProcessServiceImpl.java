@@ -24,6 +24,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.google.gson.Gson;
+import com.ibm.bpm.adira.domain.AcctionCallBackRequestBean;
 import com.ibm.bpm.adira.domain.BasicAuthRestTemplate;
 import com.ibm.bpm.adira.service.ProcessService;
 
@@ -55,54 +57,27 @@ public class ProcessServiceImpl implements ProcessService {
 			}
         }
         callBackToAcction(orderID, processID, taskID);
-        
-        //Call to Acction using basic auth
-        /* 
-        String username = "70000386";
-        String password = "adira";
-        
-        BasicAuthRestTemplate restTemplate = new BasicAuthRestTemplate(username, password);
-       
-        String url = "http://localhost:8080/gs-rest-service-0.1.0/backToIDE";
-        String acctionUrl = "http://10.61.5.247:9091/adira-acction/acction/service/bpm/callback";
-        String acctionCallback = "{\"orderID\":\"" +orderID+ "\","+
-        		"\"processID\":\"" +processID+ "\","+
-        		"\"taskID\":\"" +taskID+ "\","+
-        		"\"status\":\"onprogress\","+
-				"\"displayName\":\"sa\","+
-        		"\"assignToType\":\"sa\""+ 
-        		"}";
-
-        String requestJson = "{\"orderID\":\"" +orderID+ "\","+
-        		"\"processID\":\"" +processID+ "\","+
-        		"\"taskID\":\"" +taskID+ "\","+
-        		"\"mayor\":true,"+
-        		"\"brmsScoring\":1"+ 
-        		"}";
-        
-        logger.info("Callback Request:"+requestJson);
-        HttpHeaders headers = new HttpHeaders();
-        
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> entity = new HttpEntity<String>(requestJson,headers);
-        
-        String answer = restTemplate.postForObject(url, entity, String.class);
-        System.out.println(answer);
-        logger.info("Processing complete");
-        */
     }
     
     public void callBackToAcction(String orderID,int processID, int taskID)
     {
     	RestTemplate restTemplate = new RestTemplate();
     	String acctionUrl = "http://10.61.5.247:9091/adira-acction/acction/service/bpm/callback";
-    	String acctionCallbackRequest = "{\"orderID\":\"" +orderID+ "\","+
-        		"\"processID\":\"" +processID+ "\","+
-        		"\"taskID\":\"" +taskID+ "\","+
-        		"\"status\":\"onprogress\","+
-				"\"displayName\":\"sa\","+
-        		"\"assignToType\":\"sa\""+ 
-        		"}";
+    	Gson json = new Gson();
+    	
+    	String status = "onprogress";
+    	String displayName = "sa";
+    	String assignToType = "sa";
+    	
+    	AcctionCallBackRequestBean acctionBean = new AcctionCallBackRequestBean();
+    	acctionBean.setOrderID(orderID);
+    	acctionBean.setProcessID(processID);
+    	acctionBean.setTaskID(taskID);
+    	acctionBean.setStatus(status);
+    	acctionBean.setDisplayName(displayName);
+    	acctionBean.setAssignToType(assignToType);
+    	
+    	String acctionCallbackRequest = json.toJson(acctionBean);
     	
     	logger.info("Process Service Impl: acction URL"+ acctionUrl);
     	logger.info("Process Service Impl: acction Callback Request"+ acctionCallbackRequest);
@@ -126,6 +101,7 @@ public class ProcessServiceImpl implements ProcessService {
 		byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
 		String base64Creds = new String(base64CredsBytes);
+	
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add("Authorization", "Basic " + base64Creds);
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
@@ -153,7 +129,38 @@ public class ProcessServiceImpl implements ProcessService {
 	    RestTemplate restTemplate = new RestTemplate(requestFactory);
 	    return restTemplate;
 	}
-    
-    
-    
 }
+//Call to Acction using basic auth
+/* 
+String username = "70000386";
+String password = "adira";
+
+BasicAuthRestTemplate restTemplate = new BasicAuthRestTemplate(username, password);
+
+String url = "http://localhost:8080/gs-rest-service-0.1.0/backToIDE";
+String acctionUrl = "http://10.61.5.247:9091/adira-acction/acction/service/bpm/callback";
+String acctionCallback = "{\"orderID\":\"" +orderID+ "\","+
+		"\"processID\":\"" +processID+ "\","+
+		"\"taskID\":\"" +taskID+ "\","+
+		"\"status\":\"onprogress\","+
+		"\"displayName\":\"sa\","+
+		"\"assignToType\":\"sa\""+ 
+		"}";
+
+String requestJson = "{\"orderID\":\"" +orderID+ "\","+
+		"\"processID\":\"" +processID+ "\","+
+		"\"taskID\":\"" +taskID+ "\","+
+		"\"mayor\":true,"+
+		"\"brmsScoring\":1"+ 
+		"}";
+
+logger.info("Callback Request:"+requestJson);
+HttpHeaders headers = new HttpHeaders();
+
+headers.setContentType(MediaType.APPLICATION_JSON);
+HttpEntity<String> entity = new HttpEntity<String>(requestJson,headers);
+
+String answer = restTemplate.postForObject(url, entity, String.class);
+System.out.println(answer);
+logger.info("Processing complete");
+*/
