@@ -4,8 +4,8 @@ public class StartProcessRequestBean {
 	
 	public String orderID;
 	public int processID;
-	public int taskID;
-	public Boolean mayor;
+//	public int taskID;
+	public Boolean isMayor;
 	public int brmsScoring;
 	
 	
@@ -14,17 +14,17 @@ public class StartProcessRequestBean {
 	{
 		this.orderID = orderID;
 		this.processID = processID;
-		this.taskID = taskID;
-		this.mayor = mayor;
+//		this.taskID = taskID;
+		this.isMayor = isMayor;
 		this.brmsScoring = brmsScoring;
 	}
 	
-	public StartProcessRequestBean(String orderID, int processID, int taskID, Boolean mayor, int brmsScoring)
+	public StartProcessRequestBean(String orderID, int processID, int taskID, Boolean isMayor, int brmsScoring)
 	{
 		this.orderID = orderID;
 		this.processID = processID;
-		this.taskID = taskID;
-		this.mayor = mayor;
+//		this.taskID = taskID;
+		this.isMayor = isMayor;
 		this.brmsScoring = brmsScoring;
 	}
 
@@ -42,26 +42,27 @@ public class StartProcessRequestBean {
 	public void setProcessID(int processID) {
 		this.processID = processID;
 	}
-	public int getTaskID() {
-		return taskID;
+//	public int getTaskID() {
+//		return taskID;
+//	}
+//	public void setTaskID(int taskID) {
+//		this.taskID = taskID;
+//	}
+
+	public Boolean getIsMayor() {
+		return isMayor;
 	}
-	public void setTaskID(int taskID) {
-		this.taskID = taskID;
+
+	public void setIsMayor(Boolean isMayor) {
+		this.isMayor = isMayor;
 	}
-	public Boolean getMayor() {
-		return mayor;
-	}
-	public void setMayor(Boolean mayor) {
-		this.mayor = mayor;
-	}
+	
 	public int getBrmsScoring() {
 		return brmsScoring;
 	}
+	
 	public void setBrmsScoring(int brmsScoring) {
 		this.brmsScoring = brmsScoring;
 	}
-	
-	
-	
 	
 }
