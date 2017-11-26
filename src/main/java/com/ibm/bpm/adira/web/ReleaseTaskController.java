@@ -33,6 +33,7 @@ import org.springframework.web.client.RestTemplate;
 import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.ReleaseTaskRequestBean;
 import com.ibm.bpm.adira.domain.ReleaseTaskResponseBean;
+import com.ibm.bpm.adira.domain.ReleaseTaskResponseToAcction;
 import com.ibm.bpm.adira.service.ProcessService;
 import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
@@ -83,18 +84,20 @@ public class ReleaseTaskController {
 		
 		RestTemplate restTemplate = getRestTemplate();
 		String response = restTemplate.postForObject(walletBalanceUrl, entity, String.class);
+		Gson json = new Gson();
 		
 		String responseToAcction = "";
 		
 		if(response == null || response.isEmpty()) {
 			ReleaseTaskResponseBean responseReleaseSucessBPM = new ReleaseTaskResponseBean();
 			responseReleaseSucessBPM.setStatus("200");
+		
+			ReleaseTaskResponseToAcction beanAcction = new ReleaseTaskResponseToAcction();
+			beanAcction.setOrderID(orderId);
+			beanAcction.setTaskID(taskId);
+			beanAcction.setStatus(responseReleaseSucessBPM.getStatus());
 			
-			 responseToAcction = ""+ 
-					"{\"orderID\":\"" +orderId+ "\","+
-	        		"\"taskID\":"+taskId+","+
-	        		"\"status\":\"" +responseReleaseSucessBPM.getStatus()+ "\""+
-	        		"}";
+			responseToAcction = json.toJson(beanAcction);
 		}
 		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
 	}

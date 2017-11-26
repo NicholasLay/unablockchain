@@ -32,6 +32,7 @@ import org.springframework.web.client.RestTemplate;
 import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.ClaimTaskRequestBean;
 import com.ibm.bpm.adira.domain.ClaimTaskResponseBean;
+import com.ibm.bpm.adira.domain.ClaimTaskResponseToAcction;
 import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
 @Controller
@@ -80,15 +81,16 @@ public class ClaimTaskController {
 
 		logger.info("-----------RESPONSE JSON BPM ("+timestamp+") = "+response+"-----------");
 		
-		Gson jsonDeserialize = new Gson();
+		Gson json = new Gson();
 		
-		ClaimTaskResponseBean responseBpmClaim = jsonDeserialize.fromJson(response, ClaimTaskResponseBean.class);
+		ClaimTaskResponseBean responseBpmClaim = json.fromJson(response, ClaimTaskResponseBean.class);
 		
-		String responseToAcction = ""+ 
-				"{\"orderID\":\"" +orderId+ "\","+
-        		"\"taskID\":"+taskId+","+
-        		"\"status\":\"" +responseBpmClaim.getStatus()+ "\""+
-        		"}";
+		ClaimTaskResponseToAcction beanAcction = new ClaimTaskResponseToAcction();
+		beanAcction.setOrderID(orderId);
+		beanAcction.setTaskID(taskId);
+		beanAcction.setStatus(responseBpmClaim.getStatus());
+		
+		String responseToAcction = json.toJson(beanAcction);
 		
 		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
 	}

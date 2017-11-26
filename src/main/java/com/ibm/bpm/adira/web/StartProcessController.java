@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.StartProcessRequestBean;
 import com.ibm.bpm.adira.domain.StartProcessResponseBean;
+import com.ibm.bpm.adira.domain.StartProcessResponseToAcction;
 import com.ibm.bpm.adira.domain.StartProcessResponseBean.Tasks;
 import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
@@ -51,27 +52,28 @@ public class StartProcessController
 		String orderId	= startProcess.getOrderID();
 		int processId	= startProcess.getProcessID();
 		int brmsScoring	= startProcess.getBrmsScoring();
-		int taskId 		= startProcess.getTaskID();
-		Boolean mayor 	= startProcess.getMayor();
+//		int taskId 		= startProcess.getTaskID();
+		Boolean mayor 	= startProcess.getIsMayor();
 		
+		logger.info(
+				"From acction: Order ID "+orderId+
+				"Process ID "+processId+
+//				"Task ID "+taskId+
+				"BRMS "+brmsScoring+
+				"Mayor "+mayor
+				);
+
 		//Response BPM Initialize
 		StartProcessResponseBean startProcessResp = new StartProcessResponseBean();
-		
 		String assignedToType 		= "";
 		String displayName			= "";
 		String dueTime				= "";
 		String processInstanceName	= "";
 		int tkiid					= 0;
+	
+		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/process?action=start&bpdId=25.9a0484ab-9ece-44e0-8cc2-e086172e2cc1&snapshotId=2064.d076a2fc-c35f-4f99-8e08-9e22f1f989fa&processAppId=2066.c464e5f1-3399-406f-a208-eddaad75b871&parts=all";
 		
-		logger.info(
-				"From acction: Order ID "+orderId+
-				"Process ID "+processId+
-				"Task ID "+taskId+
-				"BRMS "+brmsScoring+
-				"Mayor "+mayor
-				);
-
-		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/process?action=start&bpdId=25.9a0484ab-9ece-44e0-8cc2-e086172e2cc1&snapshotId=2064.a2df1324-d433-4018-954d-553dde8f64fd&parts=all";
+		logger.info("-----------URL : "+walletBalanceUrl+"---------------");
 		
 		logger.info("-----------ENTERING AUTHORIZATION-----------");
 		
@@ -83,16 +85,13 @@ public class StartProcessController
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add("Authorization", "Basic " + base64Creds);
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
+		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
 		
 		logger.info("\"-----------PROCESSING AUTHORIZATION-----------\"");
 
 		RestTemplate restTemplate = getRestTemplate();
-		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
-		
 		String response = restTemplate.postForObject(walletBalanceUrl, entity, String.class);
-		
 		String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()); 
-		
 		
 		logger.info("-----------RESPONSE JSON BPM ("+timestamp+") = "+response+"-----------");
 		
@@ -107,17 +106,17 @@ public class StartProcessController
 			dueTime		 		= responseTask.getDueTime();
 			}
 
-		String responseToAcction = "{"+ 
-				"\"orderID\"			 :\""+orderId+"\","+
-        		"\"processID\"			 :"+processId+","+
-        		"\"processInstanceName\" :\""+processInstanceName+"\","+
-        		"\"displayName\"		 :\""+displayName+"\","+
-        		"\"taskID\"				 :"+tkiid+","+
-        		"\"assignedToType\"		 :\""+assignedToType+ "\","+
-				"\"assignTo\"			 :\"IDE\","+
-				"\"startTime\"			 :\""+dueTime+"\","+
-				"\"dueTime\"			 :\""+dueTime+"\""+
-        	"}";
+		StartProcessResponseToAcction beanAcction = new StartProcessResponseToAcction();
+		beanAcction.setProcessInstanceName(processInstanceName);
+		beanAcction.setDisplayName(displayName);
+		beanAcction.setTaskID(tkiid);
+		beanAcction.setAssignedToType(assignedToType);
+		beanAcction.setStartTime(dueTime);
+		beanAcction.setDueTime(dueTime);
+		beanAcction.setOrderID(orderId);
+		beanAcction.setProcessID(processId);
+	
+		String responseToAcction = json.toJson(beanAcction);
 		
 		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
 	}
@@ -139,9 +138,6 @@ public class StartProcessController
 	}
 	
 }
-
-
-
 //String inner = "";	
 //try{
 //	inner = new ObjectMapper().writeValueAsString(result.get("data"));

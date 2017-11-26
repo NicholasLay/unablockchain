@@ -42,9 +42,11 @@ private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.
 				"Mayor ="+mayor;
 		
 		logger.info(logTracker);
-		processService.process("CompleteTask",orderId,processId,taskId);
-		return new ResponseEntity("{\"status\": \"Success\"}", new HttpHeaders(),HttpStatus.OK);
+		
+		//Call Async CallBack Process
+		String processServiceName = "CompleteTask";
+		processService.process(processServiceName,orderId,processId,taskId);
+		
+		return new ResponseEntity("{\"status\": \"Complete Task Success\"}", new HttpHeaders(),HttpStatus.OK);
 	}
-	
-	
 }
