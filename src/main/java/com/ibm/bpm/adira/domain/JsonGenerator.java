@@ -16,8 +16,8 @@ public class JsonGenerator {
 		
 		spro.setOrderID("1231231231");
 		spro.setProcessID(12318293);
-		spro.setTaskID(1982391823);
-		spro.setMayor(true);
+		//spro.setTaskID(1982391823);
+		//spro.setMayor(true);
 		spro.setBrmsScoring(1);
 		
 		System.out.println(json.toJson(spro));
