@@ -41,6 +41,8 @@ import com.ibm.bpm.adira.domain.StartProcessResponseToAcction;
 import com.ibm.bpm.adira.domain.StartProcessResponseBean.Tasks;
 import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
+import scala.annotation.meta.param;
+
 @Controller
 public class StartProcessController 
 {
@@ -71,7 +73,13 @@ public class StartProcessController
 		String processInstanceName	= "";
 		int tkiid					= 0;
 		
-		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/process?action=start&bpdId=25.9a0484ab-9ece-44e0-8cc2-e086172e2cc1&snapshotId=2064.d076a2fc-c35f-4f99-8e08-9e22f1f989fa&processAppId=2066.c464e5f1-3399-406f-a208-eddaad75b871&parts=all";
+		Gson jsonRequest = new Gson();
+		String jsonStartRequestAcction = jsonRequest.toJson(startProcess);
+		
+		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/process?action=start&"
+				+ "bpdId=25.9a0484ab-9ece-44e0-8cc2-e086172e2cc1&"
+				+ "snapshotId=2064.d076a2fc-c35f-4f99-8e08-9e22f1f989fa&"
+				+ "processAppId=2066.c464e5f1-3399-406f-a208-eddaad75b871&params={jsonStartRequestAcction}&parts=all";
 		
 		logger.info("-----------URL : "+walletBalanceUrl+"---------------");
 		
@@ -90,7 +98,7 @@ public class StartProcessController
 		logger.info("\"-----------PROCESSING AUTHORIZATION-----------\"");
 
 		RestTemplate restTemplate = getRestTemplate();
-		String response = restTemplate.postForObject(walletBalanceUrl, entity, String.class);
+		String response = restTemplate.postForObject(walletBalanceUrl, entity, String.class, jsonStartRequestAcction);
 		String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()); 
 		
 		logger.info("-----------RESPONSE JSON BPM ("+timestamp+") = "+response+"-----------");
