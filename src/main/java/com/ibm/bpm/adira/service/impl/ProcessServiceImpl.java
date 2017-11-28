@@ -27,6 +27,7 @@ import org.springframework.web.client.RestTemplate;
 import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.AcctionCallBackRequestBean;
 import com.ibm.bpm.adira.domain.BasicAuthRestTemplate;
+import com.ibm.bpm.adira.domain.CompleteTaskResponseBean;
 import com.ibm.bpm.adira.service.ProcessService;
 
 @Service
@@ -44,7 +45,7 @@ public class ProcessServiceImpl implements ProcessService {
         if (service.equals("CompleteTask"))
         {
         	try {
-				completeTaskProcess(taskID);
+				completeTaskProcess(orderID, processID, taskID);
 			} catch (KeyManagementException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -56,26 +57,27 @@ public class ProcessServiceImpl implements ProcessService {
 				e.printStackTrace();
 			}
         }
-        callBackToAcction(orderID, processID, taskID);
+//        callBackToAcction(orderID, processID, taskID);
     }
     
-    public void callBackToAcction(String orderID,int processID, int taskID)
+    public void callBackToAcction(String orderID,int processID, int taskID, String displayName , String assignToType)
     {
     	RestTemplate restTemplate = new RestTemplate();
-    	String acctionUrl = "http://10.61.5.247:9091/adira-acction/acction/service/bpm/callback";
-    	Gson json = new Gson();
     	
-    	String status = "onprogress";
-    	String displayName = "sa";
-    	String assignToType = "sa";
+    	String linkURL = "http://10.61.5.247:7727";
+    	String acctionUrl = ""+linkURL+"/adira-acction/acction/v1/service/bpm/callback/complete";
+    	
+    	Gson json = new Gson();
+    	//let it always empty
+    	String status = "";
     	
     	AcctionCallBackRequestBean acctionBean = new AcctionCallBackRequestBean();
-    	acctionBean.setOrderID(orderID);
-    	acctionBean.setProcessID(processID);
-    	acctionBean.setTaskID(taskID);
-    	acctionBean.setStatus(status);
-    	acctionBean.setDisplayName(displayName);
-    	acctionBean.setAssignToType(assignToType);
+//    	acctionBean.setOrderID(orderID);
+//    	acctionBean.setProcessID(processID);
+//    	acctionBean.setTaskID(taskID);
+//    	acctionBean.setStatus(status);
+//    	acctionBean.setDisplayName(displayName);
+//    	acctionBean.setAssignToType(assignToType);
     	
     	String acctionCallbackRequest = json.toJson(acctionBean);
     	
@@ -91,7 +93,7 @@ public class ProcessServiceImpl implements ProcessService {
     	logger.info("Process Service Impl : Response Callback from acction"+ answer);
     }
     
-    public void completeTaskProcess(int taskID) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException
+    public void completeTaskProcess(String orderID,int processID, int taskID) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException
     {
     	String completeTaskURL = "https://10.81.3.38:9443/rest/bpm/wle/v1/task/"+taskID+"?action=finish&parts=all";
     	logger.info("Process Service Impl:"+completeTaskURL);
@@ -101,7 +103,7 @@ public class ProcessServiceImpl implements ProcessService {
 		byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
 		String base64Creds = new String(base64CredsBytes);
-	
+	 
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add("Authorization", "Basic " + base64Creds);
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
@@ -112,6 +114,17 @@ public class ProcessServiceImpl implements ProcessService {
 
 		String response = restTemplate.postForObject(completeTaskURL, entity, String.class);
 		logger.info("Process Service Impl: Response from BPM "+ response);
+		
+		Gson json = new Gson();
+		CompleteTaskResponseBean completeBeanResponse = json.fromJson(response, CompleteTaskResponseBean.class);
+		String displayName = completeBeanResponse.getData().getDisplayName();
+		String assignedToType = completeBeanResponse.getData().getAssignToType();
+		
+		logger.info("------COMPLETE TASK SUCCEED , NOW PROCESSING CALLBACK-----");
+		
+		callBackToAcction(orderID, processID,taskID,displayName,assignedToType);
+		
+		
     }
     
     public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
