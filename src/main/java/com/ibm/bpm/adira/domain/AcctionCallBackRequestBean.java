@@ -1,48 +1,96 @@
 package com.ibm.bpm.adira.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AcctionCallBackRequestBean {
-	private String orderID;
-	private int processID;
-	private int taskID;
-	private String status;
-	private String displayName;
-	private String assignToType;
 	
-	public String getOrderID() {
-		return orderID;
+	public CurrentTask currentTask;
+	public List<TasksAcction> tasks;
+
+	
+	public CurrentTask getCurrentTask() {
+		return currentTask;
 	}
-	public void setOrderID(String orderID) {
-		this.orderID = orderID;
+	
+	public void setCurrentTask(CurrentTask currentTask) {
+		this.currentTask = currentTask;
 	}
-	public int getProcessID() {
-		return processID;
+	public List<TasksAcction> getTasks() {
+		return tasks;
 	}
-	public void setProcessID(int processID) {
-		this.processID = processID;
+
+	public void setTasks(List<TasksAcction> tasks) {
+		this.tasks = tasks;
 	}
-	public int getTaskID() {
-		return taskID;
+	
+public class CurrentTask{
+		public String orderID;
+		public int processID;
+		public int taskID;
+		
+		public CurrentTask(String oId, int proId, int taskId) {
+			this.orderID = oId;
+			this.processID = proId;
+			this.taskID = taskId;
+		}
+		
+		public String getOrderID() {
+			return orderID;
+		}
+		public void setOrderID(String orderID) {
+			this.orderID = orderID;
+		}
+		public int getProcessID() {
+			return processID;
+		}
+		public void setProcessID(int processID) {
+			this.processID = processID;
+		}
+		public int getTaskID() {
+			return taskID;
+		}
+		public void setTaskID(int taskID) {
+			this.taskID = taskID;
+		}
 	}
-	public void setTaskID(int taskID) {
-		this.taskID = taskID;
-	}
-	public String getStatus() {
-		return status;
-	}
-	public void setStatus(String status) {
-		this.status = status;
-	}
-	public String getDisplayName() {
-		return displayName;
-	}
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
-	public String getAssignToType() {
-		return assignToType;
-	}
-	public void setAssignToType(String assignToType) {
-		this.assignToType = assignToType;
+
+public class TasksAcction{
+		 
+		private String orderID;
+		private int processID;
+		private int taskID;
+		private String status;
+	
+		public TasksAcction(String string, int i, int j, String string2) {
+			// TODO Auto-generated constructor stub
+		}
+		
+		public String getOrderID() {
+			return orderID;
+		}
+		public void setOrderID(String orderID) {
+			this.orderID = orderID;
+		}
+		public int getProcessID() {
+			return processID;
+		}
+		public void setProcessID(int processID) {
+			this.processID = processID;
+		}
+		public int getTaskID() {
+			return taskID;
+		}
+		public void setTaskID(int taskID) {
+			this.taskID = taskID;
+		}
+		public String getStatus() {
+			return status;
+		}
+		public void setStatus(String status) {
+			this.status = status;
+		}
+		
 	}
 	
 	

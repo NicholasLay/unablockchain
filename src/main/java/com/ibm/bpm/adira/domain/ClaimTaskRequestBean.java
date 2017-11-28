@@ -7,7 +7,7 @@ public class ClaimTaskRequestBean {
 	public int taskID;
 	public Boolean mayor;
 	public int brmsScoring;
-	
+	public String userClaim;
 	
 	public ClaimTaskRequestBean()
 	{
@@ -27,6 +27,14 @@ public class ClaimTaskRequestBean {
 		this.brmsScoring = brmsScoring;
 	}
 
+	
+	public String getUserClaim() {
+		return userClaim;
+	}
+
+	public void setUserClaim(String userClaim) {
+		this.userClaim = userClaim;
+	}
 	
 	public String getOrderID() {
 		return orderID;

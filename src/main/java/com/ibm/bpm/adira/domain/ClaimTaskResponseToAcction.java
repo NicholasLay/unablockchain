@@ -5,7 +5,15 @@ public class ClaimTaskResponseToAcction {
 	String orderID;
 	int taskID;
 	String status;
+	String userClaim;
 	
+	
+	public String getUserClaim() {
+		return userClaim;
+	}
+	public void setUserClaim(String userClaim) {
+		this.userClaim = userClaim;
+	}
 	public String getOrderID() {
 		return orderID;
 	}

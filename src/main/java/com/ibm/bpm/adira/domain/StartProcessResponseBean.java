@@ -38,11 +38,9 @@ public class DataDetail{
 		public void setTasks(List<Tasks> tasks) {
 			this.tasks = tasks;
 		}
-		
-		
 	}
 	
-	public class Tasks{
+public class Tasks{
 		
 		private String displayName;
 		private String processInstanceName;
@@ -81,6 +79,4 @@ public class DataDetail{
 			this.dueTime = dueTime;
 		}
 	}
-	
-	
 }
