@@ -42,11 +42,12 @@ public class ClaimTaskController {
 	@RequestMapping(value="/claimTask", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> login(@RequestBody ClaimTaskRequestBean claimtaskReq) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException
 	{
-		String orderId	= claimtaskReq.getOrderID();
-		int processId	= claimtaskReq.getProcessID();
-		int brmsScoring	= claimtaskReq.getBrmsScoring();
-		int taskId 		= claimtaskReq.getTaskID();
-		Boolean mayor 	= claimtaskReq.getMayor();
+		String orderId	 = claimtaskReq.getOrderID();
+		int processId	 = claimtaskReq.getProcessID();
+		int brmsScoring	 = claimtaskReq.getBrmsScoring();
+		int taskId 		 = claimtaskReq.getTaskID();
+		Boolean mayor 	 = claimtaskReq.getMayor();
+		String userClaim = claimtaskReq.getUserClaim();
 		
 		logger.info("From acction: "+ 
 				"Order ID "+orderId+
@@ -85,12 +86,13 @@ public class ClaimTaskController {
 		
 		ClaimTaskResponseBean responseBpmClaim = json.fromJson(response, ClaimTaskResponseBean.class);
 		
-		ClaimTaskResponseToAcction beanAcction = new ClaimTaskResponseToAcction();
-		beanAcction.setOrderID(orderId);
-		beanAcction.setTaskID(taskId);
-		beanAcction.setStatus(responseBpmClaim.getStatus());
+		ClaimTaskResponseToAcction beanAcctionClaim = new ClaimTaskResponseToAcction();
+		beanAcctionClaim.setOrderID(orderId);
+		beanAcctionClaim.setTaskID(taskId);
+		beanAcctionClaim.setStatus(responseBpmClaim.getStatus());
+		beanAcctionClaim.setUserClaim(userClaim);
 		
-		String responseToAcction = json.toJson(beanAcction);
+		String responseToAcction = json.toJson(beanAcctionClaim);
 		
 		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
 	}
