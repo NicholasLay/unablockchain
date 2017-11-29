@@ -11,6 +11,7 @@ com\ibm\bpm\adira\web\ReleaseTaskController$1.class
 com\ibm\bpm\adira\domain\ReleaseTaskResponseBean.class
 com\ibm\bpm\adira\domain\StartProcessResponseToAcction.class
 com\ibm\bpm\adira\domain\StartProcessResponseBean$Tasks.class
+com\ibm\bpm\adira\service\Ad1Service.class
 com\ibm\bpm\adira\domain\Ad1AuthRequest.class
 com\ibm\bpm\adira\domain\AcctionCallBackRequestBean$TasksAcction.class
 com\ibm\bpm\adira\domain\GoToCorrectionRequest.class
@@ -20,7 +21,7 @@ com\ibm\bpm\adira\web\CompleteTaskController.class
 com\ibm\bpm\adira\domain\BackToIDEResponseBean.class
 com\ibm\bpm\adira\domain\ClaimTaskRequestBean.class
 com\ibm\bpm\adira\web\StartProcessController.class
-com\ibm\bpm\adira\config\SpringSecurityConfig.class
+com\ibm\bpm\adira\service\impl\Ad1ServiceImpl.class
 com\ibm\bpm\adira\domain\BasicAuthInterceptor.class
 com\ibm\bpm\adira\domain\BasicAuthRestTemplate.class
 com\ibm\bpm\adira\domain\CompleteTaskResponseBean$Data.class
@@ -49,4 +50,3 @@ com\ibm\bpm\adira\web\GreetingController.class
 com\ibm\bpm\adira\domain\StartProcessRequestBean.class
 com\ibm\bpm\adira\web\CallRejectController.class
 com\ibm\bpm\adira\domain\JsonGenerator.class
-com\ibm\bpm\adira\web\LoginController$1.class

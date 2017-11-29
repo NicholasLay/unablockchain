@@ -5,9 +5,10 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import javax.net.ssl.SSLContext;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -23,11 +24,12 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.AcctionCallBackRequestBean;
+import com.ibm.bpm.adira.domain.AcctionCallBackRequestBean.CurrentTask;
 import com.ibm.bpm.adira.domain.BasicAuthRestTemplate;
 import com.ibm.bpm.adira.domain.CompleteTaskResponseBean;
+import com.ibm.bpm.adira.domain.CompleteTaskResponseBean.NexTaskId;
 import com.ibm.bpm.adira.service.ProcessService;
 
 @Service
@@ -60,7 +62,7 @@ public class ProcessServiceImpl implements ProcessService {
 //        callBackToAcction(orderID, processID, taskID);
     }
     
-    public void callBackToAcction(String orderID,int processID, int taskID, String displayName , String assignToType)
+    public void callBackToAcction(String orderID,int processID, int taskID, List<NexTaskId>nextTaskId)
     {
     	RestTemplate restTemplate = new RestTemplate();
     	
@@ -72,13 +74,15 @@ public class ProcessServiceImpl implements ProcessService {
     	String status = "";
     	
     	AcctionCallBackRequestBean acctionBean = new AcctionCallBackRequestBean();
-//    	acctionBean.setOrderID(orderID);
-//    	acctionBean.setProcessID(processID);
-//    	acctionBean.setTaskID(taskID);
-//    	acctionBean.setStatus(status);
-//    	acctionBean.setDisplayName(displayName);
-//    	acctionBean.setAssignToType(assignToType);
     	
+    	AcctionCallBackRequestBean.CurrentTask currentTaskRequest = acctionBean.new CurrentTask();
+    	currentTaskRequest.setOrderID(orderID);
+    	currentTaskRequest.setProcessID(processID);
+    	currentTaskRequest.setTaskID(taskID);
+
+    	acctionBean.setCurrentTask(currentTaskRequest);
+    	acctionBean.setTasks(nextTaskId);
+   
     	String acctionCallbackRequest = json.toJson(acctionBean);
     	
     	logger.info("Process Service Impl: acction URL"+ acctionUrl);
@@ -93,7 +97,8 @@ public class ProcessServiceImpl implements ProcessService {
     	logger.info("Process Service Impl : Response Callback from acction"+ answer);
     }
     
-    public void completeTaskProcess(String orderID,int processID, int taskID) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException
+    @SuppressWarnings({ "unchecked", "null" })
+	public void completeTaskProcess(String orderID,int processID, int taskID) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException
     {
     	String completeTaskURL = "https://10.81.3.38:9443/rest/bpm/wle/v1/task/"+taskID+"?action=finish&parts=all";
     	logger.info("Process Service Impl:"+completeTaskURL);
@@ -117,14 +122,23 @@ public class ProcessServiceImpl implements ProcessService {
 		
 		Gson json = new Gson();
 		CompleteTaskResponseBean completeBeanResponse = json.fromJson(response, CompleteTaskResponseBean.class);
-		String displayName = completeBeanResponse.getData().getDisplayName();
-		String assignedToType = completeBeanResponse.getData().getAssignToType();
+		
+		
+		List<NexTaskId> tasksRequestAcction = null;
+		
+		if(completeBeanResponse.getData().getNextTaskId().isEmpty()  ||
+		   completeBeanResponse.getData().getNextTaskId().size() == 0||
+		   completeBeanResponse.getData().getNextTaskId() == null) {
+		
+			tasksRequestAcction = completeBeanResponse.getData().getNextTaskId();
+		
+		}else {
+			
+		}
 		
 		logger.info("------COMPLETE TASK SUCCEED , NOW PROCESSING CALLBACK-----");
 		
-		callBackToAcction(orderID, processID,taskID,displayName,assignedToType);
-		
-		
+		callBackToAcction(orderID, processID,taskID,tasksRequestAcction);
     }
     
     public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
