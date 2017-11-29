@@ -24,14 +24,8 @@ public class StartProcessResponseBean {
 
 public class DataDetail{
 		
-		private String name;
 		private List<Tasks> tasks;
 		
-		public String getName() {
-			return name;
-		}
-		public void setName(String name) {
-		}
 		public List<Tasks> getTasks() {
 			return tasks;
 		}
@@ -47,7 +41,14 @@ public class Tasks{
 		private int tkiid;
 		private String assignedToType;
 		private String dueTime;
-	
+		private String name;
+		
+		public String getName() {
+			return name;
+		}
+		public void setName(String name) {
+			this.name = name;
+		}
 		public String getDisplayName() {
 			return displayName;
 		}
