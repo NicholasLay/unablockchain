@@ -85,6 +85,8 @@ public class ProcessServiceImpl implements ProcessService {
    
     	String acctionCallbackRequest = json.toJson(acctionBean);
     	
+    	logger.error("TEST");
+    	
     	logger.info("Process Service Impl: acction URL"+ acctionUrl);
     	logger.info("Process Service Impl: acction Callback Request"+ acctionCallbackRequest);
     	
