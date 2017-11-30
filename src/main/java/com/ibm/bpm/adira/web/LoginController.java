@@ -6,7 +6,6 @@ import java.util.Base64;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,12 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.client.RestTemplate;
-
 import com.google.gson.Gson;
-import com.ibm.bpm.adira.domain.Ad1AuthRequest;
 import com.ibm.bpm.adira.domain.StartProcessRequestBean;
-import com.ibm.bpm.adira.domain.StartProcessResponseBean;
 import com.ibm.bpm.adira.domain.StartProcessResponseToAcction;
 import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
 
@@ -37,6 +32,7 @@ public class LoginController
 	public ResponseEntity<?> authenticate(@RequestHeader("Authorization") String basicAuth,
 			@RequestBody StartProcessRequestBean startProcessRequest)
 	{
+		logger.error("TEST2");
 		Gson jsonParser = new Gson();
 		StartProcessResponseToAcction startProcessResponse = new StartProcessResponseToAcction();
 		String sendToAcction= "";

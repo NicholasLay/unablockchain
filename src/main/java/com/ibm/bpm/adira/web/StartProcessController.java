@@ -1,14 +1,13 @@
 package com.ibm.bpm.adira.web;
 
+import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
-
 import javax.net.ssl.SSLContext;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -28,6 +27,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
@@ -39,6 +39,7 @@ import com.ibm.bpm.adira.domain.StartProcessRequestBean;
 import com.ibm.bpm.adira.domain.StartProcessResponseBean;
 import com.ibm.bpm.adira.domain.StartProcessResponseToAcction;
 import com.ibm.bpm.adira.domain.StartProcessResponseBean.Tasks;
+import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
 import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
 import scala.annotation.meta.param;
@@ -47,10 +48,15 @@ import scala.annotation.meta.param;
 public class StartProcessController 
 {
 	private static final Logger logger = LoggerFactory.getLogger(StartProcessController.class);
-	
+	private static final String OK_MESSAGE 	  = "OK";
+	private static final String EMPTY_STRING  = "";
+	private static final int 	EMPTY_INTEGER = 0;
+
 	@RequestMapping(value="/startProcessIDE", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> login(@RequestBody StartProcessRequestBean startProcess) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, JsonProcessingException
+	public ResponseEntity<?> authenticate(@RequestHeader("Authorization") String basicAuth,
+			@RequestBody StartProcessRequestBean startProcess) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, JsonProcessingException
 	{
+		
 		String orderId	= startProcess.getOrderID();
 		int processId	= startProcess.getProcessID();
 		int brmsScoring	= startProcess.getBrmsScoring();
@@ -65,6 +71,8 @@ public class StartProcessController
 				"Mayor "+mayor
 				);
 
+		
+	
 		//Response BPM Initialize
 		StartProcessResponseBean startProcessResp = new StartProcessResponseBean();
 		String assignedToType 		= "";
@@ -89,7 +97,7 @@ public class StartProcessController
 		
 		logger.info("-----------URL : "+walletBalanceUrl+"---------------");
 		
-		logger.info("-----------ENTERING AUTHORIZATION-----------");
+		logger.info("-----------ENTERING AUTHORIZATION IBM BPM-----------");
 		
 		String plainCreds = "acction:ADira2017";
 		byte[] plainCredsBytes = plainCreds.getBytes();
@@ -101,16 +109,17 @@ public class StartProcessController
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
 		
-		logger.info("\"-----------PROCESSING AUTHORIZATION-----------\"");
+		logger.info("\"-----------PROCESSING AUTHORIZATION IBM BPM-----------\"");
 
 		RestTemplate restTemplate = getRestTemplate();
-		String response = restTemplate.postForObject(walletBalanceUrl, entity, String.class, jsonStartRequestAcction);
+		String responseFromBPM = restTemplate.postForObject(walletBalanceUrl, entity, String.class, jsonStartRequestAcction);
 		String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()); 
 		
-		logger.info("-----------RESPONSE JSON BPM ("+timestamp+") = "+response+"-----------");
+		logger.info("-----------RESPONSE JSON BPM ("+timestamp+") = "+responseFromBPM+"-----------");
 		
 		Gson json = new Gson();
-		StartProcessResponseBean responseBeanBPM = json.fromJson(response, StartProcessResponseBean.class);
+		
+		StartProcessResponseBean responseBeanBPM = json.fromJson(responseFromBPM, StartProcessResponseBean.class);
 
 		for(Tasks responseTask : responseBeanBPM.getData().getTasks()) {
 			processInstanceName = responseTask.getProcessInstanceName();
@@ -122,19 +131,73 @@ public class StartProcessController
 			}
 
 		StartProcessResponseToAcction beanAcction = new StartProcessResponseToAcction();
-		beanAcction.setProcessInstanceName(processInstanceName);
-		beanAcction.setDisplayName(displayName);
-		beanAcction.setTaskID(tkiid);
-		beanAcction.setAssignTo(assignTo);
-		beanAcction.setAssignedToType(assignedToType);
-		beanAcction.setStartTime(dueTime);
-		beanAcction.setDueTime(dueTime);
-		beanAcction.setOrderID(orderId);
-		beanAcction.setProcessID(processId);
-	
-		String responseToAcction = json.toJson(beanAcction);
+		String responseToAcction = "";
 		
-		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
+		if (basicAuth.startsWith("Basic"))
+		{
+			String base64Credentials = basicAuth.substring("Basic".length()).trim();
+			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
+			String[] values = credentials.split(":",2);
+			
+			logger.info("USERNAME "+values[0]);
+			logger.info("PASSWORD "+values[1]);
+			
+			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
+			String responseAd1Gate = ad1ServiceImpl.authResponse(values[0], values[1]);
+			logger.info("--------RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
+			
+			if (responseAd1Gate.equals(OK_MESSAGE))
+			{	
+				
+				logger.info("-----------SUCESS ENTERING RESPONSE -----------");
+				beanAcction.setProcessInstanceName(processInstanceName);
+				beanAcction.setDisplayName(displayName);
+				beanAcction.setTaskID(tkiid);
+				beanAcction.setAssignTo(assignTo);
+				beanAcction.setAssignedToType(assignedToType);
+				beanAcction.setStartTime(dueTime);
+				beanAcction.setDueTime(dueTime);
+				beanAcction.setOrderID(orderId);
+				beanAcction.setProcessID(processId);
+				
+				responseToAcction = json.toJson(beanAcction);
+				
+				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
+			}
+			else
+			{
+				logger.info("-----------NOT OK RESPONSE -----------");
+				beanAcction.setOrderID(EMPTY_STRING);
+				beanAcction.setProcessID(EMPTY_INTEGER);
+				beanAcction.setProcessInstanceName(EMPTY_STRING);;
+				beanAcction.setDisplayName(EMPTY_STRING);
+				beanAcction.setTaskID(EMPTY_INTEGER);
+				beanAcction.setAssignedToType(EMPTY_STRING);
+				beanAcction.setAssignTo(EMPTY_STRING);
+				beanAcction.setStartTime(EMPTY_STRING);
+				beanAcction.setDueTime(EMPTY_STRING);
+				
+				responseToAcction = json.toJson(beanAcction);
+				
+				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
+			}
+
+		}
+
+		logger.info("-----------NOT BASIC AUTHORIZATION -----------");
+		beanAcction.setOrderID(EMPTY_STRING);
+		beanAcction.setProcessID(EMPTY_INTEGER);
+		beanAcction.setProcessInstanceName(EMPTY_STRING);
+		beanAcction.setDisplayName(EMPTY_STRING);
+		beanAcction.setTaskID(EMPTY_INTEGER);
+		beanAcction.setAssignedToType(EMPTY_STRING);
+		beanAcction.setAssignTo(EMPTY_STRING);
+		beanAcction.setStartTime(EMPTY_STRING);
+		beanAcction.setDueTime(EMPTY_STRING);
+		
+		responseToAcction = json.toJson(beanAcction);
+		
+		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	}
 	
 	public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
