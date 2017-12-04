@@ -35,6 +35,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.ibm.bpm.adira.domain.GlobalString;
 import com.ibm.bpm.adira.domain.StartProcessRequestBean;
 import com.ibm.bpm.adira.domain.StartProcessResponseBean;
 import com.ibm.bpm.adira.domain.StartProcessResponseToAcction;
@@ -42,16 +43,11 @@ import com.ibm.bpm.adira.domain.StartProcessResponseBean.Tasks;
 import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
 import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
-import scala.annotation.meta.param;
 
 @Controller
 public class StartProcessController 
 {
 	private static final Logger logger = LoggerFactory.getLogger(StartProcessController.class);
-	private static final String OK_MESSAGE 	  = "OK";
-	private static final String EMPTY_STRING  = "";
-	private static final int 	EMPTY_INTEGER = 0;
-
 	@RequestMapping(value="/startProcessIDE", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> authenticate(@RequestHeader("Authorization") String basicAuth,
 			@RequestBody StartProcessRequestBean startProcess) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, JsonProcessingException
@@ -60,7 +56,8 @@ public class StartProcessController
 		String orderId	= startProcess.getOrderID();
 		int processId	= startProcess.getProcessID();
 		int brmsScoring	= startProcess.getBrmsScoring();
-//		int taskId 		= startProcess.getTaskID();
+		Boolean isSignPK= startProcess.getIsSignPK();
+		Boolean isTele  = startProcess.getIsTele();
 		Boolean mayor 	= startProcess.getIsMayor();
 		
 		logger.info(
@@ -87,7 +84,7 @@ public class StartProcessController
 		String jsonStartRequestAcction = jsonRequest.toJson(startProcess);
 		
 		String bpdId = "25.9a0484ab-9ece-44e0-8cc2-e086172e2cc1";
-		String snapshotId = "2064.70426a2d-7f15-4404-a1ea-9689b20f79c9";
+		String snapshotId = "2064.3ad64892-ee78-4902-a945-ca807ef0225e";
 		String processAppId = "2066.c464e5f1-3399-406f-a208-eddaad75b871";
 		
 		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/process?action=start&"
@@ -146,9 +143,9 @@ public class StartProcessController
 			String responseAd1Gate = ad1ServiceImpl.authResponse(values[0], values[1]);
 			logger.info("--------RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
 			
-			if (responseAd1Gate.equals(OK_MESSAGE))
+			
+			if (responseAd1Gate.equals(GlobalString.OK_MESSAGE))
 			{	
-				
 				logger.info("-----------SUCESS ENTERING RESPONSE -----------");
 				beanAcction.setProcessInstanceName(processInstanceName);
 				beanAcction.setDisplayName(displayName);
@@ -167,15 +164,15 @@ public class StartProcessController
 			else
 			{
 				logger.info("-----------NOT OK RESPONSE -----------");
-				beanAcction.setOrderID(EMPTY_STRING);
-				beanAcction.setProcessID(EMPTY_INTEGER);
-				beanAcction.setProcessInstanceName(EMPTY_STRING);;
-				beanAcction.setDisplayName(EMPTY_STRING);
-				beanAcction.setTaskID(EMPTY_INTEGER);
-				beanAcction.setAssignedToType(EMPTY_STRING);
-				beanAcction.setAssignTo(EMPTY_STRING);
-				beanAcction.setStartTime(EMPTY_STRING);
-				beanAcction.setDueTime(EMPTY_STRING);
+				beanAcction.setOrderID(GlobalString.EMPTY_STRING);
+				beanAcction.setProcessID(GlobalString.EMPTY_INTEGER);
+				beanAcction.setProcessInstanceName(GlobalString.EMPTY_STRING);;
+				beanAcction.setDisplayName(GlobalString.EMPTY_STRING);
+				beanAcction.setTaskID(GlobalString.EMPTY_INTEGER);
+				beanAcction.setAssignedToType(GlobalString.EMPTY_STRING);
+				beanAcction.setAssignTo(GlobalString.EMPTY_STRING);
+				beanAcction.setStartTime(GlobalString.EMPTY_STRING);
+				beanAcction.setDueTime(GlobalString.EMPTY_STRING);
 				
 				responseToAcction = json.toJson(beanAcction);
 				
@@ -185,15 +182,15 @@ public class StartProcessController
 		}
 
 		logger.info("-----------NOT BASIC AUTHORIZATION -----------");
-		beanAcction.setOrderID(EMPTY_STRING);
-		beanAcction.setProcessID(EMPTY_INTEGER);
-		beanAcction.setProcessInstanceName(EMPTY_STRING);
-		beanAcction.setDisplayName(EMPTY_STRING);
-		beanAcction.setTaskID(EMPTY_INTEGER);
-		beanAcction.setAssignedToType(EMPTY_STRING);
-		beanAcction.setAssignTo(EMPTY_STRING);
-		beanAcction.setStartTime(EMPTY_STRING);
-		beanAcction.setDueTime(EMPTY_STRING);
+		beanAcction.setOrderID(GlobalString.EMPTY_STRING);
+		beanAcction.setProcessID(GlobalString.EMPTY_INTEGER);
+		beanAcction.setProcessInstanceName(GlobalString.EMPTY_STRING);
+		beanAcction.setDisplayName(GlobalString.EMPTY_STRING);
+		beanAcction.setTaskID(GlobalString.EMPTY_INTEGER);
+		beanAcction.setAssignedToType(GlobalString.EMPTY_STRING);
+		beanAcction.setAssignTo(GlobalString.EMPTY_STRING);
+		beanAcction.setStartTime(GlobalString.EMPTY_STRING);
+		beanAcction.setDueTime(GlobalString.EMPTY_STRING);
 		
 		responseToAcction = json.toJson(beanAcction);
 		

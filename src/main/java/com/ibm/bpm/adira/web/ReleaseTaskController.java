@@ -1,5 +1,6 @@
 package com.ibm.bpm.adira.web;
 
+import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -26,15 +27,20 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
+import com.ibm.bpm.adira.domain.GlobalString;
 import com.ibm.bpm.adira.domain.ReleaseTaskRequestBean;
 import com.ibm.bpm.adira.domain.ReleaseTaskResponseBean;
 import com.ibm.bpm.adira.domain.ReleaseTaskResponseToAcction;
+import com.ibm.bpm.adira.domain.StartProcessRequestBean;
 import com.ibm.bpm.adira.service.ProcessService;
+import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
 import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
 //Async Task
@@ -42,12 +48,15 @@ import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 public class ReleaseTaskController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ReleaseTaskController.class);
+
 	
 	@RequestMapping(value="/releaseTask", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> login(@RequestBody ReleaseTaskRequestBean releaseTask) 
-			throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException
+	public ResponseEntity<?> authenticate(@RequestHeader("Authorization") String basicAuth,
+			@RequestBody ReleaseTaskRequestBean releaseTask) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, JsonProcessingException
+	
 	{
-		
+
+		GlobalString gs = new GlobalString();
 		String orderId 	= releaseTask.getOrderID();
 		int processId 	= releaseTask.getProcessID();
 		int brmsScoring = releaseTask.getBrmsScoring();
@@ -85,21 +94,62 @@ public class ReleaseTaskController {
 		RestTemplate restTemplate = getRestTemplate();
 		String response = restTemplate.postForObject(walletBalanceUrl, entity, String.class);
 		Gson json = new Gson();
-		
+
+		ReleaseTaskResponseToAcction beanAcctionRelease = new ReleaseTaskResponseToAcction();
 		String responseToAcction = "";
-		
-		if(response == null || response.isEmpty()) {
-			ReleaseTaskResponseBean responseReleaseSucessBPM = new ReleaseTaskResponseBean();
-			responseReleaseSucessBPM.setStatus("200");
-		
-			ReleaseTaskResponseToAcction beanAcction = new ReleaseTaskResponseToAcction();
-			beanAcction.setOrderID(orderId);
-			beanAcction.setTaskID(taskId);
-			beanAcction.setStatus(responseReleaseSucessBPM.getStatus());
+	
+		if (basicAuth.startsWith("Basic"))
+		{
+			String base64Credentials = basicAuth.substring("Basic".length()).trim();
+			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
+			String[] values = credentials.split(":",2);
 			
-			responseToAcction = json.toJson(beanAcction);
+			logger.info("USERNAME "+values[0]);
+			logger.info("PASSWORD "+values[1]);
+			
+			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
+			String responseAd1Gate = ad1ServiceImpl.authResponse(values[0], values[1]);
+			logger.info("--------RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
+			
+			if (responseAd1Gate.equals(GlobalString.OK_MESSAGE))
+			{	
+				
+				if(response == null || response.isEmpty()) {
+					ReleaseTaskResponseBean responseReleaseSucessBPM = new ReleaseTaskResponseBean();
+					responseReleaseSucessBPM.setStatus("200");
+				
+					beanAcctionRelease.setOrderID(orderId);
+					beanAcctionRelease.setTaskID(taskId);
+					beanAcctionRelease.setStatus(responseReleaseSucessBPM.getStatus());
+					
+					responseToAcction = json.toJson(beanAcctionRelease);
+				}
+				
+				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
+			}
+			else
+			{
+				logger.info("-----------NOT OK RESPONSE -----------");
+				beanAcctionRelease.setOrderID(GlobalString.EMPTY_STRING);
+				beanAcctionRelease.setTaskID(GlobalString.EMPTY_INTEGER);
+				beanAcctionRelease.setStatus(GlobalString.OK_MESSAGE);
+				
+				responseToAcction = json.toJson(beanAcctionRelease);
+				
+				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
+			}
+
 		}
-		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
+
+		logger.info("-----------NOT BASIC AUTHORIZATION -----------");
+		beanAcctionRelease.setOrderID(GlobalString.EMPTY_STRING);
+		beanAcctionRelease.setTaskID(GlobalString.EMPTY_INTEGER);
+		beanAcctionRelease.setStatus(GlobalString.AUTH_FAILED_AD1);
+		
+		responseToAcction = json.toJson(beanAcctionRelease);
+		
+		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
+	
 	}
 	
 	public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {

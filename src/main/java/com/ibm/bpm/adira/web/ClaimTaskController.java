@@ -1,5 +1,6 @@
 package com.ibm.bpm.adira.web;
 
+import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -25,23 +26,34 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.ClaimTaskRequestBean;
 import com.ibm.bpm.adira.domain.ClaimTaskResponseBean;
 import com.ibm.bpm.adira.domain.ClaimTaskResponseToAcction;
+import com.ibm.bpm.adira.domain.GlobalString;
+import com.ibm.bpm.adira.domain.ReleaseTaskRequestBean;
+import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
 import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
 @Controller
 public class ClaimTaskController {
-	private static final Logger logger = LoggerFactory.getLogger(ClaimTaskController.class);
+	
+	private static final Logger logger = LoggerFactory.getLogger(StartProcessController.class);
 	
 	@RequestMapping(value="/claimTask", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> login(@RequestBody ClaimTaskRequestBean claimtaskReq) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException
+	public ResponseEntity<?> authenticate(@RequestHeader("Authorization") String basicAuth,
+			@RequestBody ClaimTaskRequestBean claimtaskReq) 
+			throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, JsonProcessingException
+	
 	{
+
+		GlobalString gs = new GlobalString();
 		String orderId	 = claimtaskReq.getOrderID();
 		int processId	 = claimtaskReq.getProcessID();
 		int brmsScoring	 = claimtaskReq.getBrmsScoring();
@@ -87,14 +99,59 @@ public class ClaimTaskController {
 		ClaimTaskResponseBean responseBpmClaim = json.fromJson(response, ClaimTaskResponseBean.class);
 		
 		ClaimTaskResponseToAcction beanAcctionClaim = new ClaimTaskResponseToAcction();
-		beanAcctionClaim.setOrderID(orderId);
-		beanAcctionClaim.setTaskID(taskId);
-		beanAcctionClaim.setStatus(responseBpmClaim.getStatus());
-		beanAcctionClaim.setUserClaim(userClaim);
 		
-		String responseToAcction = json.toJson(beanAcctionClaim);
+		String responseToAcction = "";
 		
-		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
+		if (basicAuth.startsWith("Basic"))
+		{
+			String base64Credentials = basicAuth.substring("Basic".length()).trim();
+			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
+			String[] values = credentials.split(":",2);
+			
+			logger.info("USERNAME "+values[0]);
+			logger.info("PASSWORD "+values[1]);
+			
+			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
+			String responseAd1Gate = ad1ServiceImpl.authResponse(values[0], values[1]);
+			logger.info("--------RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
+			
+			
+			if (responseAd1Gate.equals(GlobalString.OK_MESSAGE))
+			{	
+				
+				logger.info("-----------SUCESS ENTERING RESPONSE -----------");
+				beanAcctionClaim.setOrderID(orderId);
+				beanAcctionClaim.setTaskID(taskId);
+				beanAcctionClaim.setStatus(responseBpmClaim.getStatus());
+				beanAcctionClaim.setUserClaim(userClaim);
+				
+				responseToAcction = json.toJson(beanAcctionClaim);
+				
+				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
+			}
+			else
+			{
+				logger.info("-----------NOT OK RESPONSE -----------");
+				beanAcctionClaim.setOrderID(GlobalString.EMPTY_STRING);
+				beanAcctionClaim.setTaskID(GlobalString.EMPTY_INTEGER);
+				beanAcctionClaim.setStatus(GlobalString.RESP_FAILED);
+			
+				responseToAcction = json.toJson(beanAcctionClaim);
+				
+				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
+			}
+
+		}
+
+		logger.info("-----------NOT BASIC AUTHORIZATION -----------");
+		beanAcctionClaim.setOrderID(GlobalString.EMPTY_STRING);
+		beanAcctionClaim.setTaskID(GlobalString.EMPTY_INTEGER);
+		beanAcctionClaim.setStatus(GlobalString.AUTH_FAILED_AD1);
+		
+		responseToAcction = json.toJson(beanAcctionClaim);
+		
+		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
+	
 	}
 	
 	public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
