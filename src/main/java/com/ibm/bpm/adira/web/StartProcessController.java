@@ -54,7 +54,6 @@ public class StartProcessController
 	{
 		
 		String orderId	= startProcess.getOrderID();
-		int processId	= startProcess.getProcessID();
 		int brmsScoring	= startProcess.getBrmsScoring();
 		Boolean isSignPK= startProcess.getIsSignPK();
 		Boolean isTele  = startProcess.getIsTele();
@@ -62,14 +61,11 @@ public class StartProcessController
 		
 		logger.info(
 				"From acction: Order ID "+orderId+
-				"Process ID "+processId+
 //				"Task ID "+taskId+
 				"BRMS "+brmsScoring+
 				"Mayor "+mayor
 				);
-
 		
-	
 		//Response BPM Initialize
 		StartProcessResponseBean startProcessResp = new StartProcessResponseBean();
 		String assignedToType 		= "";
@@ -78,13 +74,13 @@ public class StartProcessController
 		String processInstanceName	= "";
 		int tkiid					= 0;
 		String assignTo				="";
-		
-		
+		int processId	= 0;
+				
 		Gson jsonRequest = new Gson();
 		String jsonStartRequestAcction = jsonRequest.toJson(startProcess);
 		
 		String bpdId = "25.9a0484ab-9ece-44e0-8cc2-e086172e2cc1";
-		String snapshotId = "2064.3ad64892-ee78-4902-a945-ca807ef0225e";
+		String snapshotId = "2064.4593e4d3-ac60-44c1-a7dd-440aef74bab3";
 		String processAppId = "2066.c464e5f1-3399-406f-a208-eddaad75b871";
 		
 		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/process?action=start&"
@@ -112,7 +108,7 @@ public class StartProcessController
 		String responseFromBPM = restTemplate.postForObject(walletBalanceUrl, entity, String.class, jsonStartRequestAcction);
 		String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()); 
 		
-		logger.info("-----------RESPONSE JSON BPM ("+timestamp+") = "+responseFromBPM+"-----------");
+		logger.info("-----------RESPONSE START PROCESS JSON BPM ("+timestamp+") = "+responseFromBPM+"-----------");
 		
 		Gson json = new Gson();
 		
@@ -125,6 +121,7 @@ public class StartProcessController
 			assignedToType 		= responseTask.getAssignedToType();
 			dueTime		 		= responseTask.getDueTime();
 			assignTo			= responseTask.getName();
+			processId			= Integer.parseInt(responseTask.getPiid());
 			}
 
 		StartProcessResponseToAcction beanAcction = new StartProcessResponseToAcction();
@@ -158,6 +155,8 @@ public class StartProcessController
 				beanAcction.setProcessID(processId);
 				
 				responseToAcction = json.toJson(beanAcction);
+
+				logger.info("-----------RESPONSE TO  ACCTION START PROCESS :"+responseToAcction+"-----------");
 				
 				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
 			}
@@ -176,6 +175,8 @@ public class StartProcessController
 				
 				responseToAcction = json.toJson(beanAcction);
 				
+				logger.info("-----------RESPONSE TO  ACCTION START PROCESS :"+responseToAcction+"-----------");
+				
 				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
 			}
 
@@ -193,6 +194,7 @@ public class StartProcessController
 		beanAcction.setDueTime(GlobalString.EMPTY_STRING);
 		
 		responseToAcction = json.toJson(beanAcction);
+		logger.info("-----------RESPONSE TO  ACCTION START PROCESS :"+responseToAcction+"-----------");
 		
 		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	}
@@ -214,6 +216,9 @@ public class StartProcessController
 	}
 	
 }
+
+
+
 //String inner = "";	
 //try{
 //	inner = new ObjectMapper().writeValueAsString(result.get("data"));

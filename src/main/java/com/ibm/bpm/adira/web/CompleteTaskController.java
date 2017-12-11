@@ -45,17 +45,13 @@ private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.
 
 		String orderId 	= completeTaskRequest.getOrderID();
 		int processId 	= completeTaskRequest.getProcessID();
-		int brmsScoring = completeTaskRequest.getBrmsScoring();
 		int taskId 		= completeTaskRequest.getTaskID();
-		Boolean mayor 	= completeTaskRequest.getMayor();
 		
 		String logTracker = 
 				"From acction: "+ 
 				"Order ID ="+orderId+
 				"Process ID ="+processId+
-				"Task ID = "+taskId+
-				"BRMS ="+brmsScoring+
-				"Mayor ="+mayor;
+				"Task ID = "+taskId;
 		
 		logger.info(logTracker);
 		
@@ -77,23 +73,22 @@ private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.
 			{	
 
 				//Call Async CallBack Process
-				String processServiceName = "CompleteTask";
-				processService.process(processServiceName,orderId,processId,taskId);
+				processService.process(GlobalString.SERVIVE_NAME_COMPLETE_TASK,orderId,processId,taskId);
 				
 				return new ResponseEntity("{\"status\": \"Complete Task Success\"}", new HttpHeaders(),HttpStatus.OK);
 			}
 			else
 			{
-				String processServiceName = "CompleteTask";
-				processService.process(processServiceName,orderId,processId,taskId);
+				processService.process(GlobalString.SERVIVE_NAME_COMPLETE_TASK,orderId,processId,taskId);
 				
 				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 			}
 
 		}
 
-		String processServiceName = "CompleteTask";
-		processService.process(processServiceName,orderId,processId,taskId);
+		processService.process(GlobalString.SERVIVE_NAME_COMPLETE_TASK,orderId,processId,taskId);
+		
+		
 		
 		return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	}
