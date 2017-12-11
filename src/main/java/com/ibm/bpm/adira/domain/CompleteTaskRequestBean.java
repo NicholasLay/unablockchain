@@ -5,8 +5,7 @@ public class CompleteTaskRequestBean {
 	public String orderID;
 	public int processID;
 	public int taskID;
-	public Boolean mayor;
-	public int brmsScoring;
+
 	
 	
 	public CompleteTaskRequestBean()
@@ -14,8 +13,7 @@ public class CompleteTaskRequestBean {
 		this.orderID = orderID;
 		this.processID = processID;
 		this.taskID = taskID;
-		this.mayor = mayor;
-		this.brmsScoring = brmsScoring;
+
 	}
 	
 	public CompleteTaskRequestBean(String orderID, int processID, int taskID, Boolean mayor, int brmsScoring)
@@ -23,8 +21,6 @@ public class CompleteTaskRequestBean {
 		this.orderID = orderID;
 		this.processID = processID;
 		this.taskID = taskID;
-		this.mayor = mayor;
-		this.brmsScoring = brmsScoring;
 	}
 
 	
@@ -47,17 +43,5 @@ public class CompleteTaskRequestBean {
 	public void setTaskID(int taskID) {
 		this.taskID = taskID;
 	}
-	public Boolean getMayor() {
-		return mayor;
-	}
-	public void setMayor(Boolean mayor) {
-		this.mayor = mayor;
-	}
-	public int getBrmsScoring() {
-		return brmsScoring;
-	}
-	public void setBrmsScoring(int brmsScoring) {
-		this.brmsScoring = brmsScoring;
-	}
-	
+
 }

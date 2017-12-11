@@ -23,7 +23,7 @@ public class StartProcessResponseBean {
 
 
 public class DataDetail{
-		
+	
 		private List<Tasks> tasks;
 		
 		public List<Tasks> getTasks() {
@@ -42,7 +42,15 @@ public class Tasks{
 		private String assignedToType;
 		private String dueTime;
 		private String name;
+		private String piid;
 		
+	
+		public String getPiid() {
+			return piid;
+		}
+		public void setPiid(String piid) {
+			this.piid = piid;
+		}
 		public String getName() {
 			return name;
 		}

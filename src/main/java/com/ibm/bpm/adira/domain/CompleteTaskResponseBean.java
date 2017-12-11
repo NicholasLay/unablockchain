@@ -28,7 +28,14 @@ public class Data{
 		
 		private String displayName;
 		private String assignedToType;
-		public List<NexTaskId> nextTaskId;
+		private String piid;
+		
+		public String getPiid() {
+			return piid;
+		}
+		public void setPiid(String piid) {
+			this.piid = piid;
+		}
 		
 		public String getDisplayName() {
 			return displayName;
@@ -42,32 +49,6 @@ public class Data{
 		public void setAssignedToType(String assignedToType) {
 			this.assignedToType = assignedToType;
 		}
-		public List<NexTaskId> getNextTaskId() {
-			return nextTaskId;
-		}
-		public void setNextTaskId(List<NexTaskId> nextTaskId) {
-			this.nextTaskId = nextTaskId;
-		}
-		
-	}
-
-public class NexTaskId{
-	
-		String orderID;
-		int taskID;
-		
-		public String getOrderID() {
-			return orderID;
-		}
-		public void setOrderID(String orderID) {
-			this.orderID = orderID;
-		}
-		public int getTaskID() {
-			return taskID;
-		}
-		public void setTaskID(int taskID) {
-			this.taskID = taskID;
-		}	
 	}
 
 }
