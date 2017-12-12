@@ -46,7 +46,6 @@ public class ProcessServiceImpl implements ProcessService {
    
     @Async("processExecutor")
     
-
 	@Override
 	public void processCurrentState(String service, String orderID, int processID , int taskID)  {
 		// TODO Auto-generated method stub
@@ -70,42 +69,15 @@ public class ProcessServiceImpl implements ProcessService {
          
 	}
     
-    @Override
-    public void process(String service,String orderID,int processID,int taskID) {
-        logger.info("Received request to process in ProcessServiceImpl.process()");
-        
-        logger.info("Process Service Impl:Service="+service+"orderID="+orderID,"processID="+processID+"taskID="+taskID);
-        
-        if (service.equals(GlobalString.SERVIVE_NAME_COMPLETE_TASK))
-        {
-        	try {
-				completeTaskProcess(orderID, processID, taskID);
-			} catch (KeyManagementException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (KeyStoreException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        }
-//        callBackToAcction(orderID, processID, taskID);
-    }
-    
-    
     public void callBackToAcctionCurrentState(String orderID,int processID, AcctionCallBackRequestBean nextTaskId, int taskID)
     {
     	RestTemplate restTemplate = new RestTemplate();
+    	Gson json = new Gson();
     	
     	String linkURL = "http://10.61.5.247:7727";
     	String acctionUrl = ""+linkURL+"/adira-acction/acction/v1/service/bpm/callback/complete";
+    
     	logger.info("Process Service Impl: acction URL"+ acctionUrl);
-    	
-    	Gson json = new Gson();
-    	//let it always empty
-    	String status = "";
     	
     	AcctionCallBackRequestBean acctionBean = new AcctionCallBackRequestBean();
     	
@@ -114,13 +86,6 @@ public class ProcessServiceImpl implements ProcessService {
     	currentTaskRequest.setProcessID(processID);
     	currentTaskRequest.setTaskID(taskID);
     	
-//		currentTaskRequest.setAssignTo(assignTo);
-//		currentTaskRequest.setAssignToType(assignToType);
-//		currentTaskRequest.setProcessID(tempProcessInstanceId);
-//		currentTaskRequest.setDisplayName(tasks.getDisplayName());
-//		currentTaskRequest.setDueTime(tasks.getDueTime());
-//		currentTaskRequest.setStartTime(tasks.getStartTime());
-//		currentTaskRequest.setTaskID(tasks.getTaskID());
     	
     	acctionBean.setCurrentTask(currentTaskRequest);   	
     	acctionBean.setTasks(nextTaskId.getTasks());
@@ -129,8 +94,7 @@ public class ProcessServiceImpl implements ProcessService {
     	
     	String acctionCallbackRequest = json.toJson(acctionBean);
     	
-
-    	logger.info("Process Service Impl: acction Callback Request"+ acctionCallbackRequest);
+    	logger.info("Process Service Impl: Acction Callback Request(CBR) : \n"+ acctionCallbackRequest);
     	
         HttpHeaders headers = new HttpHeaders();
         
@@ -141,84 +105,6 @@ public class ProcessServiceImpl implements ProcessService {
     	logger.info("Process Service Impl : Response Callback from acction"+ answer);
     
     }
-    
-    
-//    public void callBackToAcctionCompleteTask(String orderID,int processID, int taskID)
-//    {
-//    	RestTemplate restTemplate = new RestTemplate();
-//    	
-//    	String linkURL = "http://10.61.5.247:7727";
-//    	String acctionUrl = ""+linkURL+"/adira-acction/acction/v1/service/bpm/callback/complete";
-//    	
-//    	Gson json = new Gson();
-//    	//let it always empty
-//    	String status = "";
-//    	
-//    	AcctionCallBackRequestBean acctionBean = new AcctionCallBackRequestBean();
-//    	
-//    	AcctionCallBackRequestBean.CurrentTask currentTaskRequest = acctionBean.new CurrentTask();
-//    	currentTaskRequest.setOrderID(orderID);
-//    	currentTaskRequest.setProcessID(processID);
-//    	currentTaskRequest.setTaskID(taskID);
-//    	
-//    	
-//		List<AcctionCallBackRequestBean.CurrentTask> emptyArray = new ArrayList<AcctionCallBackRequestBean.CurrentTask>();
-//    	
-//    	acctionBean.setCurrentTask(currentTaskRequest);
-//    	
-//    	String acctionCallbackRequest = json.toJson(acctionBean);
-//    	
-//    	logger.info("Process Service Impl: acction URL"+ acctionUrl);
-//    	logger.info("Process Service Impl: acction Callback Request"+ acctionCallbackRequest);
-//    	
-//        HttpHeaders headers = new HttpHeaders();
-//        
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//        HttpEntity<String> entity = new HttpEntity<String>(acctionCallbackRequest,headers);
-//        
-//        String answer = restTemplate.postForObject(acctionUrl, entity, String.class);
-//    	logger.info("Process Service Impl : Response Callback from acction"+ answer);
-//    }
-    
-    
-    @SuppressWarnings({ "unchecked", "null" })
-	public void completeTaskProcess(String orderID,int processID, int taskID) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException
-    {
-		Gson json = new Gson();
-    	String completeTaskURL = "https://10.81.3.38:9443/rest/bpm/wle/v1/task/"+taskID+"?action=finish&parts=all";
-    	
-    	logger.info("Process Service Impl:"+completeTaskURL);
-    	
-    	logger.info("Masuk Auth");
-		String plainCreds = "acction:ADira2017";
-		byte[] plainCredsBytes = plainCreds.getBytes();
-		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
-		String base64Creds = new String(base64CredsBytes);
-	 
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.add("Authorization", "Basic " + base64Creds);
-		httpHeaders.setContentType(MediaType.APPLICATION_XML);
-		logger.info("Auth is being processed");
-		
-		RestTemplate restTemplate = getRestTemplate();
-		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
-		
-		String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class);
-		
-		logger.info("-----------Process Service Impl Finish Task: Response from BPM: \n"+ responseFinishTaskBPM+"-------------");
-		
-		CompleteTaskResponseBean completeBeanResponse = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
-		
-		//Get Process InstanceId From CompletedTask
-		String processInstanceId = completeBeanResponse.getData().getPiid();
-		
-		int piid = Integer.parseInt(processInstanceId);
-    	
-//		callBackToAcctionCompleteTask(orderID, piid, taskID);
-		
-		logger.info("------COMPLETE TASK SUCCEED , NOW PROCESSING CURRENT STATE-----");
-    }
-    
     
     @SuppressWarnings({ "unchecked", "null" })
 	public void currentState(String orderID,int processID ,int taskID) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException{
@@ -261,27 +147,43 @@ public class ProcessServiceImpl implements ProcessService {
 		String assignTo = "";
 		String assignToType = "";
 		int taskIdNextask = 0;
-		int tempProcessInstanceId = 0;
-		
-		AcctionCallBackRequestBean acctionBean = new AcctionCallBackRequestBean();
-    	AcctionCallBackRequestBean.CurrentTask currentTaskRequest = acctionBean.new CurrentTask();
+		int processId = 0;
+		String status = "";
 		
 		int indexCounter = currStateResponse.getData().getTasks().size();
 		
 		if (indexCounter > 0) {
 			for(TasksCurrentState tasks : currStateResponse.getData().getTasks()){
-				
-			logger.info("--------------------------LISTS TASK ARE : "+tasks.getTkiid()+"-------------------------");
 			
 				assignTo = tasks.getName();
-				assignToType = tasks.getAssignedToType();
-				tempProcessInstanceId = tasks.getPiid();		
+				assignToType = tasks.getAssignedToType();	
 				taskIdNextask = tasks.getTkiid();
+				processId = tasks.getPiid();
+				status = tasks.getStatus();
 				
-				tasks.setTaskID(taskIdNextask);
-						
-				taskDetailResponseToAcction.add(tasks);
-				tasksRequestAcction.setTasks(taskDetailResponseToAcction);
+				logger.info("Detail for task : "+tasks.getTkiid()+" is : "
+						+ "assignTo: "+assignTo+""
+						+ "assignToType: "+assignToType+""
+						+ "processId : "+processID+""
+						+ "status : "+status+"");
+				
+				if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
+				
+					logger.info("Status = "+status+", Task Added!");
+					
+					tasks.setDisplayName(tasks.getName());
+					tasks.setProcessID(processId);
+					tasks.setAssignTo(assignTo);
+					tasks.setAssignToType(assignToType);
+					tasks.setTaskID(taskIdNextask);
+					
+					taskDetailResponseToAcction.add(tasks);
+					
+					tasksRequestAcction.setTasks(taskDetailResponseToAcction);
+				}else {
+					logger.info("Status = "+status+" , Task Depereciated!");
+					tasksRequestAcction.setTasks(emptyArray);
+				}
 				
 			}
 		}else {
@@ -309,8 +211,48 @@ public class ProcessServiceImpl implements ProcessService {
 	    return restTemplate;
 	}
 
-
 }
+
+//callbackActionComplete
+//public void callBackToAcctionCompleteTask(String orderID,int processID, int taskID)
+//{
+//	RestTemplate restTemplate = new RestTemplate();
+//	
+//	String linkURL = "http://10.61.5.247:7727";
+//	String acctionUrl = ""+linkURL+"/adira-acction/acction/v1/service/bpm/callback/complete";
+//	
+//	Gson json = new Gson();
+//	//let it always empty
+//	String status = "";
+//	
+//	AcctionCallBackRequestBean acctionBean = new AcctionCallBackRequestBean();
+//	
+//	AcctionCallBackRequestBean.CurrentTask currentTaskRequest = acctionBean.new CurrentTask();
+//	currentTaskRequest.setOrderID(orderID);
+//	currentTaskRequest.setProcessID(processID);
+//	currentTaskRequest.setTaskID(taskID);
+//	
+//	
+//	List<AcctionCallBackRequestBean.CurrentTask> emptyArray = new ArrayList<AcctionCallBackRequestBean.CurrentTask>();
+//	
+//	acctionBean.setCurrentTask(currentTaskRequest);
+//	
+//	String acctionCallbackRequest = json.toJson(acctionBean);
+//	
+//	logger.info("Process Service Impl: acction URL"+ acctionUrl);
+//	logger.info("Process Service Impl: acction Callback Request"+ acctionCallbackRequest);
+//	
+//  HttpHeaders headers = new HttpHeaders();
+//  
+//  headers.setContentType(MediaType.APPLICATION_JSON);
+//  HttpEntity<String> entity = new HttpEntity<String>(acctionCallbackRequest,headers);
+//  
+//  String answer = restTemplate.postForObject(acctionUrl, entity, String.class);
+//	logger.info("Process Service Impl : Response Callback from acction"+ answer);
+//}
+
+
+
 //Call to Acction using basic auth
 /* 
 String username = "70000386";
