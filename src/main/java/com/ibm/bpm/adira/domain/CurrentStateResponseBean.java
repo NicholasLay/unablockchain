@@ -28,7 +28,7 @@ public class Data{
 	}
 		
 public class TasksCurrentState {
-			// bpm
+			// BPM
 			public int tkiid;
 			public String name;
 			public String assignedTo;
@@ -38,6 +38,7 @@ public class TasksCurrentState {
 			public String startTime;
 			public String processInstanceName;
 			public int piid;
+			public String status;
 			
 			// For ACCTION
 			public String assignTo;
@@ -45,7 +46,12 @@ public class TasksCurrentState {
 			public int taskID;
 			public int processID; 
 			
-			
+			public String getStatus() {
+				return status;
+			}
+			public void setStatus(String status) {
+				this.status = status;
+			}
 			public int getPiid() {
 				return piid;
 			}

@@ -3,34 +3,53 @@ package com.ibm.bpm.adira.domain;
 public class StartProcessRequestBean {
 	
 	public String orderID;
-	public int processID;
 	public Boolean isSignPK;
 	public Boolean isTele;
 	public Boolean isMayor;
+	public Boolean isSalesMayor;
 	public int brmsScoring;
+	public Boolean isManualAssign;
 	
-	
-	
+
 	public StartProcessRequestBean()
 	{
 		this.orderID = orderID;
-		this.processID = processID;
 		this.isSignPK = isSignPK;
 		this.isTele = isTele;
 		this.isMayor = isMayor;
 		this.brmsScoring = brmsScoring;
+		this.isSalesMayor = isSalesMayor;
+		this.isManualAssign = isManualAssign;
 	}
 	
-	public StartProcessRequestBean(String orderID, int processID, int taskID, Boolean isMayor, int brmsScoring, Boolean isSignPK, Boolean isTele)
+	public StartProcessRequestBean(String orderID, int processID, int taskID, Boolean isMayor, int brmsScoring, Boolean isSignPK, Boolean isTele, Boolean isSalesMayor, Boolean isManualAssign)
 	{
 		this.orderID = orderID;
-		this.processID = processID;
 		this.isSignPK = isSignPK;
 		this.isTele = isTele;
 		this.isMayor = isMayor;
 		this.brmsScoring = brmsScoring;
+		this.isSalesMayor = isSalesMayor;
+		this.isManualAssign = isManualAssign;
 	}
 	
+	
+	public Boolean getIsManualAssign() {
+		return isManualAssign;
+	}
+
+	public void setIsManualAssign(Boolean isManualAssign) {
+		this.isManualAssign = isManualAssign;
+	}
+
+	public Boolean getIsSalesMayor() {
+		return isSalesMayor;
+	}
+
+	public void setIsSalesMayor(Boolean isSalesMayor) {
+		this.isSalesMayor = isSalesMayor;
+	}
+
 	public Boolean getIsSignPK() {
 		return isSignPK;
 	}
@@ -52,13 +71,6 @@ public class StartProcessRequestBean {
 	}
 	public void setOrderID(String orderID) {
 		this.orderID = orderID;
-	}
-	
-	public int getProcessID() {
-		return processID;
-	}
-	public void setProcessID(int processID) {
-		this.processID = processID;
 	}
 
 	public Boolean getIsMayor() {
