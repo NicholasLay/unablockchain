@@ -57,14 +57,19 @@ public class StartProcessController
 		int brmsScoring	= startProcess.getBrmsScoring();
 		Boolean isSignPK= startProcess.getIsSignPK();
 		Boolean isTele  = startProcess.getIsTele();
-		Boolean mayor 	= startProcess.getIsMayor();
+		Boolean isMayor 	= startProcess.getIsMayor();
+		Boolean isSalesMayor = startProcess.getIsSalesMayor();
+		Boolean isManualAssign = startProcess.getIsManualAssign();
 		
 		logger.info(
-				"From acction: Order ID "+orderId+
-//				"Task ID "+taskId+
-				"BRMS "+brmsScoring+
-				"Mayor "+mayor
-				);
+				"From Acction: Order ID = "+orderId+", \n "
+			  + "BRMS Scoring = "+brmsScoring+",\n"
+			  + "isSignPK = "+isSignPK+"\n,"
+			  + "isTele = "+isTele+"\n,"
+			  + "isMayor = "+isMayor+"\n,"
+			  + "isSalesMayor = "+isSalesMayor+"\n,"
+			  + "isManualAssign = "+isManualAssign+""
+		);
 		
 		//Response BPM Initialize
 		StartProcessResponseBean startProcessResp = new StartProcessResponseBean();
@@ -80,7 +85,7 @@ public class StartProcessController
 		String jsonStartRequestAcction = jsonRequest.toJson(startProcess);
 		
 		String bpdId = "25.9a0484ab-9ece-44e0-8cc2-e086172e2cc1";
-		String snapshotId = "2064.4593e4d3-ac60-44c1-a7dd-440aef74bab3";
+		String snapshotId = "2064.5d73b065-515d-41e5-9f3d-8c44f418c988";
 		String processAppId = "2066.c464e5f1-3399-406f-a208-eddaad75b871";
 		
 		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/process?action=start&"

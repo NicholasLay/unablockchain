@@ -4,21 +4,33 @@ import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ibm.bpm.adira.domain.ClaimTaskRequestBean;
@@ -43,17 +55,39 @@ private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.
 			
 	{
 
-		String orderId 	= completeTaskRequest.getOrderID();
-		int processId 	= completeTaskRequest.getProcessID();
-		int taskId 		= completeTaskRequest.getTaskID();
+		String orderID 	= completeTaskRequest.getOrderID();
+		int processID 	= completeTaskRequest.getProcessID();
+		int taskID 		= completeTaskRequest.getTaskID();
 		
 		String logTracker = 
 				"From acction: "+ 
-				"Order ID ="+orderId+
-				"Process ID ="+processId+
-				"Task ID = "+taskId;
-		
+				"Order ID ="+orderID+
+				"Process ID ="+processID+
+				"Task ID = "+taskID;
+	
 		logger.info(logTracker);
+		
+		String completeTaskURL = "https://10.81.3.38:9443/rest/bpm/wle/v1/task/"+taskID+"?action=finish&parts=all";
+    	
+    	logger.info("Process Service Impl:"+completeTaskURL);
+    	
+    	logger.info("Masuk Auth");
+		String plainCreds = "acction:ADira2017";
+		byte[] plainCredsBytes = plainCreds.getBytes();
+		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
+		String base64Creds = new String(base64CredsBytes);
+	 
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.add("Authorization", "Basic " + base64Creds);
+		httpHeaders.setContentType(MediaType.APPLICATION_XML);
+		logger.info("Auth is being processed");
+		
+		RestTemplate restTemplate = getRestTemplate();
+		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
+		
+		String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class);
+		
+		logger.info("----------- Response JSON CompeleteTask(JCT) from BPM: \n"+ responseFinishTaskBPM+"-------------");
 		
 		if (basicAuth.startsWith("Basic"))
 		{
@@ -70,26 +104,36 @@ private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.
 			
 			
 			if (responseAd1Gate.equals(GlobalString.OK_MESSAGE))
-			{	
-
-				//Call Async CallBack Process
-				processService.process(GlobalString.SERVIVE_NAME_COMPLETE_TASK,orderId,processId,taskId);
+			{					
+				logger.info("-----COMPLETE TASK SUCESS, PROCESS CURRENT STATE TO GET NEXT TASK------");
+				return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
 				
-				return new ResponseEntity("{\"status\": \"Complete Task Success\"}", new HttpHeaders(),HttpStatus.OK);
 			}
 			else
-			{
-				processService.process(GlobalString.SERVIVE_NAME_COMPLETE_TASK,orderId,processId,taskId);
-				
+			{	
+				logger.info("-----COMPLETE TASK FAILED------");
 				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 			}
 
 		}
-
-		processService.process(GlobalString.SERVIVE_NAME_COMPLETE_TASK,orderId,processId,taskId);
-		
-		
-		
+		logger.info("-----COMPLETE TASK AUTHORIZATION IS NOT BASIC------");
 		return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	}
+	
+    public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
+	    TrustStrategy acceptingTrustStrategy = new TrustStrategy() {
+	        @Override
+	        public boolean isTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+	            return true;
+	        }
+	    };
+	    SSLContext sslContext = org.apache.http.ssl.SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
+	    SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, new NoopHostnameVerifier());
+	    CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(csf).build();
+	    HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+	    requestFactory.setHttpClient(httpClient);
+	    RestTemplate restTemplate = new RestTemplate(requestFactory);
+	    return restTemplate;
+	}
+	
 }
