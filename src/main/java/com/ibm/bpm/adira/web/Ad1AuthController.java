@@ -23,7 +23,6 @@ import com.ibm.bpm.adira.domain.Ad1AuthResponse;
 @Controller
 public class Ad1AuthController 
 {
-	private static final Logger logger = LoggerFactory.getLogger(Ad1AuthController.class);
 	private static final String AD1_URL =  "http://10.50.1.18:99/Portsightdev/api/AuthenticateUser";
 	
 	@RequestMapping(value="/ad1", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)

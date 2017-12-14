@@ -6,9 +6,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-
 import javax.net.ssl.SSLContext;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -17,7 +15,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,28 +22,22 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.ibm.bpm.adira.domain.ClaimTaskRequestBean;
 import com.ibm.bpm.adira.domain.CompleteTaskRequestBean;
 import com.ibm.bpm.adira.domain.GlobalString;
-import com.ibm.bpm.adira.service.ProcessService;
 import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
 import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
 @Controller
-public class CompleteTaskController {
+public class CompleteTaskController 
+{
 	
 private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.class);
-	
-	@Autowired
-    private ProcessService processService;
 	
 	@RequestMapping(value="/completeTask", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> authenticate(@RequestHeader("Authorization") String basicAuth,

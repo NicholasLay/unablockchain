@@ -6,7 +6,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Map;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -16,8 +15,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.json.JsonParser;
-import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,15 +22,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.GlobalString;
 import com.ibm.bpm.adira.domain.StartProcessRequestBean;
@@ -41,7 +35,6 @@ import com.ibm.bpm.adira.domain.StartProcessResponseBean;
 import com.ibm.bpm.adira.domain.StartProcessResponseToAcction;
 import com.ibm.bpm.adira.domain.StartProcessResponseBean.Tasks;
 import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
-import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
 
 @Controller
@@ -71,8 +64,6 @@ public class StartProcessController
 			  + "isManualAssign = "+isManualAssign+""
 		);
 		
-		//Response BPM Initialize
-		StartProcessResponseBean startProcessResp = new StartProcessResponseBean();
 		String assignedToType 		= "";
 		String displayName			= "";
 		String dueTime				= "";
@@ -87,11 +78,11 @@ public class StartProcessController
 		String bpdId = "25.9a0484ab-9ece-44e0-8cc2-e086172e2cc1";
 		String snapshotId = "2064.5d73b065-515d-41e5-9f3d-8c44f418c988";
 		String processAppId = "2066.c464e5f1-3399-406f-a208-eddaad75b871";
+		String branchId = "2063.b06bda07-3d67-4084-8f37-3d6053dc2d24";
 		
 		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/process?action=start&"
 				+ "bpdId="+bpdId+"&"
-				+ "snapshotId="+snapshotId+"&"
-				+ "processAppId="+processAppId+"&params={jsonStartRequestAcction}&parts=all";
+				+ "branchId="+branchId+"&params={jsonStartRequestAcction}&parts=all";
 		
 		logger.info("-----------URL : "+walletBalanceUrl+"---------------");
 		
@@ -221,24 +212,3 @@ public class StartProcessController
 	}
 	
 }
-
-
-
-//String inner = "";	
-//try{
-//	inner = new ObjectMapper().writeValueAsString(result.get("data"));
-//	result = springParser.parseMap(inner);
-//	inner = new ObjectMapper().writeValueAsString(result.get("tasks"));
-//	inner = inner.substring(1);
-//	inner = inner.substring(0,inner.length()-1);
-//	result = springParser.parseMap(inner);
-//	inner = new ObjectMapper().writeValueAsString(result.get("tkiid"));
-//	inner = inner.substring(1);
-//	inner = inner.substring(0,inner.length()-1);
-//	logger.info("Task ID :" + inner);
-//} catch () {
-//	// TODO Auto-generated catch block
-//	
-//}
-
-//String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss a").format(new java.util.Date()); 
