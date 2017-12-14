@@ -6,8 +6,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.codec.binary.Base64;
@@ -16,7 +14,6 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.tomcat.jni.Global;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -30,14 +27,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.AcctionCallBackRequestBean;
-import com.ibm.bpm.adira.domain.AcctionCallBackRequestBean.CurrentTask;
-import com.ibm.bpm.adira.domain.BasicAuthRestTemplate;
-import com.ibm.bpm.adira.domain.CompleteTaskResponseBean;
 import com.ibm.bpm.adira.domain.CurrentStateResponseBean;
 import com.ibm.bpm.adira.domain.CurrentStateResponseBean.TasksCurrentState;
 import com.ibm.bpm.adira.domain.GlobalString;
 import com.ibm.bpm.adira.service.ProcessService;
-
 
 @Service
 public class ProcessServiceImpl implements ProcessService {
@@ -152,7 +145,8 @@ public class ProcessServiceImpl implements ProcessService {
 		
 		int indexCounter = currStateResponse.getData().getTasks().size();
 		
-		if (indexCounter > 0) {
+		if (indexCounter > 0) 
+		{
 			for(TasksCurrentState tasks : currStateResponse.getData().getTasks()){
 			
 				assignTo = tasks.getName();
@@ -212,91 +206,3 @@ public class ProcessServiceImpl implements ProcessService {
 	}
 
 }
-
-//callbackActionComplete
-//public void callBackToAcctionCompleteTask(String orderID,int processID, int taskID)
-//{
-//	RestTemplate restTemplate = new RestTemplate();
-//	
-//	String linkURL = "http://10.61.5.247:7727";
-//	String acctionUrl = ""+linkURL+"/adira-acction/acction/v1/service/bpm/callback/complete";
-//	
-//	Gson json = new Gson();
-//	//let it always empty
-//	String status = "";
-//	
-//	AcctionCallBackRequestBean acctionBean = new AcctionCallBackRequestBean();
-//	
-//	AcctionCallBackRequestBean.CurrentTask currentTaskRequest = acctionBean.new CurrentTask();
-//	currentTaskRequest.setOrderID(orderID);
-//	currentTaskRequest.setProcessID(processID);
-//	currentTaskRequest.setTaskID(taskID);
-//	
-//	
-//	List<AcctionCallBackRequestBean.CurrentTask> emptyArray = new ArrayList<AcctionCallBackRequestBean.CurrentTask>();
-//	
-//	acctionBean.setCurrentTask(currentTaskRequest);
-//	
-//	String acctionCallbackRequest = json.toJson(acctionBean);
-//	
-//	logger.info("Process Service Impl: acction URL"+ acctionUrl);
-//	logger.info("Process Service Impl: acction Callback Request"+ acctionCallbackRequest);
-//	
-//  HttpHeaders headers = new HttpHeaders();
-//  
-//  headers.setContentType(MediaType.APPLICATION_JSON);
-//  HttpEntity<String> entity = new HttpEntity<String>(acctionCallbackRequest,headers);
-//  
-//  String answer = restTemplate.postForObject(acctionUrl, entity, String.class);
-//	logger.info("Process Service Impl : Response Callback from acction"+ answer);
-//}
-
-
-
-//Call to Acction using basic auth
-/* 
-String username = "70000386";
-String password = "adira";
-
-BasicAuthRestTemplate restTemplate = new BasicAuthRestTemplate(username, password);
-
-String url = "http://localhost:8080/gs-rest-service-0.1.0/backToIDE";
-String acctionUrl = "http://10.61.5.247:9091/adira-acction/acction/service/bpm/callback";
-String acctionCallback = "{\"orderID\":\"" +orderID+ "\","+
-		"\"processID\":\"" +processID+ "\","+
-		"\"taskID\":\"" +taskID+ "\","+
-		"\"status\":\"onprogress\","+
-		"\"displayName\":\"sa\","+
-		"\"assignToType\":\"sa\""+ 
-		"}";
-
-String requestJson = "{\"orderID\":\"" +orderID+ "\","+
-		"\"processID\":\"" +processID+ "\","+
-		"\"taskID\":\"" +taskID+ "\","+
-		"\"mayor\":true,"+
-		"\"brmsScoring\":1"+ 
-		"}";
-
-logger.info("Callback Request:"+requestJson);
-HttpHeaders headers = new HttpHeaders();
-
-headers.setContentType(MediaType.APPLICATION_JSON);
-HttpEntity<String> entity = new HttpEntity<String>(requestJson,headers);
-
-String answer = restTemplate.postForObject(url, entity, String.class);
-System.out.println(answer);
-logger.info("Processing complete");
-*/
-
-//if(completeBeanResponse.getData().getNextTaskId().isEmpty()  ||
-//		   completeBeanResponse.getData().getNextTaskId().size() == 0||
-//		   completeBeanResponse.getData().getNextTaskId() == null) {
-//		
-//			TaskDetailBPMResponseBean taskDetailResponse = json.fromJson(responseTaskDetail, TaskDetailBPMResponseBean.class);
-
-			//taskDetailResponseToAcction.add(taskDetailResponse);
-			//tasksRequestAcction.setTasks(taskDetailResponseToAcction);
-//		
-//		}else {
-//			
-//		}
