@@ -3,8 +3,15 @@ package com.ibm.bpm.adira.domain;
 import java.io.Serializable;
 import java.util.List;
 
-public class CurrentStateResponseBean implements Serializable {
+/*
+ * Class for handling Current State Response from IBM BPM to API & API to Acction.
+ */
 
+public class CurrentStateResponseBean implements Serializable 
+{
+
+
+	private static final long serialVersionUID = 1L;
 	public Data data;
 	 
 	public Data getData() {
@@ -28,7 +35,8 @@ public class Data{
 	}
 		
 public class TasksCurrentState {
-			// BPM
+			
+			//Initializing variables for IBM BPM.
 			public int tkiid;
 			public String name;
 			public String assignedTo;
@@ -40,7 +48,7 @@ public class TasksCurrentState {
 			public int piid;
 			public String status;
 			
-			// For ACCTION
+			// Initializing variables for Acction.
 			public String assignTo;
 			public String assignToType;
 			public int taskID;

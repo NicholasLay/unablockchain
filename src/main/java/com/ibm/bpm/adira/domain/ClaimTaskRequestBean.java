@@ -1,6 +1,10 @@
 package com.ibm.bpm.adira.domain;
 
-public class ClaimTaskRequestBean {
+/*
+ * Class for mapping the claim task request from Acction to API
+ */
+public class ClaimTaskRequestBean 
+{
 	
 	public String orderID;
 	public int processID;

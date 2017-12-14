@@ -1,5 +1,8 @@
 package com.ibm.bpm.adira.domain;
 
+/*
+ * Class for handling release task request from Acction to API.
+ */
 public class ReleaseTaskRequestBean {
 
 	public String orderID;

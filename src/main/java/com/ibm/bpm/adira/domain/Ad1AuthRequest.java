@@ -1,5 +1,9 @@
 package com.ibm.bpm.adira.domain;
 
+/*
+ * Class to handling the mapping of the request from API to Ad1. 
+ */
+
 public class Ad1AuthRequest 
 {
 	private String login;

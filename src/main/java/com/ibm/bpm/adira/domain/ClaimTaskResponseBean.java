@@ -1,6 +1,11 @@
 package com.ibm.bpm.adira.domain;
 
-public class ClaimTaskResponseBean {
+/*
+ *  Class to handle mapping of claim task response from IBM BPM to API.
+ */
+
+public class ClaimTaskResponseBean 
+{
 
 	private String status;
 	private String userClaim;

@@ -1,5 +1,9 @@
 package com.ibm.bpm.adira.domain;
 
+/*
+ * Class to handle general variables which is used by the API.
+ */
+
 public class GlobalString {
 	
 	public static final String OK_MESSAGE  					= "OK";

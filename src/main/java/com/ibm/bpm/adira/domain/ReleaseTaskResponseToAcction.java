@@ -1,6 +1,11 @@
 package com.ibm.bpm.adira.domain;
 
-public class ReleaseTaskResponseToAcction {
+/*
+ *	Class for handling Release Task Response from API to Acction. 
+ */
+
+public class ReleaseTaskResponseToAcction 
+{
 	String orderID;
 	int taskID;
 	String status;

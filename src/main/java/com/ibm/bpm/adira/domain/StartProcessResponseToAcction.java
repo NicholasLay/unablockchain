@@ -1,6 +1,11 @@
 package com.ibm.bpm.adira.domain;
 
-public class StartProcessResponseToAcction {
+/*
+ *	Class for handling the mapping from API to Acction. 
+ */
+
+public class StartProcessResponseToAcction 
+{
 
 	String orderID;
 	int processID;

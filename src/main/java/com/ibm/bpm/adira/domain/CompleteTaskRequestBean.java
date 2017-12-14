@@ -1,6 +1,11 @@
 package com.ibm.bpm.adira.domain;
 
-public class CompleteTaskRequestBean {
+/*
+ *	This is a class for mapping the complete task request from Acction to API. 
+ */
+
+public class CompleteTaskRequestBean 
+{
 
 	public String orderID;
 	public int processID;

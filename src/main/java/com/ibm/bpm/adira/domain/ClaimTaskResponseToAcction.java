@@ -1,7 +1,11 @@
 package com.ibm.bpm.adira.domain;
 
-public class ClaimTaskResponseToAcction {
-	
+/*
+ * Class for handling the mapping the API response to Acction. 
+ */
+
+public class ClaimTaskResponseToAcction 
+{	
 	String orderID;
 	int taskID;
 	String status;

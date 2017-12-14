@@ -1,16 +1,20 @@
 package com.ibm.bpm.adira.domain;
 
 import java.util.List;
-
 import com.ibm.bpm.adira.domain.CurrentStateResponseBean.TasksCurrentState;
 
+/*
+ * A class for handling the mapping for the Callback Request to Acction.
+ */
 
-public class AcctionCallBackRequestBean {
+public class AcctionCallBackRequestBean 
+{
 	
 	private CurrentTask currentTask;
 	private List<TasksCurrentState> tasks;
 
-	public CurrentTask getCurrentTask() {
+	public CurrentTask getCurrentTask() 
+	{
 		return currentTask;
 	}
 	public void setCurrentTask(CurrentTask currentTask) {
@@ -35,7 +39,6 @@ public class CurrentTask{
 		public String processInstanceName;
 		public String status;
 		public String userClaim;
-		// For ACCTION
 		public String assignTo;
 		public String assignToType;
 		

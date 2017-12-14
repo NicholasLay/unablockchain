@@ -2,6 +2,10 @@ package com.ibm.bpm.adira.domain;
 
 import java.util.List;
 
+/*
+ * Class for mapping the start process response from IBM BPM to API.
+ */
+
 public class StartProcessResponseBean {
 
 	private DataDetail data;

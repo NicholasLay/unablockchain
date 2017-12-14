@@ -1,5 +1,9 @@
 package com.ibm.bpm.adira.domain;
 
+/*
+ * Class for handling the current state request from Acction to API. 
+ */
+
 public class CurrentStateRequestBean {
 	
 	public String orderID;
@@ -42,6 +46,4 @@ public class CurrentStateRequestBean {
 	public void setProcessID(int processID) {
 		this.processID = processID;
 	}
-
-	
 }

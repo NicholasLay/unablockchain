@@ -1,6 +1,11 @@
 package com.ibm.bpm.adira.domain;
 
-public class StartProcessRequestBean {
+/*
+ *	Class for handling the request for start process request from Acction to API. 
+ */
+
+public class StartProcessRequestBean 
+{
 	
 	public String orderID;
 	public Boolean isSignPK;

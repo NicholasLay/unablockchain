@@ -1,6 +1,10 @@
 package com.ibm.bpm.adira.domain;
 
-public class ReleaseTaskResponseBean {
+/*
+ * Class for handling the mapping of release task response from IBM BPM to API.
+ */
+public class ReleaseTaskResponseBean 
+{
 
 		private String status;
 		
