@@ -10,20 +10,28 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+/*
+ *  This is the starting class for the API microservices.
+ */
+
 @EnableAsync
 @ComponentScan
 @SpringBootApplication
-public class Application extends SpringBootServletInitializer {
-
+public class Application extends SpringBootServletInitializer 
+{
+	//Handling Web Application Request.
     @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) 
+    {
         return application.sources(Application.class);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception 
+    {
         SpringApplication.run(Application.class, args);
     }
     
+    //Declaring the thread for async method.
     @Bean(name="processExecutor")
     public TaskExecutor workExecutor() {
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
