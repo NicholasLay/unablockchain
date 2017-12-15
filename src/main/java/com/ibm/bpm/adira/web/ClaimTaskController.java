@@ -35,6 +35,11 @@ import com.ibm.bpm.adira.domain.ClaimTaskResponseToAcction;
 import com.ibm.bpm.adira.domain.GlobalString;
 import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
 
+
+/*
+ *	Microservice to claim Task to IBM BPM. 
+ */
+
 @Controller
 public class ClaimTaskController {
 	

@@ -20,10 +20,15 @@ import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.Ad1AuthRequest;
 import com.ibm.bpm.adira.domain.Ad1AuthResponse;
 
+/*
+ * 	MicroService to Ad1 for authentication.
+ */
+
 @Controller
 public class Ad1AuthController 
 {
 	private static final String AD1_URL =  "http://10.50.1.18:99/Portsightdev/api/AuthenticateUser";
+	private static final Logger logger = LoggerFactory.getLogger(Ad1AuthController.class);
 	
 	@RequestMapping(value="/ad1", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> auth(@RequestBody Ad1AuthRequest ad1AuthRequest) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, JsonProcessingException
@@ -31,6 +36,7 @@ public class Ad1AuthController
 		Gson json = new Gson();
 		String ad1Request = "";
 		ad1Request = json.toJson(ad1AuthRequest);
+		logger.info("[Ad1AuthController] Request to Ad1 from API : " + ad1Request);
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> entity = new HttpEntity<String>(ad1Request,httpHeaders);
@@ -39,6 +45,7 @@ public class Ad1AuthController
 		Ad1AuthResponse ad1Response = new Ad1AuthResponse();
 		ad1Response.setLoginStatus(response);
 		response = json.toJson(ad1Response);
+		logger.info("[Ad1AuthController] Response from Ad1 to API : " + response);
 		return new ResponseEntity(ad1Response, new HttpHeaders(),HttpStatus.OK);
 	}
 }

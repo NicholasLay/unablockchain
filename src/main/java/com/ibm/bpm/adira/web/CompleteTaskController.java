@@ -33,6 +33,10 @@ import com.ibm.bpm.adira.domain.GlobalString;
 import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
 import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
+/*
+ *	Microservice to complete task in IBM BPM. 
+ */
+
 @Controller
 public class CompleteTaskController 
 {

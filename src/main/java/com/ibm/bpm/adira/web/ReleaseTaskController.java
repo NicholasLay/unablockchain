@@ -35,7 +35,11 @@ import com.ibm.bpm.adira.domain.ReleaseTaskResponseBean;
 import com.ibm.bpm.adira.domain.ReleaseTaskResponseToAcction;
 import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
 
-//Async Task
+
+/*
+ *	Microservice to release task in IBM BPM. 
+ */
+
 @Controller
 public class ReleaseTaskController {
 	

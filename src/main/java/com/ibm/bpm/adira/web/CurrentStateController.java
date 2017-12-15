@@ -33,6 +33,9 @@ import com.ibm.bpm.adira.domain.GlobalString;
 import com.ibm.bpm.adira.service.ProcessService;
 import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
 
+/*
+ *	Microservice to Get Current State of the task in IBM BPM. 
+ */
 
 @Controller
 public class CurrentStateController 
