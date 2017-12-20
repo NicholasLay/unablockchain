@@ -70,7 +70,7 @@ public class ProcessServiceImpl implements ProcessService {
     	String linkURL = "http://10.61.5.247:7727";
     	String acctionUrl = ""+linkURL+"/adira-acction/acction/v1/service/bpm/callback/complete";
     
-    	logger.info("Process Service Impl: acction URL"+ acctionUrl);
+    	logger.info("[ProcessServiceImplCurrentState] : ACCTION URL"+ acctionUrl);
     	
     	AcctionCallBackRequestBean acctionBean = new AcctionCallBackRequestBean();
     	
@@ -79,15 +79,12 @@ public class ProcessServiceImpl implements ProcessService {
     	currentTaskRequest.setProcessID(processID);
     	currentTaskRequest.setTaskID(taskID);
     	
-    	
     	acctionBean.setCurrentTask(currentTaskRequest);   	
     	acctionBean.setTasks(nextTaskId.getTasks());
     	
-    	logger.info("------------TOTAL TASKS :"+nextTaskId.getTasks().size()+"-------------");
-    	
     	String acctionCallbackRequest = json.toJson(acctionBean);
     	
-    	logger.info("Process Service Impl: Acction Callback Request(CBR) : \n"+ acctionCallbackRequest);
+    	logger.info("[ProcessServiceImpl]: Acction Callback Request : \n"+ acctionCallbackRequest);
     	
         HttpHeaders headers = new HttpHeaders();
         
@@ -107,7 +104,7 @@ public class ProcessServiceImpl implements ProcessService {
     	Gson json = new Gson();
     	String currentStateURL = "https://10.81.3.38:9443/rest/bpm/wle/v1/process/"+processID+"?parts=all";
 		
-    	logger.info("--------------------\n URL CURRENT STATE :"+currentStateURL+"\n------------------------------");
+    	logger.info("-------------------- [ProcessServiceImpl] URL CURRENT STATE :"+currentStateURL+"------------------------------");
 		
     	logger.info("Masuk Auth");
 		String plainCreds = "acction:ADira2017";
@@ -127,7 +124,7 @@ public class ProcessServiceImpl implements ProcessService {
     	
     	String responseBodyCurrState = responseCurrStateBPM.getBody();
     	
-		logger.info("----------------Process Service Impl Current State: Response from BPM: \n "+ responseBodyCurrState+"\n-------------------");
+		logger.info("----------------[ProcessServiceImpl] Response from BPM GetCurrentState : \n "+ responseBodyCurrState+"\n-------------------");
 		
 		CurrentStateResponseBean currStateResponse = json.fromJson(responseBodyCurrState, CurrentStateResponseBean.class);
 		
@@ -155,11 +152,11 @@ public class ProcessServiceImpl implements ProcessService {
 				processId = tasks.getPiid();
 				status = tasks.getStatus();
 				
-				logger.info("Detail for task : "+tasks.getTkiid()+" is : "
-						+ "assignTo: "+assignTo+""
-						+ "assignToType: "+assignToType+""
-						+ "processId : "+processID+""
-						+ "status : "+status+"");
+				logger.info("Detail for task:  "+tasks.getTkiid()+" is : "
+						+ "assignTo:  "+assignTo+""
+						+ "assignToType:  "+assignToType+""
+						+ "processId:  "+processID+""
+						+ "status:  "+status+"");
 				
 				if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
 				
@@ -178,13 +175,11 @@ public class ProcessServiceImpl implements ProcessService {
 					logger.info("Status = "+status+" , Task Depereciated!");
 					tasksRequestAcction.setTasks(emptyArray);
 				}
-				
 			}
+			logger.info("------------TOTAL RECEIVED TASKS: "+tasksRequestAcction.getTasks().size()+"-------------");
 		}else {
 				tasksRequestAcction.setTasks(emptyArray);
 		}
-		logger.info("----------------------SUCESS GET CURRENT STATE------------------------------");
-		
 		callBackToAcctionCurrentState(orderID, processID,tasksRequestAcction,taskID);
 	
     }
