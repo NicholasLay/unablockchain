@@ -6,6 +6,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+
 import javax.net.ssl.SSLContext;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.CompleteTaskRequestBean;
 import com.ibm.bpm.adira.domain.GlobalString;
 import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
@@ -49,22 +52,21 @@ private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.
 			throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, JsonProcessingException
 			
 	{
-
-		String orderID 	= completeTaskRequest.getOrderID();
-		int processID 	= completeTaskRequest.getProcessID();
-		int taskID 		= completeTaskRequest.getTaskID();
+		Gson json = new Gson();
+		String orderID 				 = completeTaskRequest.getOrderID();
+		int processID 				 = completeTaskRequest.getProcessID();
+		int taskID 					 = completeTaskRequest.getTaskID();
+		ArrayList<String> groupAlias = completeTaskRequest.getGroupAlias();
+		String locationAlias 		 = completeTaskRequest.getLocationAlias();
+		Boolean isLocation 			 = false;
 		
-		String logTracker = 
-				"From acction: "+ 
-				"Order ID ="+orderID+
-				"Process ID ="+processID+
-				"Task ID = "+taskID;
+		String logTracker = json.toJson(completeTaskRequest);
 	
-		logger.info(logTracker);
+		logger.info("[CompleteTaskController] Request Complete Task Acction :"+logTracker+"");
 		
 		String completeTaskURL = "https://10.81.3.38:9443/rest/bpm/wle/v1/task/"+taskID+"?action=finish&parts=all";
     	
-    	logger.info("Process Service Impl:"+completeTaskURL);
+    	logger.info("[CompleteTaskController] URL TO BPM:"+completeTaskURL);
     	
     	logger.info("Masuk Auth");
 		String plainCreds = "acction:ADira2017";
@@ -75,14 +77,13 @@ private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add("Authorization", "Basic " + base64Creds);
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
-		logger.info("Auth is being processed");
-		
+	
 		RestTemplate restTemplate = getRestTemplate();
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
 		
 		String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class);
 		
-		logger.info("----------- Response JSON CompeleteTask(JCT) from BPM: \n"+ responseFinishTaskBPM+"-------------");
+		logger.info("----------- [CompleteTaskController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 		
 		if (basicAuth.startsWith("Basic"))
 		{
@@ -90,28 +91,27 @@ private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.
 			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
 			String[] values = credentials.split(":",2);
 			
-			logger.info("USERNAME "+values[0]);
-			logger.info("PASSWORD "+values[1]);
+			logger.info("[CompleteTaskController] Authentication from Acction to API. Username "+values[0] + "Password "+values[1]);
 			
 			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
-			String responseAd1Gate = ad1ServiceImpl.authResponse(values[0], values[1]);
-			logger.info("--------RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
+			String responseAd1Gate = ad1ServiceImpl.getNIK(groupAlias, locationAlias, isLocation);
+		
+			logger.info("--------[CompleteTaskController]RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
 			
-			
-			if (responseAd1Gate.equals(GlobalString.OK_MESSAGE))
+			if (responseAd1Gate.matches("(.*)"+values[0]+"(.*)"))
 			{					
-				logger.info("-----COMPLETE TASK SUCESS, PROCESS CURRENT STATE TO GET NEXT TASK------");
+				logger.info("-----[CompleteTaskController] USER MATCHES, PROCESS CURRENT STATE TO GET NEXT TASK------");
 				return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
 				
 			}
 			else
 			{	
-				logger.info("-----COMPLETE TASK FAILED------");
+				logger.info("-----[CompleteTaskController] USER NOT FOUND, COMPLETE TASK FAILED------");
 				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 			}
 
 		}
-		logger.info("-----COMPLETE TASK AUTHORIZATION IS NOT BASIC------");
+		logger.info("-----[CompleteTaskController] AUTHORIZATION IS NOT BASIC------");
 		return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	}
 	

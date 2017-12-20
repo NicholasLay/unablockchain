@@ -6,6 +6,9 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.net.ssl.SSLContext;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -28,6 +31,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.Gson;
+import com.ibm.bpm.adira.domain.CompleteTaskRequestBean;
 import com.ibm.bpm.adira.domain.CurrentStateRequestBean;
 import com.ibm.bpm.adira.domain.GlobalString;
 import com.ibm.bpm.adira.service.ProcessService;
@@ -49,16 +54,20 @@ public class CurrentStateController
 	@RequestMapping(value="/currentState", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> authenticate(@RequestHeader("Authorization") String basicAuth,
 			@RequestBody CurrentStateRequestBean currStateReq) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, JsonProcessingException
-	{
+	{	
 		
-		String orderId	 = currStateReq.getOrderID();
-		int processId = currStateReq.getProcessID();
-		int taskId = currStateReq.getTaskID();
+		Gson json = new Gson();
+		String orderId	 			 = currStateReq.getOrderID();
+		int processId 				 = currStateReq.getProcessID();
+		int taskId 					 = currStateReq.getTaskID();
+		ArrayList<String> groupAlias = currStateReq.getGroupAlias();
+		String locationAlias 		 = currStateReq.getLocationAlias();
+		Boolean isLocation 			 = false;
+	
 		
-		logger.info(
-				"From acction: Order ID "+orderId+
-				"Process ID "+processId
-				);
+		String logTracker = json.toJson(currStateReq);
+		
+		logger.info("[CurrentStateController] Request CurrentState Acction :"+logTracker+"");
 				
 		if (basicAuth.startsWith("Basic"))
 		{
@@ -66,30 +75,28 @@ public class CurrentStateController
 			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
 			String[] values = credentials.split(":",2);
 			
-			logger.info("USERNAME "+values[0]);
-			logger.info("PASSWORD "+values[1]);
+			logger.info("[CurrentStateController] Authentication from Acction to API. Username "+values[0] + "Password "+values[1]);
 			
 			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
-			String responseAd1Gate = ad1ServiceImpl.authResponse(values[0], values[1]);
-			logger.info("--------RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
+			String responseAd1GateCurrentState = ad1ServiceImpl.getNIK(groupAlias, locationAlias, isLocation);
 			
+			logger.info("--------[CurrentStateController]RESPONSE From AD1GATE :  "+ responseAd1GateCurrentState +"-------------");
 			
-			if (responseAd1Gate.equals(GlobalString.OK_MESSAGE))
+			if (responseAd1GateCurrentState.matches("(.*)"+values[0]+"(.*)"))
 			{	
-				logger.info("-----------SUCESS ENTERING AUTHORIZATION -----------");
-	
+				logger.info("-----------[CurrentStateController]USER MATCHES, SUCCSESS ENTERING AUTHORIZATION -----------");
+				
 				processService.processCurrentState(GlobalString.SERVICE_NAME_CURRENT_STATE,orderId,processId,taskId);
 				
 				return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
 			}
 			else
 			{
-				logger.info("-----------NOT OK RESPONSE -----------");
+				logger.info("-----------[CurrentStateController] USER NOT FOUND ,NOT OK RESPONSE -----------");
 				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 			}
 		}
-		logger.info("-----------NOT BASIC AUTHORIZATION -----------");
-		
+		logger.info("-----------[CurrentStateController] NOT BASIC AUTHORIZATION -----------");
 		return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	}
 	
@@ -108,7 +115,6 @@ public class CurrentStateController
 	    RestTemplate restTemplate = new RestTemplate(requestFactory);
 	    return restTemplate;
 	}
-	
 }
 //String inner = "";	
 //try{

@@ -6,6 +6,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+
 import javax.net.ssl.SSLContext;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -53,7 +55,6 @@ public class ClaimTaskController {
 	{
 
 		String orderId	 = claimtaskReq.getOrderID();
-		int processId	 = claimtaskReq.getProcessID();
 		int brmsScoring	 = claimtaskReq.getBrmsScoring();
 		int taskId 		 = claimtaskReq.getTaskID();
 		Boolean mayor 	 = claimtaskReq.getMayor();
@@ -61,7 +62,6 @@ public class ClaimTaskController {
 		
 		logger.info("From acction: "+ 
 				"Order ID "+orderId+
-				"Process ID "+processId+
 				"Task ID "+taskId+
 				"BRMS "+brmsScoring+
 				"Mayor "+mayor
@@ -71,7 +71,7 @@ public class ClaimTaskController {
 	
 		logger.info("URL:"+ walletBalanceUrl);
 
-		logger.info("-----------ENTERING AUTHORIZATION-----------");
+		logger.info("-----------[ClaimTaskController] ENTERING AUTHORIZATION-----------");
 	
 		String plainCreds = "acction:ADira2017";
 		byte[] plainCredsBytes = plainCreds.getBytes();
@@ -82,7 +82,7 @@ public class ClaimTaskController {
 		httpHeaders.add("Authorization", "Basic " + base64Creds);
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
 	
-		logger.info("\"-----------PROCESSING AUTHORIZATION-----------\"");
+		logger.info("\"-----------[ClaimTaskController] PROCESSING AUTHORIZATION-----------\"");
 
 		RestTemplate restTemplate = getRestTemplate();
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
@@ -90,18 +90,18 @@ public class ClaimTaskController {
 		String response = restTemplate.postForObject(walletBalanceUrl, entity, String.class);
 		String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()); 
 
-		logger.info("-----------RESPONSE JSON BPM ("+timestamp+") = "+response+"-----------");
+		logger.info("-----------[ClaimTaskController] RESPONSE JSON BPM ("+timestamp+") = "+response+"-----------");
 		
 		Gson json = new Gson();
 		
 		ClaimTaskResponseBean responseBpmClaim = json.fromJson(response, ClaimTaskResponseBean.class);
-		
 		ClaimTaskResponseToAcction beanAcctionClaim = new ClaimTaskResponseToAcction();
 		
 		String responseToAcction = "";
 		
 		if (basicAuth.startsWith("Basic"))
 		{
+			
 			String base64Credentials = basicAuth.substring("Basic".length()).trim();
 			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
 			String[] values = credentials.split(":",2);
@@ -110,18 +110,23 @@ public class ClaimTaskController {
 			logger.info("PASSWORD "+values[1]);
 			
 			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
-			String responseAd1Gate = ad1ServiceImpl.authResponse(values[0], values[1]);
-			logger.info("--------RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
 			
+			ArrayList<String> groupAlias = claimtaskReq.getGroupAlias();
+			String locationAlias = claimtaskReq.getLocationAlias();
+			Boolean isLocation = false;
 			
-			if (responseAd1Gate.equals(GlobalString.OK_MESSAGE))
+			String responseAd1Gate = ad1ServiceImpl.getNIK(groupAlias, locationAlias, isLocation);
+			
+			logger.info("--------[ClaimTaskController]RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
+			
+			if(responseAd1Gate.matches("(.*)"+values[0]+"(.*)"))
 			{	
 				
-				logger.info("-----------SUCESS ENTERING RESPONSE -----------");
+				logger.info("-----------[ClaimTaskController] USER MATCHES,  ENTERING RESPONSE TO ACCTION -----------");
 				beanAcctionClaim.setOrderID(orderId);
 				beanAcctionClaim.setTaskID(taskId);
 				beanAcctionClaim.setStatus(responseBpmClaim.getStatus());
-				beanAcctionClaim.setUserClaim(userClaim);
+				beanAcctionClaim.setUserClaim(userClaim); 
 				
 				responseToAcction = json.toJson(beanAcctionClaim);
 				
@@ -129,7 +134,7 @@ public class ClaimTaskController {
 			}
 			else
 			{
-				logger.info("-----------NOT OK RESPONSE -----------");
+				logger.info("-----------[ClaimTaskController] USER NOT FOUND , NOT OK RESPONSE -----------");
 				beanAcctionClaim.setOrderID(GlobalString.EMPTY_STRING);
 				beanAcctionClaim.setTaskID(GlobalString.EMPTY_INTEGER);
 				beanAcctionClaim.setStatus(GlobalString.RESP_FAILED);
@@ -138,10 +143,9 @@ public class ClaimTaskController {
 				
 				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
 			}
-
 		}
 
-		logger.info("-----------NOT BASIC AUTHORIZATION -----------");
+		logger.info("-----------[ClaimTaskController] NOT BASIC AUTHORIZATION -----------");
 		beanAcctionClaim.setOrderID(GlobalString.EMPTY_STRING);
 		beanAcctionClaim.setTaskID(GlobalString.EMPTY_INTEGER);
 		beanAcctionClaim.setStatus(GlobalString.AUTH_FAILED_AD1);
