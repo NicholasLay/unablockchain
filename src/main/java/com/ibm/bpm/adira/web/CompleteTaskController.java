@@ -7,7 +7,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-
 import javax.net.ssl.SSLContext;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -32,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.CompleteTaskRequestBean;
+import com.ibm.bpm.adira.domain.CompleteTaskResponseBean;
 import com.ibm.bpm.adira.domain.GlobalString;
 import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
 import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
@@ -82,6 +82,8 @@ private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
 		
 		String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class);
+		
+		CompleteTaskResponseBean completeTaskResponseBPM = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
 		
 		logger.info("----------- [CompleteTaskController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 		

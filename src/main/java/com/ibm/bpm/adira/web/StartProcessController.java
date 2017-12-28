@@ -53,26 +53,20 @@ public class StartProcessController
 			@RequestBody StartProcessRequestBean startProcess) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, JsonProcessingException
 	{
 		
-		String orderId	= startProcess.getOrderID();
-		int brmsScoring	= startProcess.getBrmsScoring();
-		Boolean isSignPK= startProcess.getIsSignPK();
-		Boolean isTele  = startProcess.getIsTele();
-		Boolean isMayor 	= startProcess.getIsMayor();
-		Boolean isSalesMayor = startProcess.getIsSalesMayor();
-		Boolean isManualAssign = startProcess.getIsManualAssign();
+		String orderId			= startProcess.getOrderID();
+		int brmsScoring			= startProcess.getBrmsScoring();
+		Boolean isSignPK		= startProcess.getIsSignPK();
+		Boolean isTele			= startProcess.getNeedTele();
+		Boolean isMayor 	   	= startProcess.getIsMayor();
+		Boolean isSalesMayor	= startProcess.getIsSalesMayor();
+		Boolean isManualAssign	= startProcess.getIsManualAssign();
+		String  cmoApprove		= startProcess.getIsAOSCMOApprove();
+		Boolean toIDe 			= startProcess.getToIDE();
+		Boolean isDacor 		= startProcess.getIsDacor();
 		
-		logger.info(
-				"From Acction: Order ID = "+orderId+", \n "
-			  + "BRMS Scoring = "+brmsScoring+",\n"
-			  + "isSignPK = "+isSignPK+"\n,"
-			  + "isTele = "+isTele+"\n,"
-			  + "isMayor = "+isMayor+"\n,"
-			  + "isSalesMayor = "+isSalesMayor+"\n,"
-			  + "isManualAssign = "+isManualAssign+""
-		);
-		
+		Gson json = new Gson();
+	
 		//Response BPM Initialize
-		StartProcessResponseBean startProcessResp = new StartProcessResponseBean();
 		String assignedToType 		= "";
 		String displayName			= "";
 		String dueTime				= "";
@@ -82,10 +76,15 @@ public class StartProcessController
 		int processId	= 0;
 				
 		Gson jsonRequest = new Gson();
+		
 		String jsonStartRequestAcction = jsonRequest.toJson(startProcess);
 		
+		logger.info(
+				"[StartProcessController] Request From Acction: "+jsonStartRequestAcction+""
+		);
+		
 		String bpdId = "25.9a0484ab-9ece-44e0-8cc2-e086172e2cc1";
-		String snapshotId = "2064.90e3d5b9-8c89-415c-95f5-c444a4ab116e";
+		String snapshotId = "2064.f1973aac-9183-469d-b4d7-b293b68ad165";
 		String processAppId = "2066.c464e5f1-3399-406f-a208-eddaad75b871";
 		
 		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/process?action=start&"
@@ -93,9 +92,9 @@ public class StartProcessController
 				+ "snapshotId="+snapshotId+"&"
 				+ "processAppId="+processAppId+"&params={jsonStartRequestAcction}&parts=all";
 		
-		logger.info("-----------URL : "+walletBalanceUrl+"---------------");
+		logger.info("-----------[StartProcessController] URL : "+walletBalanceUrl+"---------------");
 		
-		logger.info("-----------ENTERING AUTHORIZATION IBM BPM-----------");
+		logger.info("-----------[StartProcessController] ENTERING AUTHORIZATION IBM BPM-----------");
 		
 		String plainCreds = "acction:ADira2017";
 		byte[] plainCredsBytes = plainCreds.getBytes();
@@ -107,15 +106,15 @@ public class StartProcessController
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
 		
-		logger.info("\"-----------PROCESSING AUTHORIZATION IBM BPM-----------\"");
+		logger.info("\"-----------[StartProcessController] PROCESSING AUTHORIZATION IBM BPM-----------\"");
 
 		RestTemplate restTemplate = getRestTemplate();
 		String responseFromBPM = restTemplate.postForObject(walletBalanceUrl, entity, String.class, jsonStartRequestAcction);
 		String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()); 
 		
-		logger.info("-----------RESPONSE JSON START PROCESS (JSP) BPM ("+timestamp+") = "+responseFromBPM+"-----------");
+		logger.info("-----------[StartProcessController] Response StartProcess From BPM:  ("+timestamp+") = "+responseFromBPM+"-----------");
 		
-		Gson json = new Gson();
+		
 		
 		StartProcessResponseBean responseBeanBPM = json.fromJson(responseFromBPM, StartProcessResponseBean.class);
 
