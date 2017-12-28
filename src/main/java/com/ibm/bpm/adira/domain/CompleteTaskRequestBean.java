@@ -13,9 +13,14 @@ public class CompleteTaskRequestBean
 	public String orderID;
 	public int processID;
 	public int taskID;
-	private ArrayList<String> GroupAlias;
-	private String LocationAlias;
-	private boolean isAlias;
+	public ArrayList<String> GroupAlias;
+	public String LocationAlias;
+	public Boolean isAlias;
+	public String isAOSCMOApprove;
+	public Boolean toIDE;
+	public Boolean isDacor;
+	public String surveyResult;
+	public String approvalResult;
 	
 	
 	public CompleteTaskRequestBean(){
@@ -30,8 +35,53 @@ public class CompleteTaskRequestBean
 		this.GroupAlias = GroupAlias;
 		this.LocationAlias = LocationAlias;
 		this.isAlias = isAlias;
+		
 	}
 	
+	public CompleteTaskRequestBean(String orderID, int processID , int taskID, Boolean isDacor ,Boolean toIDE, String isAOSCMOApprove, String surveyResult )
+	{
+		this.orderID = orderID;
+		this.processID = processID;
+		this.taskID = taskID;
+		this.isDacor = isDacor;
+		this.toIDE = toIDE;
+		this.isAOSCMOApprove = isAOSCMOApprove;
+		this.surveyResult = surveyResult;
+	}
+
+	
+	public String getApprovalResult() {
+		return approvalResult;
+	}
+
+	public void setApprovalResult(String approvalResult) {
+		this.approvalResult = approvalResult;
+	}
+
+	public String getOrderID() {
+		return orderID;
+	}
+
+	public void setOrderID(String orderID) {
+		this.orderID = orderID;
+	}
+
+	public int getProcessID() {
+		return processID;
+	}
+
+	public void setProcessID(int processID) {
+		this.processID = processID;
+	}
+
+	public int getTaskID() {
+		return taskID;
+	}
+
+	public void setTaskID(int taskID) {
+		this.taskID = taskID;
+	}
+
 	public ArrayList<String> getGroupAlias() {
 		return GroupAlias;
 	}
@@ -48,28 +98,44 @@ public class CompleteTaskRequestBean
 		LocationAlias = locationAlias;
 	}
 
-	public boolean getIsAlias() {
+	public Boolean getIsAlias() {
 		return isAlias;
 	}
-	public void setIsAlias(boolean isAlias) {
+
+	public void setIsAlias(Boolean isAlias) {
 		this.isAlias = isAlias;
 	}
-	public String getOrderID() {
-		return orderID;
+
+	public String getIsAOSCMOApprove() {
+		return isAOSCMOApprove;
 	}
-	public void setOrderID(String orderID) {
-		this.orderID = orderID;
+
+	public void setIsAOSCMOApprove(String isAOSCMOApprove) {
+		this.isAOSCMOApprove = isAOSCMOApprove;
 	}
-	public int getProcessID() {
-		return processID;
+
+	public Boolean getToIDE() {
+		return toIDE;
 	}
-	public void setProcessID(int processID) {
-		this.processID = processID;
+
+	public void setToIDE(Boolean toIDE) {
+		this.toIDE = toIDE;
 	}
-	public int getTaskID() {
-		return taskID;
+
+	public Boolean getIsDacor() {
+		return isDacor;
 	}
-	public void setTaskID(int taskID) {
-		this.taskID = taskID;
+
+	public void setIsDacor(Boolean isDacor) {
+		this.isDacor = isDacor;
 	}
+
+	public String getSurveyResult() {
+		return surveyResult;
+	}
+
+	public void setSurveyResult(String surveyResult) {
+		this.surveyResult = surveyResult;
+	}
+	
 }
