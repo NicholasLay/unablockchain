@@ -30,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.GlobalString;
+import com.ibm.bpm.adira.domain.PropertiesLoader;
 import com.ibm.bpm.adira.domain.ReleaseTaskRequestBean;
 import com.ibm.bpm.adira.domain.ReleaseTaskResponseBean;
 import com.ibm.bpm.adira.domain.ReleaseTaskResponseToAcction;
@@ -41,8 +42,9 @@ import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
  */
 
 @Controller
-public class ReleaseTaskController {
-	
+public class ReleaseTaskController 
+{
+	private PropertiesLoader propertiesLoader = null;
 	private static final Logger logger = LoggerFactory.getLogger(ReleaseTaskController.class);
 
 	
@@ -69,7 +71,12 @@ public class ReleaseTaskController {
 		
 		logger.info(RequestLog);
 		
-		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/task/"+taskId+"?action=cancel";
+		propertiesLoader = new PropertiesLoader();
+		
+		String bpmip = propertiesLoader.loadProperties("bpmip");
+		String walletBalanceUrl = "https://"
+				+ bpmip
+				+ ":9443/rest/bpm/wle/v1/task/"+taskId+"?action=cancel";
 		
 		logger.info("URL:"+ walletBalanceUrl);
 

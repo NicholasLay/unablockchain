@@ -23,7 +23,17 @@ public class CurrentStateResponseBean implements Serializable
 	}
 
 public class Data{
+	
+		public VariablesCurrState variables;
 		public List<TasksCurrentState> tasks;
+
+		public VariablesCurrState getVariables() {
+			return variables;
+		}
+
+		public void setVariables(VariablesCurrState variables) {
+			this.variables = variables;
+		}
 
 		public List<TasksCurrentState> getTasks() {
 			return tasks;
@@ -32,7 +42,20 @@ public class Data{
 		public void setTasks(List<TasksCurrentState> tasks) {
 			this.tasks = tasks;
 		}
+}
+
+
+public class VariablesCurrState{
+	public Integer currentLevel;
+
+	public Integer getCurrentLevel() {
+		return currentLevel;
 	}
+
+	public void setCurrentLevel(Integer currentLevel) {
+		this.currentLevel = currentLevel;
+	}
+}
 		
 public class TasksCurrentState {
 			
@@ -47,6 +70,7 @@ public class TasksCurrentState {
 			public String processInstanceName;
 			public int piid;
 			public String status;
+			public int currentLevel;
 			
 			// Initializing variables for Acction.
 			public String assignTo;
@@ -54,6 +78,13 @@ public class TasksCurrentState {
 			public int taskID;
 			public int processID; 
 			
+		
+			public int getCurrentLevel() {
+				return currentLevel;
+			}
+			public void setCurrentLevel(int currentLevel) {
+				this.currentLevel = currentLevel;
+			}
 			public String getStatus() {
 				return status;
 			}

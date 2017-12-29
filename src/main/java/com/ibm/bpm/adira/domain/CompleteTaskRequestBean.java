@@ -21,6 +21,9 @@ public class CompleteTaskRequestBean
 	public Boolean isDacor;
 	public String surveyResult;
 	public String approvalResult;
+	public Boolean isMayor;
+	public Boolean isSalesMayor;
+	public Boolean isSignPK;
 	
 	
 	public CompleteTaskRequestBean(){
@@ -49,7 +52,30 @@ public class CompleteTaskRequestBean
 		this.surveyResult = surveyResult;
 	}
 
-	
+	public Boolean getIsMayor() {
+		return isMayor;
+	}
+
+	public void setIsMayor(Boolean isMayor) {
+		this.isMayor = isMayor;
+	}
+
+	public Boolean getIsSalesMayor() {
+		return isSalesMayor;
+	}
+
+	public void setIsSalesMayor(Boolean isSalesMayor) {
+		this.isSalesMayor = isSalesMayor;
+	}
+
+	public Boolean getIsSignPK() {
+		return isSignPK;
+	}
+
+	public void setIsSignPK(Boolean isSignPK) {
+		this.isSignPK = isSignPK;
+	}
+
 	public String getApprovalResult() {
 		return approvalResult;
 	}

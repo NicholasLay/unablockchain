@@ -6,7 +6,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Map;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -16,8 +15,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.json.JsonParser;
-import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,28 +22,29 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.GlobalString;
+import com.ibm.bpm.adira.domain.PropertiesLoader;
 import com.ibm.bpm.adira.domain.StartProcessRequestBean;
 import com.ibm.bpm.adira.domain.StartProcessResponseBean;
 import com.ibm.bpm.adira.domain.StartProcessResponseToAcction;
 import com.ibm.bpm.adira.domain.StartProcessResponseBean.Tasks;
 import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
-import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
+/*
+ * This class is used to start the IDE Process in IBM BPM.
+ */
 
 @Controller
 public class StartProcessController 
 {
+	private PropertiesLoader propertiesLoader = null;
 	private static final Logger logger = LoggerFactory.getLogger(StartProcessController.class);
 	@RequestMapping(value="/startProcessIDE", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> authenticate(@RequestHeader("Authorization") String basicAuth,
@@ -83,11 +81,16 @@ public class StartProcessController
 				"[StartProcessController] Request From Acction: "+jsonStartRequestAcction+""
 		);
 		
-		String bpdId = "25.9a0484ab-9ece-44e0-8cc2-e086172e2cc1";
-		String snapshotId = "2064.f1973aac-9183-469d-b4d7-b293b68ad165";
-		String processAppId = "2066.c464e5f1-3399-406f-a208-eddaad75b871";
+		propertiesLoader = new PropertiesLoader();
 		
-		String walletBalanceUrl = "https://10.81.3.38:9443/rest/bpm/wle/v1/process?action=start&"
+		String bpdId = propertiesLoader.loadProperties("bpdid");
+		String snapshotId = propertiesLoader.loadProperties("snapshotid");
+		String processAppId = propertiesLoader.loadProperties("processappid");
+		String bpmip = propertiesLoader.loadProperties("bpmip");
+		
+		String walletBalanceUrl = "https://"
+				+ bpmip
+				+ ":9443/rest/bpm/wle/v1/process?action=start&"
 				+ "bpdId="+bpdId+"&"
 				+ "snapshotId="+snapshotId+"&"
 				+ "processAppId="+processAppId+"&params={jsonStartRequestAcction}&parts=all";

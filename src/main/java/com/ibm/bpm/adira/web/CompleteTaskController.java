@@ -1,5 +1,6 @@
 package com.ibm.bpm.adira.web;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -7,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+
 import javax.net.ssl.SSLContext;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -32,7 +34,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.CompleteTaskRequestBean;
 import com.ibm.bpm.adira.domain.CompleteTaskResponseBean;
+import com.ibm.bpm.adira.domain.GeneralRequestParameter;
 import com.ibm.bpm.adira.domain.GlobalString;
+import com.ibm.bpm.adira.domain.PropertiesLoader;
 import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
 import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 
@@ -43,14 +47,14 @@ import com.ibm.bpm.adira.service.impl.ProcessServiceImpl;
 @Controller
 public class CompleteTaskController 
 {
-	
-private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.class);
+	private PropertiesLoader propertiesLoader = null;
+	private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.class);
 	
 	@RequestMapping(value="/completeTask", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> authenticate(@RequestHeader("Authorization") String basicAuth,
-			@RequestBody CompleteTaskRequestBean completeTaskRequest) 
-			throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, JsonProcessingException
-			
+	@RequestBody CompleteTaskRequestBean completeTaskRequest) 
+	throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, IOException,JsonProcessingException , InterruptedException
+
 	{
 		Gson json = new Gson();
 		String orderID 				 = completeTaskRequest.getOrderID();
@@ -60,12 +64,29 @@ private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.
 		String locationAlias 		 = completeTaskRequest.getLocationAlias();
 		Boolean isLocation 			 = false;
 		
-		String logTracker = json.toJson(completeTaskRequest);
-	
-		logger.info("[CompleteTaskController] Request Complete Task Acction :"+logTracker+"");
+		logger.info("[CompleteTaskController] Request Complete Task Acction :"+json.toJson(completeTaskRequest)+"");
 		
-		String completeTaskURL = "https://10.81.3.38:9443/rest/bpm/wle/v1/task/"+taskID+"?action=finish&parts=all";
-    	
+		String completeTaskRequestAcction = "";
+		GeneralRequestParameter parameterComplete = new GeneralRequestParameter();
+		
+		if(null == completeTaskRequest.getSurveyResult()) {
+			
+			completeTaskRequestAcction = json.toJson(parameterComplete);
+			
+		}else {
+			
+			 parameterComplete.setSurveyResult(completeTaskRequest.getSurveyResult());
+			
+			 completeTaskRequestAcction = json.toJson(parameterComplete);
+		}
+		
+		propertiesLoader = new PropertiesLoader();
+		
+		String bpmip = propertiesLoader.loadProperties("bpmip");
+		String completeTaskURL = "https://"
+				+ bpmip
+				+ ":9443/rest/bpm/wle/v1/task/"+taskID+"?action=finish&params={completeTaskRequestAcction}&parts=all";
+		
     	logger.info("[CompleteTaskController] URL TO BPM:"+completeTaskURL);
     	
     	logger.info("Masuk Auth");
@@ -78,17 +99,17 @@ private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.
 		httpHeaders.add("Authorization", "Basic " + base64Creds);
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
 	
+		try {
+			
 		RestTemplate restTemplate = getRestTemplate();
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
+	
+		Thread.sleep(5000);
 		
-		String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class);
 		
-		CompleteTaskResponseBean completeTaskResponseBPM = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
 		
-		logger.info("----------- [CompleteTaskController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 		
-		if (basicAuth.startsWith("Basic"))
-		{
+		if (basicAuth.startsWith("Basic")){
 			String base64Credentials = basicAuth.substring("Basic".length()).trim();
 			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
 			String[] values = credentials.split(":",2);
@@ -102,20 +123,29 @@ private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.
 			
 			if (responseAd1Gate.matches("(.*)"+values[0]+"(.*)"))
 			{					
-				logger.info("-----[CompleteTaskController] USER MATCHES, PROCESS CURRENT STATE TO GET NEXT TASK------");
-				return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
+				logger.info("-----[CompleteTaskController] USER MATCHES, PROCESSING COMPLETE TASK------");
 				
+				String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class, completeTaskRequestAcction);
+				Thread.sleep(5000);
+				CompleteTaskResponseBean completeTaskResponseBPM = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
+				
+				logger.info("----------- [CompleteTaskController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
+				return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
 			}
 			else
 			{	
 				logger.info("-----[CompleteTaskController] USER NOT FOUND, COMPLETE TASK FAILED------");
 				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 			}
-
 		}
+	}catch(Exception e) {
+		logger.info("-----[CompleteTaskController]Exception Invoked. Complete Task has been canceled------");
+		e.printStackTrace();	
+	}
+	
 		logger.info("-----[CompleteTaskController] AUTHORIZATION IS NOT BASIC------");
 		return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
-	}
+}
 	
     public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
 	    TrustStrategy acceptingTrustStrategy = new TrustStrategy() {

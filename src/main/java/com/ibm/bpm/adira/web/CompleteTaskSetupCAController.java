@@ -39,11 +39,14 @@ import com.ibm.bpm.adira.domain.AcctionCallBackRequestBean;
 import com.ibm.bpm.adira.domain.CompleteTaskRequestBean;
 import com.ibm.bpm.adira.domain.CurrentStateResponseBean;
 import com.ibm.bpm.adira.domain.GlobalString;
+import com.ibm.bpm.adira.domain.PropertiesLoader;
 import com.ibm.bpm.adira.domain.CurrentStateResponseBean.TasksCurrentState;
 import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
 
 @Controller
-public class CompleteTaskSetupCAController {
+public class CompleteTaskSetupCAController 
+{
+	private PropertiesLoader propertiesLoader = null;
 	private static final Logger logger = LoggerFactory.getLogger(CompleteTaskSetupCAController.class);
 	
 	@RequestMapping(value="/completeTaskSetupCA", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
@@ -64,7 +67,12 @@ public class CompleteTaskSetupCAController {
 	
 		logger.info("[CompleteTaskSetupCAController] Request Complete Task Acction :"+logTracker+"");
 		
-		String completeTaskURL = "https://10.81.3.38:9443/rest/bpm/wle/v1/task/"+taskID+"?action=finish&parts=all";
+		propertiesLoader = new PropertiesLoader();
+		
+		String bpmip = propertiesLoader.loadProperties("bpmip");
+		String completeTaskURL = "https://"
+				+ bpmip
+				+ ":9443/rest/bpm/wle/v1/task/"+taskID+"?action=finish&parts=all";
     	
     	logger.info("[CompleteTaskSetupCAController] URL TO BPM:"+completeTaskURL);
     	
@@ -122,7 +130,12 @@ public String currentState(String orderID,int processID ,int taskID) throws KeyM
     	logger.info("--------------------------Entering current state--------------------------\n");
     	
     	Gson json = new Gson();
-    	String currentStateURL = "https://10.81.3.38:9443/rest/bpm/wle/v1/process/"+processID+"?parts=all";
+    	propertiesLoader = new PropertiesLoader();
+		
+		String bpmip = propertiesLoader.loadProperties("bpmip");
+    	String currentStateURL = "https://"
+    			+ bpmip
+    			+ ":9443/rest/bpm/wle/v1/process/"+processID+"?parts=all";
 		
     	logger.info("-------------------- [CompleteTaskSetupCAController] URL CURRENT STATE :"+currentStateURL+"------------------------------");
 		

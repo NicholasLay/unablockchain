@@ -30,15 +30,16 @@ import com.ibm.bpm.adira.domain.AcctionCallBackRequestBean;
 import com.ibm.bpm.adira.domain.CurrentStateResponseBean;
 import com.ibm.bpm.adira.domain.CurrentStateResponseBean.TasksCurrentState;
 import com.ibm.bpm.adira.domain.GlobalString;
+import com.ibm.bpm.adira.domain.PropertiesLoader;
 import com.ibm.bpm.adira.service.ProcessService;
 
 @Service
 public class ProcessServiceImpl implements ProcessService {
-
+	
+	private PropertiesLoader propertiesLoader = null;
     private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.class);
    
     @Async("processExecutor")
-    
 	@Override
 	public void processCurrentState(String service, String orderID, int processID , int taskID)  {
 		// TODO Auto-generated method stub
@@ -66,8 +67,11 @@ public class ProcessServiceImpl implements ProcessService {
     {
     	RestTemplate restTemplate = new RestTemplate();
     	Gson json = new Gson();
-    	
-    	String linkURL = "http://10.61.5.247:7727";
+    	propertiesLoader = new PropertiesLoader();
+		
+		String acctionip = propertiesLoader.loadProperties("acctionip");
+		String acctionport = propertiesLoader.loadProperties("acctionport");
+		String linkURL = "http://"+acctionip+":"+acctionport;
     	String acctionUrl = ""+linkURL+"/adira-acction/acction/v1/service/bpm/callback/complete";
     
     	logger.info("[ProcessServiceImplCurrentState] : ACCTION URL"+ acctionUrl);
@@ -101,8 +105,13 @@ public class ProcessServiceImpl implements ProcessService {
     	
     	logger.info("--------------------------Entering current state--------------------------\n");
     	
+    	propertiesLoader = new PropertiesLoader();
+		
+		String bpmip = propertiesLoader.loadProperties("bpmip");
     	Gson json = new Gson();
-    	String currentStateURL = "https://10.81.3.38:9443/rest/bpm/wle/v1/process/"+processID+"?parts=all";
+    	String currentStateURL = "https://"
+    			+ bpmip
+    			+ ":9443/rest/bpm/wle/v1/process/"+processID+"?parts=all";
 		
     	logger.info("-------------------- [ProcessServiceImpl] URL CURRENT STATE :"+currentStateURL+"------------------------------");
 		
