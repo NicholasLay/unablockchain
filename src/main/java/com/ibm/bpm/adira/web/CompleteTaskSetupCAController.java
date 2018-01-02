@@ -69,16 +69,20 @@ public class CompleteTaskSetupCAController
 		
 		propertiesLoader = new PropertiesLoader();
 		
-		String bpmip = propertiesLoader.loadProperties("bpmip");
+		String bpmUrl = propertiesLoader.loadProperties("bpmurl");
+		//String bpmip = propertiesLoader.loadProperties("bpmip");
+		/*
 		String completeTaskURL = "https://"
 				+ bpmip
 				+ ":9443/rest/bpm/wle/v1/task/"+taskID+"?action=finish&parts=all";
-    	
+    	*/
+		String completeTaskURL = bpmUrl + "/task/"+taskID+"?action=finish&parts=all";
     	logger.info("[CompleteTaskSetupCAController] URL TO BPM:"+completeTaskURL);
     	
     	logger.info("Masuk Auth");
-		String plainCreds = "acction:ADira2017";
-		byte[] plainCredsBytes = plainCreds.getBytes();
+		//String plainCreds = "acction:ADira2017";
+		String plainCreds = propertiesLoader.loadProperties("plaincreds");
+    	byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
 		String base64Creds = new String(base64CredsBytes);
 	 

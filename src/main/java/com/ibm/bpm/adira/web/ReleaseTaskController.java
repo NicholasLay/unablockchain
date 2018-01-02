@@ -73,16 +73,20 @@ public class ReleaseTaskController
 		
 		propertiesLoader = new PropertiesLoader();
 		
-		String bpmip = propertiesLoader.loadProperties("bpmip");
+		String bpmUrl = propertiesLoader.loadProperties("bpmurl");
+		//String bpmip = propertiesLoader.loadProperties("bpmip");
+		/*
 		String walletBalanceUrl = "https://"
 				+ bpmip
 				+ ":9443/rest/bpm/wle/v1/task/"+taskId+"?action=cancel";
-		
+		*/
+		String walletBalanceUrl = bpmUrl + "/task/"+taskId+"?action=cancel";
 		logger.info("URL:"+ walletBalanceUrl);
 
 		logger.info("-----------ENTERING AUTHORIZATION-----------");
 		
-		String plainCreds = "acction:ADira2017";
+		//String plainCreds = "acction:ADira2017";
+		String plainCreds = propertiesLoader.loadProperties("plaincreds");
 		byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
 		String base64Creds = new String(base64CredsBytes);
