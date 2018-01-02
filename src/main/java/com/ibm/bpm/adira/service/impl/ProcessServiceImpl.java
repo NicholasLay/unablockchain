@@ -69,10 +69,11 @@ public class ProcessServiceImpl implements ProcessService {
     	Gson json = new Gson();
     	propertiesLoader = new PropertiesLoader();
 		
-		String acctionip = propertiesLoader.loadProperties("acctionip");
-		String acctionport = propertiesLoader.loadProperties("acctionport");
-		String linkURL = "http://"+acctionip+":"+acctionport;
-    	String acctionUrl = ""+linkURL+"/adira-acction/acction/v1/service/bpm/callback/complete";
+		//String acctionip = propertiesLoader.loadProperties("acctionip");
+		//String acctionport = propertiesLoader.loadProperties("acctionport");
+		//String linkURL = "http://"+acctionip+":"+acctionport;
+    	String acctionUrl = propertiesLoader.loadProperties("acctionurl");
+		//String acctionUrl = ""+linkURL+"/adira-acction/acction/v1/service/bpm/callback/complete";
     
     	logger.info("[ProcessServiceImplCurrentState] : ACCTION URL"+ acctionUrl);
     	
@@ -107,17 +108,20 @@ public class ProcessServiceImpl implements ProcessService {
     	
     	propertiesLoader = new PropertiesLoader();
 		
-		String bpmip = propertiesLoader.loadProperties("bpmip");
+    	String bpmUrl = propertiesLoader.loadProperties("bpmurl");
+		//String bpmip = propertiesLoader.loadProperties("bpmip");
     	Gson json = new Gson();
+    	/*
     	String currentStateURL = "https://"
     			+ bpmip
     			+ ":9443/rest/bpm/wle/v1/process/"+processID+"?parts=all";
-		
+		*/
+    	String currentStateURL = bpmUrl + "/process/"+processID+"?parts=all";
     	logger.info("-------------------- [ProcessServiceImpl] URL CURRENT STATE :"+currentStateURL+"------------------------------");
-		
     	logger.info("Masuk Auth");
-		String plainCreds = "acction:ADira2017";
-		byte[] plainCredsBytes = plainCreds.getBytes();
+		//String plainCreds = "acction:ADira2017";
+		String plainCreds = propertiesLoader.loadProperties("plaincreds");
+    	byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
 		String base64Creds = new String(base64CredsBytes);
 	 
