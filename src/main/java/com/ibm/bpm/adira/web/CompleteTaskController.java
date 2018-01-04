@@ -69,17 +69,23 @@ public class CompleteTaskController
 		String completeTaskRequestAcction = "";
 		GeneralRequestParameter parameterComplete = new GeneralRequestParameter();
 		
-		if(null == completeTaskRequest.getSurveyResult()) {
-			
-			completeTaskRequestAcction = json.toJson(parameterComplete);
-			
-		}else {
-			
+		if(null != completeTaskRequest.getSurveyResult()) {
 			 parameterComplete.setSurveyResult(completeTaskRequest.getSurveyResult());
-			
-			 completeTaskRequestAcction = json.toJson(parameterComplete);
 		}
-		
+		if(null != completeTaskRequest.getIsAOSCMOApprove()) {
+			parameterComplete.setIsAOSCMOApprove(completeTaskRequest.getIsAOSCMOApprove());
+		}
+		if(null != completeTaskRequest.getIsAOSCFOApprove()) {
+			parameterComplete.setIsAOSCFOApprove(completeTaskRequest.getIsAOSCFOApprove());
+		}
+		if(null != completeTaskRequest.getToIDE()){
+			parameterComplete.setToIDE(completeTaskRequest.getToIDE());
+		}
+		if(null != completeTaskRequest.getIsDacor()) {
+			parameterComplete.setIsDacor(completeTaskRequest.getIsDacor());
+		}
+			
+		completeTaskRequestAcction = json.toJson(parameterComplete);
 		propertiesLoader = new PropertiesLoader();
 		
 		String bpmUrl = propertiesLoader.loadProperties("bpmurl");
