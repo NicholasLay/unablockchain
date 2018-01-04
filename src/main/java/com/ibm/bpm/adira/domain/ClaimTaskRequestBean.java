@@ -13,9 +13,9 @@ public class ClaimTaskRequestBean
 	public Boolean mayor;
 	public int brmsScoring;
 	public String userClaim;
-	private ArrayList<String> GroupAlias;
-	private String LocationAlias;
-	private boolean isAlias;
+	public ArrayList<String> GroupAlias;
+	public String LocationAlias;
+	public boolean isAlias;
 	
 	
 	public ClaimTaskRequestBean()
@@ -34,9 +34,46 @@ public class ClaimTaskRequestBean
 		this.brmsScoring = brmsScoring;
 	}
 
-	
-	
-	
+	public String getOrderID() {
+		return orderID;
+	}
+
+	public void setOrderID(String orderID) {
+		this.orderID = orderID;
+	}
+
+	public int getTaskID() {
+		return taskID;
+	}
+
+	public void setTaskID(int taskID) {
+		this.taskID = taskID;
+	}
+
+	public Boolean getMayor() {
+		return mayor;
+	}
+
+	public void setMayor(Boolean mayor) {
+		this.mayor = mayor;
+	}
+
+	public int getBrmsScoring() {
+		return brmsScoring;
+	}
+
+	public void setBrmsScoring(int brmsScoring) {
+		this.brmsScoring = brmsScoring;
+	}
+
+	public String getUserClaim() {
+		return userClaim;
+	}
+
+	public void setUserClaim(String userClaim) {
+		this.userClaim = userClaim;
+	}
+
 	public ArrayList<String> getGroupAlias() {
 		return GroupAlias;
 	}
@@ -60,40 +97,5 @@ public class ClaimTaskRequestBean
 	public void setAlias(boolean isAlias) {
 		this.isAlias = isAlias;
 	}
-
-	public String getUserClaim() {
-		return userClaim;
-	}
-
-	public void setUserClaim(String userClaim) {
-		this.userClaim = userClaim;
-	}
-	
-	public String getOrderID() {
-		return orderID;
-	}
-	public void setOrderID(String orderID) {
-		this.orderID = orderID;
-	}
-	
-	public int getTaskID() {
-		return taskID;
-	}
-	public void setTaskID(int taskID) {
-		this.taskID = taskID;
-	}
-	public Boolean getMayor() {
-		return mayor;
-	}
-	public void setMayor(Boolean mayor) {
-		this.mayor = mayor;
-	}
-	public int getBrmsScoring() {
-		return brmsScoring;
-	}
-	public void setBrmsScoring(int brmsScoring) {
-		this.brmsScoring = brmsScoring;
-	}
-	
 	
 }

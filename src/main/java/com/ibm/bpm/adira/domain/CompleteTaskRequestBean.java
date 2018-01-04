@@ -17,6 +17,7 @@ public class CompleteTaskRequestBean
 	public String LocationAlias;
 	public Boolean isAlias;
 	public String isAOSCMOApprove;
+	public String isAOSCFOApprove;
 	public Boolean toIDE;
 	public Boolean isDacor;
 	public String surveyResult;
@@ -24,6 +25,7 @@ public class CompleteTaskRequestBean
 	public Boolean isMayor;
 	public Boolean isSalesMayor;
 	public Boolean isSignPK;
+	
 	
 	
 	public CompleteTaskRequestBean(){
@@ -50,6 +52,14 @@ public class CompleteTaskRequestBean
 		this.toIDE = toIDE;
 		this.isAOSCMOApprove = isAOSCMOApprove;
 		this.surveyResult = surveyResult;
+	}
+
+	public String getIsAOSCFOApprove() {
+		return isAOSCFOApprove;
+	}
+
+	public void setIsAOSCFOApprove(String isAOSCFOApprove) {
+		this.isAOSCFOApprove = isAOSCFOApprove;
 	}
 
 	public Boolean getIsMayor() {
