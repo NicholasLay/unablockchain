@@ -52,7 +52,7 @@ public class CompleteTaskSetupCAController
 	@RequestMapping(value="/completeTaskSetupCA", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> authenticate(@RequestHeader("Authorization") String basicAuth,
 			@RequestBody CompleteTaskRequestBean completeTaskSetupCARequest) 
-			throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, JsonProcessingException
+			throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, JsonProcessingException, InterruptedException
 			
 	{
 		Gson json = new Gson();
@@ -97,6 +97,9 @@ public class CompleteTaskSetupCAController
 		
 		logger.info("----------- [CompleteTaskSetupCAController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 		
+		try
+		{
+		
 		if (basicAuth.startsWith("Basic"))
 		{
 			String base64Credentials = basicAuth.substring("Basic".length()).trim();
@@ -122,13 +125,17 @@ public class CompleteTaskSetupCAController
 				logger.info("-----[CompleteTaskSetupCAController] USER NOT FOUND, COMPLETE TASK FAILED------");
 				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 			}
-
+		}else {
+			logger.info("-----[CompleteTaskSetupCAController] AUTHORIZATION IS NOT BASIC------");
+			return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
 		}
-		logger.info("-----[CompleteTaskSetupCAController] AUTHORIZATION IS NOT BASIC------");
-		return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
+	}catch(Exception e) {
+		logger.info("-----[CompleteTaskSetupCAController]Exception Invoked. Complete Task SetupCA has been canceled------");
+		return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	}
-	
-	
+}
+		
+			
 public String currentState(String orderID,int processID ,int taskID) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException{
     	
     	logger.info("--------------------------Entering current state--------------------------\n");
