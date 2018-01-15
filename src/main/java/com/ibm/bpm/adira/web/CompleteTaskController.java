@@ -87,6 +87,10 @@ public class CompleteTaskController
 		if(null != completeTaskRequest.getApprovalResult()) {
 			parameterComplete.setApprovalResult(completeTaskRequest.getApprovalResult());
 		}
+		if(null != completeTaskRequest.getIsSignPK()) {
+			parameterComplete.setIsSignPK(completeTaskRequest.getIsSignPK());
+		}
+		
 			
 		completeTaskRequestAcction = json.toJson(parameterComplete);
 		propertiesLoader = new PropertiesLoader();
