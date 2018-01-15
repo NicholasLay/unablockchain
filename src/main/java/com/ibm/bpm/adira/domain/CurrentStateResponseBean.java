@@ -70,7 +70,9 @@ public class TasksCurrentState {
 			public String processInstanceName;
 			public int piid;
 			public String status;
-			public int currentLevel;
+			public Data data;
+			public Integer currentLevel;
+			public Integer maxLevel;
 			
 			// Initializing variables for Acction.
 			public String assignTo;
@@ -79,11 +81,24 @@ public class TasksCurrentState {
 			public int processID; 
 			
 		
-			public int getCurrentLevel() {
+			
+			public Data getData() {
+				return data;
+			}
+			public void setData(Data data) {
+				this.data = data;
+			}
+			public Integer getCurrentLevel() {
 				return currentLevel;
 			}
-			public void setCurrentLevel(int currentLevel) {
+			public void setCurrentLevel(Integer currentLevel) {
 				this.currentLevel = currentLevel;
+			}
+			public Integer getMaxLevel() {
+				return maxLevel;
+			}
+			public void setMaxLevel(Integer maxLevel) {
+				this.maxLevel = maxLevel;
 			}
 			public String getStatus() {
 				return status;

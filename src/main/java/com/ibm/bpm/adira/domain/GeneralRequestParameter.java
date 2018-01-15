@@ -18,7 +18,7 @@ public class GeneralRequestParameter {
 	public Boolean isMayor;
 	public Boolean isSalesMayor;
 	public Boolean isSignPK;
-	
+	public Integer maxLevel;
 	
 	
 	public GeneralRequestParameter(){
@@ -37,6 +37,14 @@ public class GeneralRequestParameter {
 
 	
 	
+	public Integer getMaxLevel() {
+		return maxLevel;
+	}
+
+	public void setMaxLevel(Integer maxLevel) {
+		this.maxLevel = maxLevel;
+	}
+
 	public Boolean getIsSignPK() {
 		return isSignPK;
 	}

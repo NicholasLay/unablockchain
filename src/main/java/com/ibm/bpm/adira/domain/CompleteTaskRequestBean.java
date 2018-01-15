@@ -25,6 +25,7 @@ public class CompleteTaskRequestBean
 	public Boolean isMayor;
 	public Boolean isSalesMayor;
 	public Boolean isSignPK;
+	public Integer maxLevel;
 	
 	
 	
@@ -52,6 +53,16 @@ public class CompleteTaskRequestBean
 		this.toIDE = toIDE;
 		this.isAOSCMOApprove = isAOSCMOApprove;
 		this.surveyResult = surveyResult;
+	}
+
+	
+	
+	public Integer getMaxLevel() {
+		return maxLevel;
+	}
+
+	public void setMaxLevel(Integer maxLevel) {
+		this.maxLevel = maxLevel;
 	}
 
 	public String getIsAOSCFOApprove() {

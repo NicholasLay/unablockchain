@@ -15,13 +15,29 @@ public class CurrentStateRequestBean {
 	public ArrayList<String> GroupAlias;
 	public String LocationAlias;
 	public boolean isAlias;
-	
+	public Integer maxLevel;
+	public String approvalResult;
 	
 	public CurrentStateRequestBean(){
 
 	}
+	
+	public String getApprovalResult() {
+		return approvalResult;
+	}
+	
+	public void setApprovalResult(String approvalResult) {
+		this.approvalResult = approvalResult;
+	}
+	
+	public Integer getMaxLevel() {
+		return maxLevel;
+	}
 
-
+	public void setMaxLevel(Integer maxLevel) {
+		this.maxLevel = maxLevel;
+	}
+	
 	public String getOrderID() {
 		return orderID;
 	}

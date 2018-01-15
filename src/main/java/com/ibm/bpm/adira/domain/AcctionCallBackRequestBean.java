@@ -41,8 +41,16 @@ public class CurrentTask{
 		public String userClaim;
 		public String assignTo;
 		public String assignToType;
+		public String approvalResult;
 		
-	
+		
+		
+		public String getApprovalResult() {
+			return approvalResult;
+		}
+		public void setApprovalResult(String approvalResult) {
+			this.approvalResult = approvalResult;
+		}
 		public String getDueTime() {
 			return dueTime;
 		}
