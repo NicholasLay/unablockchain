@@ -146,14 +146,6 @@ public class ProcessServiceImpl implements ProcessService {
 		int processId = 0;
 		String status = "";
 		
-		Integer currentLevel = 0;
-		
-		if(null != currStateResponse.getData().getVariables().getCurrentLevel()) {
-			 currentLevel = currStateResponse.getData().getVariables().getCurrentLevel();
-		}else {
-			currentLevel = null;
-		}
-		
 		int indexCounter = currStateResponse.getData().getTasks().size();
 		
 		if (indexCounter > 0) 
@@ -165,6 +157,11 @@ public class ProcessServiceImpl implements ProcessService {
 				taskIdNextask = tasks.getTkiid();
 				processId = tasks.getPiid();
 				status = tasks.getStatus();
+				Integer currentLevel = tasks.getData().getVariables().getCurrentLevel();
+				
+				if(null == currentLevel) {
+					currentLevel = 0;
+				}
 				
 				logger.info("Detail for task:  "+tasks.getTkiid()+" is : "
 						+ "assignTo:  "+assignTo+""
@@ -182,9 +179,8 @@ public class ProcessServiceImpl implements ProcessService {
 					tasks.setAssignToType(assignToType);
 					tasks.setTaskID(taskIdNextask);
 					tasks.setMaxLevel(maxLevel);
-					if(currentLevel != null) {
-						tasks.setCurrentLevel(currentLevel);
-					}
+					tasks.setCurrentLevel(currentLevel);
+					
 					taskDetailResponseToAcction.add(tasks);
 					
 					tasksRequestAcction.setTasks(taskDetailResponseToAcction);
