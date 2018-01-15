@@ -41,6 +41,7 @@ import com.ibm.bpm.adira.domain.CurrentStateResponseBean;
 import com.ibm.bpm.adira.domain.GlobalString;
 import com.ibm.bpm.adira.domain.PropertiesLoader;
 import com.ibm.bpm.adira.domain.CurrentStateResponseBean.TasksCurrentState;
+import com.ibm.bpm.adira.domain.GeneralRequestParameter;
 import com.ibm.bpm.adira.service.impl.Ad1ServiceImpl;
 
 @Controller
@@ -61,7 +62,10 @@ public class CompleteTaskSetupCAController
 		int taskID 					 = completeTaskSetupCARequest.getTaskID();
 		ArrayList<String> groupAlias = completeTaskSetupCARequest.getGroupAlias();
 		String locationAlias 		 = completeTaskSetupCARequest.getLocationAlias();
+		Integer maxLevel 			 = completeTaskSetupCARequest.getMaxLevel();
+		Boolean isDacor 			 = completeTaskSetupCARequest.getIsDacor();
 		Boolean isLocation 			 = false;
+	
 		
 		String logTracker = json.toJson(completeTaskSetupCARequest);
 	
@@ -70,17 +74,12 @@ public class CompleteTaskSetupCAController
 		propertiesLoader = new PropertiesLoader();
 		
 		String bpmUrl = propertiesLoader.loadProperties("bpmurl");
-		//String bpmip = propertiesLoader.loadProperties("bpmip");
-		/*
-		String completeTaskURL = "https://"
-				+ bpmip
-				+ ":9443/rest/bpm/wle/v1/task/"+taskID+"?action=finish&parts=all";
-    	*/
-		String completeTaskURL = bpmUrl + "/task/"+taskID+"?action=finish&parts=all";
-    	logger.info("[CompleteTaskSetupCAController] URL TO BPM:"+completeTaskURL);
+		
+		String completeTaskURL = bpmUrl + "/task/"+taskID+"?action=finish&params={completeTaskRequestAcction}&parts=all";
+    	
+		logger.info("[CompleteTaskSetupCAController] URL TO BPM:"+completeTaskURL);
     	
     	logger.info("Masuk Auth");
-		//String plainCreds = "acction:ADira2017";
 		String plainCreds = propertiesLoader.loadProperties("plaincreds");
     	byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
@@ -92,13 +91,6 @@ public class CompleteTaskSetupCAController
 	
 		RestTemplate restTemplate = getRestTemplate();
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
-		
-		String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class);
-		
-		logger.info("----------- [CompleteTaskSetupCAController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
-		
-		try
-		{
 		
 		if (basicAuth.startsWith("Basic"))
 		{
@@ -116,7 +108,29 @@ public class CompleteTaskSetupCAController
 			if (responseAd1Gate.matches("(.*)"+values[0]+"(.*)"))
 			{					
 				logger.info("-----[CompleteTaskSetupCAController] USER MATCHES, NOW PROCESSING CURRENT STATE TO GET NEXT TASK------");
-				String responseToAcction =  currentState(orderID, processID, taskID);
+				String completeTaskRequestAcction = "";
+				GeneralRequestParameter parameterComplete = new GeneralRequestParameter();
+				
+				if(null != isDacor) {
+					parameterComplete.setIsDacor(isDacor);
+				}
+				if(null != maxLevel) {
+					parameterComplete.setMaxLevel(maxLevel);
+				}else {
+					maxLevel = 0;
+				}
+					
+				completeTaskRequestAcction = json.toJson(parameterComplete);
+			
+				logger.info("[CompleteTaskSetupCA]: Parameter Complete Task: "+completeTaskRequestAcction);
+				
+				
+				String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class, completeTaskRequestAcction);
+				Thread.sleep(5000);
+				logger.info("----------- [CompleteTaskSetupCAController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
+				
+				
+				String responseToAcction =  currentState(orderID, processID, taskID, maxLevel);
 				
 				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
 			}
@@ -129,30 +143,24 @@ public class CompleteTaskSetupCAController
 			logger.info("-----[CompleteTaskSetupCAController] AUTHORIZATION IS NOT BASIC------");
 			return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
 		}
-	}catch(Exception e) {
-		logger.info("-----[CompleteTaskSetupCAController]Exception Invoked. Complete Task SetupCA has been canceled------");
-		return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
-	}
 }
 		
 			
-public String currentState(String orderID,int processID ,int taskID) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException{
+	public String currentState(String orderID,int processID ,int taskID, Integer maxLevel) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, InterruptedException{
     	
     	logger.info("--------------------------Entering current state--------------------------\n");
     	
     	Gson json = new Gson();
     	propertiesLoader = new PropertiesLoader();
 		
-		String bpmip = propertiesLoader.loadProperties("bpmip");
-    	String currentStateURL = "https://"
-    			+ bpmip
-    			+ ":9443/rest/bpm/wle/v1/process/"+processID+"?parts=all";
-		
+    	String bpmUrl = propertiesLoader.loadProperties("bpmurl");
+    	String currentStateURL = bpmUrl + "/process/"+processID+"?parts=all";
+    	
     	logger.info("-------------------- [CompleteTaskSetupCAController] URL CURRENT STATE :"+currentStateURL+"------------------------------");
 		
     	logger.info("Masuk Auth");
-		String plainCreds = "acction:ADira2017";
-		byte[] plainCredsBytes = plainCreds.getBytes();
+    	String plainCreds = propertiesLoader.loadProperties("plaincreds");
+    	byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
 		String base64Creds = new String(base64CredsBytes);
 	 
@@ -163,7 +171,7 @@ public String currentState(String orderID,int processID ,int taskID) throws KeyM
 		
 		RestTemplate restTemplate = getRestTemplate();
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
-    	
+		Thread.sleep(5000);
     	ResponseEntity<String> responseCurrStateBPM = restTemplate.exchange(currentStateURL, HttpMethod.GET, entity, String.class);
     	
     	String responseBodyCurrState = responseCurrStateBPM.getBody();
@@ -183,7 +191,7 @@ public String currentState(String orderID,int processID ,int taskID) throws KeyM
 		int taskIdNextask = 0;
 		int processId = 0;
 		String status = "";
-		
+	
 		int indexCounter = currStateResponse.getData().getTasks().size();
 		
 		if (indexCounter > 0) 
@@ -195,6 +203,11 @@ public String currentState(String orderID,int processID ,int taskID) throws KeyM
 				taskIdNextask = tasks.getTkiid();
 				processId = tasks.getPiid();
 				status = tasks.getStatus();
+				Integer currentLevel = tasks.getData().getVariables().getCurrentLevel();
+				
+				if(null == currentLevel) {
+					currentLevel = 0;
+				}
 				
 				logger.info("Detail for task:  "+tasks.getTkiid()+" is : "
 						+ "assignTo:  "+assignTo+""
@@ -211,6 +224,8 @@ public String currentState(String orderID,int processID ,int taskID) throws KeyM
 					tasks.setAssignTo(assignTo);
 					tasks.setAssignToType(assignToType);
 					tasks.setTaskID(taskIdNextask);
+					tasks.setMaxLevel(maxLevel);
+					tasks.setCurrentLevel(currentLevel);
 					
 					taskDetailResponseToAcction.add(tasks);
 					
@@ -242,9 +257,6 @@ public String currentState(String orderID,int processID ,int taskID) throws KeyM
 		
 	return acctionCallbackRequest;
     }
-	
-	
-	
 	
 	public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
 		    TrustStrategy acceptingTrustStrategy = new TrustStrategy() {

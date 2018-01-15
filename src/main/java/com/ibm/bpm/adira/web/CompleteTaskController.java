@@ -84,22 +84,18 @@ public class CompleteTaskController
 		if(null != completeTaskRequest.getIsDacor()) {
 			parameterComplete.setIsDacor(completeTaskRequest.getIsDacor());
 		}
+		if(null != completeTaskRequest.getApprovalResult()) {
+			parameterComplete.setApprovalResult(completeTaskRequest.getApprovalResult());
+		}
 			
 		completeTaskRequestAcction = json.toJson(parameterComplete);
 		propertiesLoader = new PropertiesLoader();
 		
 		String bpmUrl = propertiesLoader.loadProperties("bpmurl");
-		//String bpmip = propertiesLoader.loadProperties("bpmip");
-		/*
-		String completeTaskURL = "https://"
-				+ bpmip
-				+ ":9443/rest/bpm/wle/v1/task/"+taskID+"?action=finish&params={completeTaskRequestAcction}&parts=all";
-		*/
 		String completeTaskURL = bpmUrl + "/task/"+taskID+"?action=finish&params={completeTaskRequestAcction}&parts=all";
     	logger.info("[CompleteTaskController] URL TO BPM:"+completeTaskURL);
     	
     	logger.info("Masuk Auth");
-		//String plainCreds = "acction:ADira2017";
 		String plainCreds = propertiesLoader.loadProperties("plaincreds");
     	byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
@@ -115,8 +111,6 @@ public class CompleteTaskController
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
 	
 		Thread.sleep(5000);
-		
-		
 		
 		
 		if (basicAuth.startsWith("Basic")){
@@ -137,7 +131,7 @@ public class CompleteTaskController
 				
 				String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class, completeTaskRequestAcction);
 				Thread.sleep(5000);
-				CompleteTaskResponseBean completeTaskResponseBPM = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
+//				CompleteTaskResponseBean completeTaskResponseBPM = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
 				
 				logger.info("----------- [CompleteTaskController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 				return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
@@ -147,14 +141,15 @@ public class CompleteTaskController
 				logger.info("-----[CompleteTaskController] USER NOT FOUND, COMPLETE TASK FAILED------");
 				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 			}
+		}else {
+			logger.info("-----[CompleteTaskController] AUTHORIZATION IS NOT BASIC------");
+			return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
 		}
 	}catch(Exception e) {
-		logger.info("-----[CompleteTaskController]Exception Invoked. Complete Task has been canceled------");
-		e.printStackTrace();	
+		logger.info("-----[CompleteTaskController]Exception Invoked. Complete Task has been canceled . Cause by : "+ e+"------");
+		return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	}
 	
-		logger.info("-----[CompleteTaskController] AUTHORIZATION IS NOT BASIC------");
-		return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
 }
 	
     public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {

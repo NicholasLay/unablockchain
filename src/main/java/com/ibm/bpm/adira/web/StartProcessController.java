@@ -87,20 +87,12 @@ public class StartProcessController
 		String snapshotId = propertiesLoader.loadProperties("snapshotid");
 		String processAppId = propertiesLoader.loadProperties("processappid");
 		String bpmUrl = propertiesLoader.loadProperties("bpmurl");
-		//String bpmip = propertiesLoader.loadProperties("bpmip");
 		
-		/*
-		String walletBalanceUrl = "https://"
-				+ bpmip
-				+ ":9443/rest/bpm/wle/v1/process?action=start&"
-				+ "bpdId="+bpdId+"&"
-				+ "snapshotId="+snapshotId+"&"
-				+ "processAppId="+processAppId+"&params={jsonStartRequestAcction}&parts=all";
-		*/
 		String walletBalanceUrl = bpmUrl + "/process?action=start&"
 				+ "bpdId="+bpdId+"&"
 				+ "snapshotId="+snapshotId+"&"
 				+ "processAppId="+processAppId+"&params={jsonStartRequestAcction}&parts=all";
+		
 		logger.info("-----------[StartProcessController] URL : "+walletBalanceUrl+"---------------");
 		
 		logger.info("-----------[StartProcessController] ENTERING AUTHORIZATION IBM BPM-----------");

@@ -64,6 +64,18 @@ public class CurrentStateController
 		String locationAlias 		 = currStateReq.getLocationAlias();
 		Boolean isLocation 			 = false;
 	
+		Integer maxLevel 			 = null;
+		String approvalResult		 = "";
+		
+		if(null == maxLevel) {
+			maxLevel = 0;
+		}else {
+			maxLevel = currStateReq.getMaxLevel();
+		}
+		
+		if(null != approvalResult) {
+			approvalResult = currStateReq.getApprovalResult();
+		}
 		
 		String logTracker = json.toJson(currStateReq);
 		
@@ -86,7 +98,7 @@ public class CurrentStateController
 			{	
 				logger.info("-----------[CurrentStateController]USER MATCHES, SUCCSESS ENTERING AUTHORIZATION -----------");
 				
-				processService.processCurrentState(GlobalString.SERVICE_NAME_CURRENT_STATE,orderId,processId,taskId);
+				processService.processCurrentState(GlobalString.SERVICE_NAME_CURRENT_STATE,orderId,processId,taskId,maxLevel,approvalResult);
 				
 				return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
 			}
