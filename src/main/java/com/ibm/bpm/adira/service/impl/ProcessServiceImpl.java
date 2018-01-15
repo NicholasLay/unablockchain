@@ -41,7 +41,7 @@ public class ProcessServiceImpl implements ProcessService {
    
     @Async("processExecutor")
 	@Override
-	public void processCurrentState(String service, String orderID, int processID , int taskID)  {
+	public void processCurrentState(String service, String orderID, int processID , int taskID, Integer maxLevel, String approvalResult)  {
 		// TODO Auto-generated method stub
     	
     	 logger.info("Received request to process in ProcessServiceImpl.process()");
@@ -49,7 +49,7 @@ public class ProcessServiceImpl implements ProcessService {
          logger.info("Process Service Impl:Service="+service+ ", orderID="+orderID+ ", processID="+processID+"");
          
      	try {
-			currentState(orderID, processID,taskID);
+     		currentState(orderID, processID,taskID,maxLevel,approvalResult);
 		} catch (KeyManagementException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -63,18 +63,14 @@ public class ProcessServiceImpl implements ProcessService {
          
 	}
     
-    public void callBackToAcctionCurrentState(String orderID,int processID, AcctionCallBackRequestBean nextTaskId, int taskID)
+    public void callBackToAcctionCurrentState(String orderID,int processID, AcctionCallBackRequestBean nextTaskId, int taskID, String approvalResult)
     {
     	RestTemplate restTemplate = new RestTemplate();
     	Gson json = new Gson();
     	propertiesLoader = new PropertiesLoader();
 		
-		//String acctionip = propertiesLoader.loadProperties("acctionip");
-		//String acctionport = propertiesLoader.loadProperties("acctionport");
-		//String linkURL = "http://"+acctionip+":"+acctionport;
     	String acctionUrl = propertiesLoader.loadProperties("acctionurl");
-		//String acctionUrl = ""+linkURL+"/adira-acction/acction/v1/service/bpm/callback/complete";
-    
+    	
     	logger.info("[ProcessServiceImplCurrentState] : ACCTION URL"+ acctionUrl);
     	
     	AcctionCallBackRequestBean acctionBean = new AcctionCallBackRequestBean();
@@ -83,6 +79,7 @@ public class ProcessServiceImpl implements ProcessService {
     	currentTaskRequest.setOrderID(orderID);
     	currentTaskRequest.setProcessID(processID);
     	currentTaskRequest.setTaskID(taskID);
+    	currentTaskRequest.setApprovalResult(approvalResult);
     	
     	acctionBean.setCurrentTask(currentTaskRequest);   	
     	acctionBean.setTasks(nextTaskId.getTasks());
@@ -102,24 +99,20 @@ public class ProcessServiceImpl implements ProcessService {
     }
     
     @SuppressWarnings({ "unchecked", "null" })
-	public void currentState(String orderID,int processID ,int taskID) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException{
+    public void currentState(String orderID,int processID ,int taskID, Integer maxLevel, String approvalResult) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException{
     	
     	logger.info("--------------------------Entering current state--------------------------\n");
     	
     	propertiesLoader = new PropertiesLoader();
 		
     	String bpmUrl = propertiesLoader.loadProperties("bpmurl");
-		//String bpmip = propertiesLoader.loadProperties("bpmip");
     	Gson json = new Gson();
-    	/*
-    	String currentStateURL = "https://"
-    			+ bpmip
-    			+ ":9443/rest/bpm/wle/v1/process/"+processID+"?parts=all";
-		*/
+    	
     	String currentStateURL = bpmUrl + "/process/"+processID+"?parts=all";
+    	
     	logger.info("-------------------- [ProcessServiceImpl] URL CURRENT STATE :"+currentStateURL+"------------------------------");
+    	
     	logger.info("Masuk Auth");
-		//String plainCreds = "acction:ADira2017";
 		String plainCreds = propertiesLoader.loadProperties("plaincreds");
     	byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
@@ -153,6 +146,14 @@ public class ProcessServiceImpl implements ProcessService {
 		int processId = 0;
 		String status = "";
 		
+		Integer currentLevel = 0;
+		
+		if(null != currStateResponse.getData().getVariables().getCurrentLevel()) {
+			 currentLevel = currStateResponse.getData().getVariables().getCurrentLevel();
+		}else {
+			currentLevel = null;
+		}
+		
 		int indexCounter = currStateResponse.getData().getTasks().size();
 		
 		if (indexCounter > 0) 
@@ -180,7 +181,10 @@ public class ProcessServiceImpl implements ProcessService {
 					tasks.setAssignTo(assignTo);
 					tasks.setAssignToType(assignToType);
 					tasks.setTaskID(taskIdNextask);
-					
+					tasks.setMaxLevel(maxLevel);
+					if(currentLevel != null) {
+						tasks.setCurrentLevel(currentLevel);
+					}
 					taskDetailResponseToAcction.add(tasks);
 					
 					tasksRequestAcction.setTasks(taskDetailResponseToAcction);
@@ -193,7 +197,7 @@ public class ProcessServiceImpl implements ProcessService {
 		}else {
 				tasksRequestAcction.setTasks(emptyArray);
 		}
-		callBackToAcctionCurrentState(orderID, processID,tasksRequestAcction,taskID);
+		callBackToAcctionCurrentState(orderID, processID,tasksRequestAcction,taskID,approvalResult);
 	
     }
   
