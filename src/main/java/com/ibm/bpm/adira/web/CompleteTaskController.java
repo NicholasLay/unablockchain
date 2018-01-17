@@ -90,8 +90,13 @@ public class CompleteTaskController
 		if(null != completeTaskRequest.getIsSignPK()) {
 			parameterComplete.setIsSignPK(completeTaskRequest.getIsSignPK());
 		}
+		if(null != completeTaskRequest.getIsDacorDR()) {
+			parameterComplete.setIsDacorDR(completeTaskRequest.getIsDacorDR());
+		}
+		if(null != completeTaskRequest.getIsDacorFDE()) {
+			parameterComplete.setIsDacorFDE(completeTaskRequest.getIsDacorFDE());
+		}
 		
-			
 		completeTaskRequestAcction = json.toJson(parameterComplete);
 		propertiesLoader = new PropertiesLoader();
 		
