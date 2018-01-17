@@ -19,6 +19,8 @@ public class GeneralRequestParameter {
 	public Boolean isSalesMayor;
 	public Boolean isSignPK;
 	public Integer maxLevel;
+	public Boolean isDacorFDE;
+	public Boolean isDacorDR;
 	
 	
 	public GeneralRequestParameter(){
@@ -34,9 +36,25 @@ public class GeneralRequestParameter {
 		this.surveyResult = surveyResult;
 	}
 
+	
+	
+	
+	public Boolean getIsDacorFDE() {
+		return isDacorFDE;
+	}
 
-	
-	
+	public void setIsDacorFDE(Boolean isDacorFDE) {
+		this.isDacorFDE = isDacorFDE;
+	}
+
+	public Boolean getIsDacorDR() {
+		return isDacorDR;
+	}
+
+	public void setIsDacorDR(Boolean isDacorDR) {
+		this.isDacorDR = isDacorDR;
+	}
+
 	public Integer getMaxLevel() {
 		return maxLevel;
 	}
