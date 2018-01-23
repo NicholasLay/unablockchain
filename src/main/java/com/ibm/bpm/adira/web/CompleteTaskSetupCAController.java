@@ -6,6 +6,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +70,7 @@ public class CompleteTaskSetupCAController
 		
 		String logTracker = json.toJson(completeTaskSetupCARequest);
 	
-		logger.info("[CompleteTaskSetupCAController] Request Complete Task Acction :"+logTracker+"");
+		logger.info(new Timestamp(System.currentTimeMillis())+"[CompleteTaskSetupCAController] Request Complete Task Acction :"+logTracker+"");
 		
 		propertiesLoader = new PropertiesLoader();
 		
@@ -77,9 +78,9 @@ public class CompleteTaskSetupCAController
 		
 		String completeTaskURL = bpmUrl + "/task/"+taskID+"?action=finish&params={completeTaskRequestAcction}&parts=all";
     	
-		logger.info("[CompleteTaskSetupCAController] URL TO BPM:"+completeTaskURL);
+		logger.info(new Timestamp(System.currentTimeMillis())+"[CompleteTaskSetupCAController] URL TO BPM:"+completeTaskURL);
     	
-    	logger.info("Masuk Auth");
+    	logger.info(new Timestamp(System.currentTimeMillis())+"Masuk Auth");
 		String plainCreds = propertiesLoader.loadProperties("plaincreds");
     	byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
@@ -98,16 +99,16 @@ public class CompleteTaskSetupCAController
 			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
 			String[] values = credentials.split(":",2);
 			
-			logger.info("[CompleteTaskSetupCAController] Authentication from Acction to API. Username "+values[0] + "Password "+values[1]);
+			logger.info(new Timestamp(System.currentTimeMillis())+"[CompleteTaskSetupCAController] Authentication from Acction to API. Username "+values[0] + "Password "+values[1]);
 			
 			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
 			String responseAd1Gate = ad1ServiceImpl.getNIK(groupAlias, locationAlias, isLocation);
 		
-			logger.info("--------[CompleteTaskSetupCAController]RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
+			logger.info(new Timestamp(System.currentTimeMillis())+"--------[CompleteTaskSetupCAController]RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
 			
 			if (responseAd1Gate.matches("(.*)"+values[0]+"(.*)"))
 			{					
-				logger.info("-----[CompleteTaskSetupCAController] USER MATCHES, NOW PROCESSING CURRENT STATE TO GET NEXT TASK------");
+				logger.info(new Timestamp(System.currentTimeMillis())+"-----[CompleteTaskSetupCAController] USER MATCHES, NOW PROCESSING CURRENT STATE TO GET NEXT TASK------");
 				String completeTaskRequestAcction = "";
 				GeneralRequestParameter parameterComplete = new GeneralRequestParameter();
 				
@@ -122,12 +123,12 @@ public class CompleteTaskSetupCAController
 					
 				completeTaskRequestAcction = json.toJson(parameterComplete);
 			
-				logger.info("[CompleteTaskSetupCA]: Parameter Complete Task: "+completeTaskRequestAcction);
+				logger.info(new Timestamp(System.currentTimeMillis())+"[CompleteTaskSetupCA]: Parameter Complete Task: "+completeTaskRequestAcction);
 				
 				
 				String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class, completeTaskRequestAcction);
 				Thread.sleep(5000);
-				logger.info("----------- [CompleteTaskSetupCAController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
+				logger.info(new Timestamp(System.currentTimeMillis())+"----------- [CompleteTaskSetupCAController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 				
 				
 				String responseToAcction =  currentState(orderID, processID, taskID, maxLevel);
@@ -136,11 +137,11 @@ public class CompleteTaskSetupCAController
 			}
 			else
 			{	
-				logger.info("-----[CompleteTaskSetupCAController] USER NOT FOUND, COMPLETE TASK FAILED------");
+				logger.info(new Timestamp(System.currentTimeMillis())+"-----[CompleteTaskSetupCAController] USER NOT FOUND, COMPLETE TASK FAILED------");
 				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 			}
 		}else {
-			logger.info("-----[CompleteTaskSetupCAController] AUTHORIZATION IS NOT BASIC------");
+			logger.info(new Timestamp(System.currentTimeMillis())+"-----[CompleteTaskSetupCAController] AUTHORIZATION IS NOT BASIC------");
 			return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
 		}
 }
@@ -148,7 +149,7 @@ public class CompleteTaskSetupCAController
 			
 	public String currentState(String orderID,int processID ,int taskID, Integer maxLevel) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, InterruptedException{
     	
-    	logger.info("--------------------------Entering current state--------------------------\n");
+    	logger.info(new Timestamp(System.currentTimeMillis())+"--------------------------Entering current state--------------------------\n");
     	
     	Gson json = new Gson();
     	propertiesLoader = new PropertiesLoader();
@@ -156,9 +157,9 @@ public class CompleteTaskSetupCAController
     	String bpmUrl = propertiesLoader.loadProperties("bpmurl");
     	String currentStateURL = bpmUrl + "/process/"+processID+"?parts=all";
     	
-    	logger.info("-------------------- [CompleteTaskSetupCAController] URL CURRENT STATE :"+currentStateURL+"------------------------------");
+    	logger.info(new Timestamp(System.currentTimeMillis())+"-------------------- [CompleteTaskSetupCAController] URL CURRENT STATE :"+currentStateURL+"------------------------------");
 		
-    	logger.info("Masuk Auth");
+    	logger.info(new Timestamp(System.currentTimeMillis())+"Masuk Auth");
     	String plainCreds = propertiesLoader.loadProperties("plaincreds");
     	byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
@@ -176,7 +177,7 @@ public class CompleteTaskSetupCAController
     	
     	String responseBodyCurrState = responseCurrStateBPM.getBody();
     	
-		logger.info("----------------[CompleteTaskSetupCAController] Response from BPM GetCurrentState : \n "+ responseBodyCurrState+"\n-------------------");
+		logger.info(new Timestamp(System.currentTimeMillis())+"----------------[CompleteTaskSetupCAController] Response from BPM GetCurrentState : \n "+ responseBodyCurrState+"\n-------------------");
 		
 		CurrentStateResponseBean currStateResponse = json.fromJson(responseBodyCurrState, CurrentStateResponseBean.class);
 		
@@ -209,7 +210,7 @@ public class CompleteTaskSetupCAController
 					currentLevel = 0;
 				}
 				
-				logger.info("Detail for task:  "+tasks.getTkiid()+" is : "
+				logger.info(new Timestamp(System.currentTimeMillis())+"Detail for task:  "+tasks.getTkiid()+" is : "
 						+ "assignTo:  "+assignTo+""
 						+ "assignToType:  "+assignToType+""
 						+ "processId:  "+processID+""
@@ -217,7 +218,7 @@ public class CompleteTaskSetupCAController
 				
 				if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
 				
-					logger.info("Status = "+status+", Task Added!");
+					logger.info(new Timestamp(System.currentTimeMillis())+"Status = "+status+", Task Added!");
 					
 					tasks.setDisplayName(tasks.getName());
 					tasks.setProcessID(processId);
@@ -231,11 +232,11 @@ public class CompleteTaskSetupCAController
 					
 					tasksRequestAcction.setTasks(taskDetailResponseToAcction);
 				}else {
-					logger.info("Status = "+status+" , Task Depereciated!");
+					logger.info(new Timestamp(System.currentTimeMillis())+"Status = "+status+" , Task Depereciated!");
 					tasksRequestAcction.setTasks(emptyArray);
 				}
 			}
-			logger.info("------------TOTAL RECEIVED TASKS: "+tasksRequestAcction.getTasks().size()+"-------------");
+			logger.info(new Timestamp(System.currentTimeMillis())+"------------TOTAL RECEIVED TASKS: "+tasksRequestAcction.getTasks().size()+"-------------");
 		}else {
 				tasksRequestAcction.setTasks(emptyArray);
 		}
@@ -253,7 +254,7 @@ public class CompleteTaskSetupCAController
     	
     	String acctionCallbackRequest = json.toJson(acctionBean);
     	
-    	logger.info("[CompleteTaskSetupCAController]: Acction Callback Request : \n"+ acctionCallbackRequest);
+    	logger.info(new Timestamp(System.currentTimeMillis())+"[CompleteTaskSetupCAController]: Acction Callback Request : \n"+ acctionCallbackRequest);
 		
 	return acctionCallbackRequest;
     }

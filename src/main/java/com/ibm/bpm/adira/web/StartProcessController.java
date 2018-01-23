@@ -6,6 +6,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.sql.Timestamp;
+
 import javax.net.ssl.SSLContext;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -50,7 +52,7 @@ public class StartProcessController
 	public ResponseEntity<?> authenticate(@RequestHeader("Authorization") String basicAuth,
 			@RequestBody StartProcessRequestBean startProcess) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, JsonProcessingException
 	{
-		
+		String currentTime = "";
 		String orderId			= startProcess.getOrderID();
 		int brmsScoring			= startProcess.getBrmsScoring();
 		Boolean isSignPK		= startProcess.getIsSignPK();
@@ -76,8 +78,7 @@ public class StartProcessController
 		Gson jsonRequest = new Gson();
 		
 		String jsonStartRequestAcction = jsonRequest.toJson(startProcess);
-		
-		logger.info(
+		logger.info(new Timestamp(System.currentTimeMillis())+
 				"[StartProcessController] Request From Acction: "+jsonStartRequestAcction+""
 		);
 		
@@ -93,11 +94,10 @@ public class StartProcessController
 				+ "snapshotId="+snapshotId+"&"
 				+ "processAppId="+processAppId+"&params={jsonStartRequestAcction}&parts=all";
 		
-		logger.info("-----------[StartProcessController] URL : "+walletBalanceUrl+"---------------");
+		logger.info(new Timestamp(System.currentTimeMillis())+"-----------[StartProcessController] URL : "+walletBalanceUrl+"---------------");
 		
-		logger.info("-----------[StartProcessController] ENTERING AUTHORIZATION IBM BPM-----------");
+		logger.info(new Timestamp(System.currentTimeMillis())+"-----------[StartProcessController] ENTERING AUTHORIZATION IBM BPM-----------");
 		
-		//String plainCreds = "acction:ADira2017";
 		String plainCreds = propertiesLoader.loadProperties("plaincreds");
 		byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
@@ -108,13 +108,13 @@ public class StartProcessController
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
 		
-		logger.info("\"-----------[StartProcessController] PROCESSING AUTHORIZATION IBM BPM-----------\"");
+		logger.info(new Timestamp(System.currentTimeMillis())+"-----------[StartProcessController] PROCESSING AUTHORIZATION IBM BPM-----------\"");
 
 		RestTemplate restTemplate = getRestTemplate();
 		String responseFromBPM = restTemplate.postForObject(walletBalanceUrl, entity, String.class, jsonStartRequestAcction);
 		String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()); 
 		
-		logger.info("-----------[StartProcessController] Response StartProcess From BPM:  ("+timestamp+") = "+responseFromBPM+"-----------");
+		logger.info(new Timestamp(System.currentTimeMillis())+"-----------[StartProcessController] Response StartProcess From BPM:  ("+timestamp+") = "+responseFromBPM+"-----------");
 		
 		
 		
@@ -148,12 +148,12 @@ public class StartProcessController
 			
 			String responseAd1Gate = ad1ServiceImpl.authResponse(values[0], values[1]);
 			
-			logger.info("--------RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
+			logger.info(new Timestamp(System.currentTimeMillis())+"--------RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
 			
 			
 			if (responseAd1Gate.equals(GlobalString.OK_MESSAGE))
 			{	
-				logger.info("-----------SUCESS ENTERING RESPONSE -----------");
+				logger.info(new Timestamp(System.currentTimeMillis())+"-----------SUCCESS ENTERING RESPONSE -----------");
 				beanAcction.setProcessInstanceName(processInstanceName);
 				beanAcction.setDisplayName(displayName);
 				beanAcction.setTaskID(tkiid);
@@ -166,13 +166,13 @@ public class StartProcessController
 				
 				responseToAcction = json.toJson(beanAcction);
 
-				logger.info("-----------RESPONSE TO  ACCTION START PROCESS :"+responseToAcction+"-----------");
+				logger.info(new Timestamp(System.currentTimeMillis())+"-----------RESPONSE TO  ACCTION START PROCESS :"+responseToAcction+"-----------");
 				
 				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
 			}
 			else
 			{
-				logger.info("-----------NOT OK RESPONSE -----------");
+				logger.info(new Timestamp(System.currentTimeMillis())+"-----------NOT OK RESPONSE -----------");
 				beanAcction.setOrderID(GlobalString.EMPTY_STRING);
 				beanAcction.setProcessID(GlobalString.EMPTY_INTEGER);
 				beanAcction.setProcessInstanceName(GlobalString.EMPTY_STRING);;
@@ -185,14 +185,14 @@ public class StartProcessController
 				
 				responseToAcction = json.toJson(beanAcction);
 				
-				logger.info("-----------RESPONSE TO  ACCTION START PROCESS :"+responseToAcction+"-----------");
+				logger.info(new Timestamp(System.currentTimeMillis())+"-----------RESPONSE TO  ACCTION START PROCESS :"+responseToAcction+"-----------");
 				
 				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
 			}
 
 		}
 
-		logger.info("-----------NOT BASIC AUTHORIZATION -----------");
+		logger.info(new Timestamp(System.currentTimeMillis())+"-----------NOT BASIC AUTHORIZATION -----------");
 		beanAcction.setOrderID(GlobalString.EMPTY_STRING);
 		beanAcction.setProcessID(GlobalString.EMPTY_INTEGER);
 		beanAcction.setProcessInstanceName(GlobalString.EMPTY_STRING);
@@ -204,7 +204,7 @@ public class StartProcessController
 		beanAcction.setDueTime(GlobalString.EMPTY_STRING);
 		
 		responseToAcction = json.toJson(beanAcction);
-		logger.info("-----------RESPONSE TO  ACCTION START PROCESS :"+responseToAcction+"-----------");
+		logger.info(new Timestamp(System.currentTimeMillis())+"-----------RESPONSE TO  ACCTION START PROCESS :"+responseToAcction+"-----------");
 		
 		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	}
@@ -226,24 +226,3 @@ public class StartProcessController
 	}
 	
 }
-
-
-
-//String inner = "";	
-//try{
-//	inner = new ObjectMapper().writeValueAsString(result.get("data"));
-//	result = springParser.parseMap(inner);
-//	inner = new ObjectMapper().writeValueAsString(result.get("tasks"));
-//	inner = inner.substring(1);
-//	inner = inner.substring(0,inner.length()-1);
-//	result = springParser.parseMap(inner);
-//	inner = new ObjectMapper().writeValueAsString(result.get("tkiid"));
-//	inner = inner.substring(1);
-//	inner = inner.substring(0,inner.length()-1);
-//	logger.info("Task ID :" + inner);
-//} catch () {
-//	// TODO Auto-generated catch block
-//	
-//}
-
-//String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss a").format(new java.util.Date()); 

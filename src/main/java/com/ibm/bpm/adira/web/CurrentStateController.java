@@ -6,6 +6,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,7 +80,7 @@ public class CurrentStateController
 		
 		String logTracker = json.toJson(currStateReq);
 		
-		logger.info("[CurrentStateController] Request CurrentState Acction :"+logTracker+"");
+		logger.info(new Timestamp(System.currentTimeMillis())+"[CurrentStateController] Request CurrentState Acction :"+logTracker+"");
 				
 		if (basicAuth.startsWith("Basic"))
 		{
@@ -87,16 +88,16 @@ public class CurrentStateController
 			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
 			String[] values = credentials.split(":",2);
 			
-			logger.info("[CurrentStateController] Authentication from Acction to API. Username "+values[0] + "Password "+values[1]);
+			logger.info(new Timestamp(System.currentTimeMillis())+"[CurrentStateController] Authentication from Acction to API. Username "+values[0] + "Password "+values[1]);
 			
 			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
 			String responseAd1GateCurrentState = ad1ServiceImpl.getNIK(groupAlias, locationAlias, isLocation);
 			
-			logger.info("--------[CurrentStateController]RESPONSE From AD1GATE :  "+ responseAd1GateCurrentState +"-------------");
+			logger.info(new Timestamp(System.currentTimeMillis())+"--------[CurrentStateController]RESPONSE From AD1GATE :  "+ responseAd1GateCurrentState +"-------------");
 			
 			if (responseAd1GateCurrentState.matches("(.*)"+values[0]+"(.*)"))
 			{	
-				logger.info("-----------[CurrentStateController]USER MATCHES, SUCCSESS ENTERING AUTHORIZATION -----------");
+				logger.info(new Timestamp(System.currentTimeMillis())+"-----------[CurrentStateController]USER MATCHES, SUCCSESS ENTERING AUTHORIZATION -----------");
 				
 				processService.processCurrentState(GlobalString.SERVICE_NAME_CURRENT_STATE,orderId,processId,taskId,maxLevel,approvalResult);
 				
@@ -104,11 +105,11 @@ public class CurrentStateController
 			}
 			else
 			{
-				logger.info("-----------[CurrentStateController] USER NOT FOUND ,NOT OK RESPONSE -----------");
+				logger.info(new Timestamp(System.currentTimeMillis())+"-----------[CurrentStateController] USER NOT FOUND ,NOT OK RESPONSE -----------");
 				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 			}
 		}
-		logger.info("-----------[CurrentStateController] NOT BASIC AUTHORIZATION -----------");
+		logger.info(new Timestamp(System.currentTimeMillis())+"-----------[CurrentStateController] NOT BASIC AUTHORIZATION -----------");
 		return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	}
 	
@@ -128,21 +129,3 @@ public class CurrentStateController
 	    return restTemplate;
 	}
 }
-//String inner = "";	
-//try{
-//	inner = new ObjectMapper().writeValueAsString(result.get("data"));
-//	result = springParser.parseMap(inner);
-//	inner = new ObjectMapper().writeValueAsString(result.get("tasks"));
-//	inner = inner.substring(1);
-//	inner = inner.substring(0,inner.length()-1);
-//	result = springParser.parseMap(inner);
-//	inner = new ObjectMapper().writeValueAsString(result.get("tkiid"));
-//	inner = inner.substring(1);
-//	inner = inner.substring(0,inner.length()-1);
-//	logger.info("Task ID :" + inner);
-//} catch () {
-//	// TODO Auto-generated catch block
-//	
-//}
-
-//String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss a").format(new java.util.Date()); 
