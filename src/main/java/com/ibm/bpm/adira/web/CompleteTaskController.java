@@ -7,7 +7,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import javax.net.ssl.SSLContext;
@@ -64,8 +63,9 @@ public class CompleteTaskController
 		ArrayList<String> groupAlias = completeTaskRequest.getGroupAlias();
 		String locationAlias 		 = completeTaskRequest.getLocationAlias();
 		Boolean isLocation 			 = false;
+		Integer currLevelOverride	 = completeTaskRequest.getCurrentLevelOverride();
 		
-		logger.info(new Timestamp(System.currentTimeMillis())+"[CompleteTaskController] Request Complete Task Acction :"+json.toJson(completeTaskRequest)+"");
+		logger.info("[CompleteTaskController] Request Complete Task Acction :"+json.toJson(completeTaskRequest)+"");
 		
 		String completeTaskRequestAcction = "";
 		GeneralRequestParameter parameterComplete = new GeneralRequestParameter();
@@ -97,15 +97,18 @@ public class CompleteTaskController
 		if(null != completeTaskRequest.getIsDacorFDE()) {
 			parameterComplete.setIsDacorFDE(completeTaskRequest.getIsDacorFDE());
 		}
+		if(null != completeTaskRequest.getCurrentLevelOverride()) {
+			parameterComplete.setCurrentLevelOverride(currLevelOverride);
+		}
 		
 		completeTaskRequestAcction = json.toJson(parameterComplete);
 		propertiesLoader = new PropertiesLoader();
 		
 		String bpmUrl = propertiesLoader.loadProperties("bpmurl");
 		String completeTaskURL = bpmUrl + "/task/"+taskID+"?action=finish&params={completeTaskRequestAcction}&parts=all";
-    	logger.info(new Timestamp(System.currentTimeMillis())+"[CompleteTaskController] URL TO BPM:"+completeTaskURL);
+    	logger.info("[CompleteTaskController] URL TO BPM:"+completeTaskURL);
     	
-    	logger.info(new Timestamp(System.currentTimeMillis())+"Masuk Auth");
+    	logger.info("Masuk Auth");
 		String plainCreds = propertiesLoader.loadProperties("plaincreds");
     	byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
@@ -128,35 +131,35 @@ public class CompleteTaskController
 			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
 			String[] values = credentials.split(":",2);
 			
-			logger.info(new Timestamp(System.currentTimeMillis())+"[CompleteTaskController] Authentication from Acction to API. Username "+values[0] + "Password "+values[1]);
+			logger.info("[CompleteTaskController] Authentication from Acction to API. Username "+values[0] + "Password "+values[1]);
 			
 			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
 			String responseAd1Gate = ad1ServiceImpl.getNIK(groupAlias, locationAlias, isLocation);
 		
-			logger.info(new Timestamp(System.currentTimeMillis())+"--------[CompleteTaskController]RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
+			logger.info("--------[CompleteTaskController]RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
 			
 			if (responseAd1Gate.matches("(.*)"+values[0]+"(.*)"))
 			{					
-				logger.info(new Timestamp(System.currentTimeMillis())+"-----[CompleteTaskController] USER MATCHES, PROCESSING COMPLETE TASK------");
+				logger.info("-----[CompleteTaskController] USER MATCHES, PROCESSING COMPLETE TASK------");
 				
 				String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class, completeTaskRequestAcction);
 				Thread.sleep(5000);
 //				CompleteTaskResponseBean completeTaskResponseBPM = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
 				
-				logger.info(new Timestamp(System.currentTimeMillis())+"----------- [CompleteTaskController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
+				logger.info("----------- [CompleteTaskController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 				return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
 			}
 			else
 			{	
-				logger.info(new Timestamp(System.currentTimeMillis())+"-----[CompleteTaskController] USER NOT FOUND, COMPLETE TASK FAILED------");
+				logger.info("-----[CompleteTaskController] USER NOT FOUND, COMPLETE TASK FAILED------");
 				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 			}
 		}else {
-			logger.info(new Timestamp(System.currentTimeMillis())+"-----[CompleteTaskController] AUTHORIZATION IS NOT BASIC------");
+			logger.info("-----[CompleteTaskController] AUTHORIZATION IS NOT BASIC------");
 			return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
 		}
 	}catch(Exception e) {
-		logger.info(new Timestamp(System.currentTimeMillis())+"-----[CompleteTaskController]Exception Invoked. Complete Task has been canceled . Cause by : "+ e+"------");
+		logger.info("-----[CompleteTaskController]Exception Invoked. Complete Task has been canceled . Cause by : "+ e+"------");
 		return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	}
 	
