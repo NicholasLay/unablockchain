@@ -5,7 +5,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import javax.net.ssl.SSLContext;
@@ -42,15 +41,15 @@ public class ProcessServiceImpl implements ProcessService {
    
     @Async("processExecutor")
 	@Override
-	public void processCurrentState(String service, String orderID, int processID , int taskID, Integer maxLevel, String approvalResult)  {
+	public void processCurrentState(String service, String orderID, int processID , int taskID, Integer maxLevel, String approvalResult, Integer currentLevelOverride)  {
 		// TODO Auto-generated method stub
     	
-    	 logger.info(new Timestamp(System.currentTimeMillis())+"Received request to process in ProcessServiceImpl.process()");
-    	 logger.info(new Timestamp(System.currentTimeMillis())+"GETTING INTO CURRENT STATE PROCESS SERVICE");
-         logger.info(new Timestamp(System.currentTimeMillis())+"Process Service Impl:Service="+service+ ", orderID="+orderID+ ", processID="+processID+"");
+    	 logger.info("Received request to process in ProcessServiceImpl.process()");
+    	 logger.info("GETTING INTO CURRENT STATE PROCESS SERVICE");
+         logger.info("Process Service Impl:Service="+service+ ", orderID="+orderID+ ", processID="+processID+"");
          
      	try {
-     		currentState(orderID, processID,taskID,maxLevel,approvalResult);
+     		currentState(orderID, processID,taskID,maxLevel,approvalResult, currentLevelOverride);
 		} catch (KeyManagementException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -72,7 +71,7 @@ public class ProcessServiceImpl implements ProcessService {
 		
     	String acctionUrl = propertiesLoader.loadProperties("acctionurl");
     	
-    	logger.info(new Timestamp(System.currentTimeMillis())+"[ProcessServiceImplCurrentState] : ACCTION URL"+ acctionUrl);
+    	logger.info("[ProcessServiceImplCurrentState] : ACCTION URL"+ acctionUrl);
     	
     	AcctionCallBackRequestBean acctionBean = new AcctionCallBackRequestBean();
     	
@@ -87,7 +86,7 @@ public class ProcessServiceImpl implements ProcessService {
     	
     	String acctionCallbackRequest = json.toJson(acctionBean);
     	
-    	logger.info(new Timestamp(System.currentTimeMillis())+"[ProcessServiceImpl]: Acction Callback Request : \n"+ acctionCallbackRequest);
+    	logger.info("[ProcessServiceImpl]: Acction Callback Request : \n"+ acctionCallbackRequest);
     	
         HttpHeaders headers = new HttpHeaders();
         
@@ -95,14 +94,14 @@ public class ProcessServiceImpl implements ProcessService {
         HttpEntity<String> entity = new HttpEntity<String>(acctionCallbackRequest,headers);
         
         String answer = restTemplate.postForObject(acctionUrl, entity, String.class);
-    	logger.info(new Timestamp(System.currentTimeMillis())+"Process Service Impl : Response Callback from acction"+ answer);
+    	logger.info("Process Service Impl : Response Callback from acction"+ answer);
     
     }
     
     @SuppressWarnings({ "unchecked", "null" })
-    public void currentState(String orderID,int processID ,int taskID, Integer maxLevel, String approvalResult) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException{
+    public void currentState(String orderID,int processID ,int taskID, Integer maxLevel, String approvalResult, Integer currentLevelOverride) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException{
     	
-    	logger.info(new Timestamp(System.currentTimeMillis())+"--------------------------Entering current state--------------------------\n");
+    	logger.info("--------------------------Entering current state--------------------------\n");
     	
     	propertiesLoader = new PropertiesLoader();
 		
@@ -111,9 +110,9 @@ public class ProcessServiceImpl implements ProcessService {
     	
     	String currentStateURL = bpmUrl + "/process/"+processID+"?parts=all";
     	
-    	logger.info(new Timestamp(System.currentTimeMillis())+"-------------------- [ProcessServiceImpl] URL CURRENT STATE :"+currentStateURL+"------------------------------");
+    	logger.info("-------------------- [ProcessServiceImpl] URL CURRENT STATE :"+currentStateURL+"------------------------------");
     	
-    	logger.info(new Timestamp(System.currentTimeMillis())+"Masuk Auth");
+    	logger.info("Masuk Auth");
 		String plainCreds = propertiesLoader.loadProperties("plaincreds");
     	byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
@@ -122,7 +121,7 @@ public class ProcessServiceImpl implements ProcessService {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add("Authorization", "Basic " + base64Creds);
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
-		logger.info(new Timestamp(System.currentTimeMillis())+"Auth is being processed");
+		logger.info("Auth is being processed");
 		
 		RestTemplate restTemplate = getRestTemplate();
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
@@ -131,7 +130,7 @@ public class ProcessServiceImpl implements ProcessService {
     	
     	String responseBodyCurrState = responseCurrStateBPM.getBody();
     	
-		logger.info(new Timestamp(System.currentTimeMillis())+"----------------[ProcessServiceImpl] Response from BPM GetCurrentState : \n "+ responseBodyCurrState+"\n-------------------");
+		logger.info("----------------[ProcessServiceImpl] Response from BPM GetCurrentState : \n "+ responseBodyCurrState+"\n-------------------");
 		
 		CurrentStateResponseBean currStateResponse = json.fromJson(responseBodyCurrState, CurrentStateResponseBean.class);
 		
@@ -159,12 +158,15 @@ public class ProcessServiceImpl implements ProcessService {
 				processId = tasks.getPiid();
 				status = tasks.getStatus();
 				Integer currentLevel = tasks.getData().getVariables().getCurrentLevel();
+				Integer rejectLevel = tasks.getData().getVariables().getRejectLevel();
+				
+				
 				
 				if(null == currentLevel) {
 					currentLevel = 0;
 				}
 				
-				logger.info(new Timestamp(System.currentTimeMillis())+"Detail for task:  "+tasks.getTkiid()+" is : "
+				logger.info("Detail for task:  "+tasks.getTkiid()+" is : "
 						+ "assignTo:  "+assignTo+""
 						+ "assignToType:  "+assignToType+""
 						+ "processId:  "+processID+""
@@ -172,7 +174,7 @@ public class ProcessServiceImpl implements ProcessService {
 				
 				if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
 				
-					logger.info(new Timestamp(System.currentTimeMillis())+"Status = "+status+", Task Added!");
+					logger.info("Status = "+status+", Task Added!");
 					
 					tasks.setDisplayName(tasks.getName());
 					tasks.setProcessID(processId);
@@ -181,16 +183,20 @@ public class ProcessServiceImpl implements ProcessService {
 					tasks.setTaskID(taskIdNextask);
 					tasks.setMaxLevel(maxLevel);
 					tasks.setCurrentLevel(currentLevel);
+					tasks.setCurrentLevelOverride(currentLevelOverride);
+					tasks.setRejectLevel(rejectLevel);
+					
+					
 					
 					taskDetailResponseToAcction.add(tasks);
 					
 					tasksRequestAcction.setTasks(taskDetailResponseToAcction);
 				}else {
-					logger.info(new Timestamp(System.currentTimeMillis())+"Status = "+status+" , Task Depereciated!");
+					logger.info("Status = "+status+" , Task Depereciated!");
 					tasksRequestAcction.setTasks(emptyArray);
 				}
 			}
-			logger.info(new Timestamp(System.currentTimeMillis())+"------------TOTAL RECEIVED TASKS: "+tasksRequestAcction.getTasks().size()+"-------------");
+			logger.info("------------TOTAL RECEIVED TASKS: "+tasksRequestAcction.getTasks().size()+"-------------");
 		}else {
 				tasksRequestAcction.setTasks(emptyArray);
 		}
