@@ -17,11 +17,27 @@ public class CurrentStateRequestBean {
 	public boolean isAlias;
 	public Integer maxLevel;
 	public String approvalResult;
+	public Integer currentlevelOverride;
+	
 	
 	public CurrentStateRequestBean(){
 
 	}
 	
+	
+	
+	public Integer getCurrentlevelOverride() {
+		return currentlevelOverride;
+	}
+
+
+
+	public void setCurrentlevelOverride(Integer currentlevelOverride) {
+		this.currentlevelOverride = currentlevelOverride;
+	}
+
+
+
 	public String getApprovalResult() {
 		return approvalResult;
 	}

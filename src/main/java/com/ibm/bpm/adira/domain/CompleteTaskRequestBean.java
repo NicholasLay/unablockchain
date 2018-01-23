@@ -28,7 +28,7 @@ public class CompleteTaskRequestBean
 	public Integer maxLevel;
 	public Boolean isDacorFDE;
 	public Boolean isDacorDR;
-	
+	public Integer currentLevelOverride;
 	
 	
 	public CompleteTaskRequestBean(){
@@ -57,6 +57,15 @@ public class CompleteTaskRequestBean
 		this.surveyResult = surveyResult;
 	}
 	
+	
+	public Integer getCurrentLevelOverride() {
+		return currentLevelOverride;
+	}
+
+	public void setCurrentLevelOverride(Integer currentLevelOverride) {
+		this.currentLevelOverride = currentLevelOverride;
+	}
+
 	public Boolean getIsDacorFDE() {
 		return isDacorFDE;
 	}

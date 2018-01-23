@@ -21,7 +21,7 @@ public class GeneralRequestParameter {
 	public Integer maxLevel;
 	public Boolean isDacorFDE;
 	public Boolean isDacorDR;
-	
+	public Integer currentLevelOverride;
 	
 	public GeneralRequestParameter(){
 		
@@ -37,8 +37,14 @@ public class GeneralRequestParameter {
 	}
 
 	
-	
-	
+	public Integer getCurrentLevelOverride() {
+		return currentLevelOverride;
+	}
+
+	public void setCurrentLevelOverride(Integer currentLevelOverride) {
+		this.currentLevelOverride = currentLevelOverride;
+	}
+
 	public Boolean getIsDacorFDE() {
 		return isDacorFDE;
 	}

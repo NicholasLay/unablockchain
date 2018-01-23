@@ -47,6 +47,16 @@ public class Data{
 
 public class VariablesCurrState{
 	public Integer currentLevel;
+	public Integer rejectLevel;
+	
+	
+	public Integer getRejectLevel() {
+		return rejectLevel;
+	}
+
+	public void setRejectLevel(Integer rejectLevel) {
+		this.rejectLevel = rejectLevel;
+	}
 
 	public Integer getCurrentLevel() {
 		return currentLevel;
@@ -72,7 +82,9 @@ public class TasksCurrentState {
 			public String status;
 			public Data data;
 			public Integer currentLevel;
+			public Integer rejectLevel;
 			public Integer maxLevel;
+			public Integer currentLevelOverride;
 			
 			// Initializing variables for Acction.
 			public String assignTo;
@@ -80,8 +92,20 @@ public class TasksCurrentState {
 			public int taskID;
 			public int processID; 
 			
-		
 			
+		
+			public Integer getRejectLevel() {
+				return rejectLevel;
+			}
+			public void setRejectLevel(Integer rejectLevel) {
+				this.rejectLevel = rejectLevel;
+			}
+			public Integer getCurrentLevelOverride() {
+				return currentLevelOverride;
+			}
+			public void setCurrentLevelOverride(Integer currentLevelOverride) {
+				this.currentLevelOverride = currentLevelOverride;
+			}
 			public Data getData() {
 				return data;
 			}
