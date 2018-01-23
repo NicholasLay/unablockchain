@@ -1,5 +1,6 @@
 package com.ibm.bpm.adira.service.impl;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ public class Ad1ServiceImpl implements Ad1Service
 		ad1AuthRequest.setLogin(login);
 		ad1AuthRequest.setPassword(password);
 		ad1Request = json.toJson(ad1AuthRequest);
-		logger.info("[Ad1ServiceImpl] Request to Ad1 from API."+ ad1Request);
+		logger.info(new Timestamp(System.currentTimeMillis())+"[Ad1ServiceImpl] Request to Ad1 from API."+ ad1Request);
 		
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -57,7 +58,7 @@ public class Ad1ServiceImpl implements Ad1Service
 		
 		ad1Request = json.toJson(ad1NIKRequest);
 		
-		logger.info("[Ad1ServiceImpl] Request to Ad1 from API."+ ad1Request);
+		logger.info(new Timestamp(System.currentTimeMillis())+"[Ad1ServiceImpl] Request to Ad1 from API."+ ad1Request);
 		
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
