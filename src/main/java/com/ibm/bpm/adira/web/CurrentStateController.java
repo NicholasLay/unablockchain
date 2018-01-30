@@ -83,30 +83,30 @@ public class CurrentStateController
 				
 		if (basicAuth.startsWith("Basic"))
 		{
-			String base64Credentials = basicAuth.substring("Basic".length()).trim();
-			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
-			String[] values = credentials.split(":",2);
+//			String base64Credentials = basicAuth.substring("Basic".length()).trim();
+//			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
+//			String[] values = credentials.split(":",2);
+//			
+//			logger.info("[CurrentStateController] Authentication from Acction to API. Username "+values[0] + "Password "+values[1]);
+//			
+//			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
+//			String responseAd1GateCurrentState = ad1ServiceImpl.getNIK(groupAlias, locationAlias, isLocation);
+//			
+//			logger.info("--------[CurrentStateController]RESPONSE From AD1GATE :  "+ responseAd1GateCurrentState +"-------------");
 			
-			logger.info("[CurrentStateController] Authentication from Acction to API. Username "+values[0] + "Password "+values[1]);
-			
-			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
-			String responseAd1GateCurrentState = ad1ServiceImpl.getNIK(groupAlias, locationAlias, isLocation);
-			
-			logger.info("--------[CurrentStateController]RESPONSE From AD1GATE :  "+ responseAd1GateCurrentState +"-------------");
-			
-			if (responseAd1GateCurrentState.matches("(.*)"+values[0]+"(.*)"))
-			{	
+//			if (responseAd1GateCurrentState.matches("(.*)"+values[0]+"(.*)"))
+//			{	
 				logger.info("-----------[CurrentStateController]USER MATCHES, SUCCSESS ENTERING AUTHORIZATION -----------");
 				
 				processService.processCurrentState(GlobalString.SERVICE_NAME_CURRENT_STATE,orderId,processId,taskId,maxLevel,approvalResult,currLevelOverrride);
 				
 				return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
-			}
-			else
-			{
-				logger.info("-----------[CurrentStateController] USER NOT FOUND ,NOT OK RESPONSE -----------");
-				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
-			}
+//			}
+//			else
+//			{
+//				logger.info("-----------[CurrentStateController] USER NOT FOUND ,NOT OK RESPONSE -----------");
+//				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
+//			}
 		}
 		logger.info("-----------[CurrentStateController] NOT BASIC AUTHORIZATION -----------");
 		return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);

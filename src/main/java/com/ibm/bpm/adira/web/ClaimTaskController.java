@@ -6,7 +6,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import javax.net.ssl.SSLContext;
@@ -79,9 +78,9 @@ public class ClaimTaskController {
 				+ ":9443/rest/bpm/wle/v1/task/"+taskId+"?action=assign&toMe=true&parts=all";
 		*/
 		String walletBalanceUrl = bpmUrl + "/task/"+taskId+"?action=assign&toMe=true&parts=all";
-		logger.info(new Timestamp(System.currentTimeMillis())+"URL:"+ walletBalanceUrl);
+		logger.info("URL:"+ walletBalanceUrl);
 
-		logger.info(new Timestamp(System.currentTimeMillis())+"-----------[ClaimTaskController] ENTERING AUTHORIZATION-----------");
+		logger.info("-----------[ClaimTaskController] ENTERING AUTHORIZATION-----------");
 	
 		//String plainCreds = "acction:ADira2017";
 		String plainCreds = propertiesLoader.loadProperties("plaincreds");
@@ -93,7 +92,7 @@ public class ClaimTaskController {
 		httpHeaders.add("Authorization", "Basic " + base64Creds);
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
 	
-		logger.info(new Timestamp(System.currentTimeMillis())+"-----------[ClaimTaskController] PROCESSING AUTHORIZATION-----------\"");
+		logger.info("\"-----------[ClaimTaskController] PROCESSING AUTHORIZATION-----------\"");
 
 		RestTemplate restTemplate = getRestTemplate();
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
@@ -101,7 +100,7 @@ public class ClaimTaskController {
 		String response = restTemplate.postForObject(walletBalanceUrl, entity, String.class);
 		String timestamp = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()); 
 
-		logger.info(new Timestamp(System.currentTimeMillis())+"-----------[ClaimTaskController] RESPONSE JSON BPM ("+timestamp+") = "+response+"-----------");
+		logger.info("-----------[ClaimTaskController] RESPONSE JSON BPM ("+timestamp+") = "+response+"-----------");
 		
 		Gson json = new Gson();
 		
@@ -113,27 +112,27 @@ public class ClaimTaskController {
 		if (basicAuth.startsWith("Basic"))
 		{
 			
-			String base64Credentials = basicAuth.substring("Basic".length()).trim();
-			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
-			String[] values = credentials.split(":",2);
+//			String base64Credentials = basicAuth.substring("Basic".length()).trim();
+//			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
+//			String[] values = credentials.split(":",2);
+//			
+//			logger.info("USERNAME "+values[0]);
+//			logger.info("PASSWORD "+values[1]);
+//			
+//			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
+//			
+//			ArrayList<String> groupAlias = claimtaskReq.getGroupAlias();
+//			String locationAlias = claimtaskReq.getLocationAlias();
+//			Boolean isLocation = false;
+//			
+//			String responseAd1Gate = ad1ServiceImpl.getNIK(groupAlias, locationAlias, isLocation);
+//			
+//			logger.info("--------[ClaimTaskController]RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
 			
-			logger.info("USERNAME "+values[0]);
-			logger.info("PASSWORD "+values[1]);
-			
-			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
-			
-			ArrayList<String> groupAlias = claimtaskReq.getGroupAlias();
-			String locationAlias = claimtaskReq.getLocationAlias();
-			Boolean isLocation = false;
-			
-			String responseAd1Gate = ad1ServiceImpl.getNIK(groupAlias, locationAlias, isLocation);
-			
-			logger.info(new Timestamp(System.currentTimeMillis())+"--------[ClaimTaskController]RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
-			
-			if(responseAd1Gate.matches("(.*)"+values[0]+"(.*)"))
-			{	
+//			if(responseAd1Gate.matches("(.*)"+values[0]+"(.*)"))
+//			{	
 				
-				logger.info(new Timestamp(System.currentTimeMillis())+"-----------[ClaimTaskController] USER MATCHES,  ENTERING RESPONSE TO ACCTION -----------");
+				logger.info("-----------[ClaimTaskController] USER MATCHES,  ENTERING RESPONSE TO ACCTION -----------");
 				beanAcctionClaim.setOrderID(orderId);
 				beanAcctionClaim.setTaskID(taskId);
 				beanAcctionClaim.setStatus(responseBpmClaim.getStatus());
@@ -142,28 +141,30 @@ public class ClaimTaskController {
 				responseToAcction = json.toJson(beanAcctionClaim);
 				
 				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
-			}
-			else
-			{
-				logger.info(new Timestamp(System.currentTimeMillis())+"-----------[ClaimTaskController] USER NOT FOUND , NOT OK RESPONSE -----------");
-				beanAcctionClaim.setOrderID(GlobalString.EMPTY_STRING);
-				beanAcctionClaim.setTaskID(GlobalString.EMPTY_INTEGER);
-				beanAcctionClaim.setStatus(GlobalString.RESP_FAILED);
+//			}
+//			else
+//			{
+//				logger.info("-----------[ClaimTaskController] USER NOT FOUND , NOT OK RESPONSE -----------");
+//				beanAcctionClaim.setOrderID(GlobalString.EMPTY_STRING);
+//				beanAcctionClaim.setTaskID(GlobalString.EMPTY_INTEGER);
+//				beanAcctionClaim.setStatus(GlobalString.RESP_FAILED);
+//			
+//				responseToAcction = json.toJson(beanAcctionClaim);
+//				
+//				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
+//			}
+		}else {
+
+			logger.info("-----------[ClaimTaskController] NOT BASIC AUTHORIZATION -----------");
+			beanAcctionClaim.setOrderID(GlobalString.EMPTY_STRING);
+			beanAcctionClaim.setTaskID(GlobalString.EMPTY_INTEGER);
+			beanAcctionClaim.setStatus(GlobalString.AUTH_FAILED_AD1);
 			
-				responseToAcction = json.toJson(beanAcctionClaim);
-				
-				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
-			}
+			responseToAcction = json.toJson(beanAcctionClaim);
+			
+			return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
 		}
 
-		logger.info(new Timestamp(System.currentTimeMillis())+"-----------[ClaimTaskController] NOT BASIC AUTHORIZATION -----------");
-		beanAcctionClaim.setOrderID(GlobalString.EMPTY_STRING);
-		beanAcctionClaim.setTaskID(GlobalString.EMPTY_INTEGER);
-		beanAcctionClaim.setStatus(GlobalString.AUTH_FAILED_AD1);
-		
-		responseToAcction = json.toJson(beanAcctionClaim);
-		
-		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	
 	}
 	

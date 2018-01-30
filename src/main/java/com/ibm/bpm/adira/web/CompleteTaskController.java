@@ -106,8 +106,11 @@ public class CompleteTaskController
 		
 		String bpmUrl = propertiesLoader.loadProperties("bpmurl");
 		String completeTaskURL = bpmUrl + "/task/"+taskID+"?action=finish&params={completeTaskRequestAcction}&parts=all";
-    	logger.info("[CompleteTaskController] URL TO BPM:"+completeTaskURL);
     	
+		logger.info("[CompleteTaskController] URL TO BPM:"+completeTaskURL);
+		
+    	logger.info("[CompleteTaskController] Complete JSON Parameter : "+completeTaskRequestAcction+"");
+	
     	logger.info("Masuk Auth");
 		String plainCreds = propertiesLoader.loadProperties("plaincreds");
     	byte[] plainCredsBytes = plainCreds.getBytes();
@@ -122,24 +125,21 @@ public class CompleteTaskController
 			
 		RestTemplate restTemplate = getRestTemplate();
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
-	
-		Thread.sleep(5000);
-		
 		
 		if (basicAuth.startsWith("Basic")){
-			String base64Credentials = basicAuth.substring("Basic".length()).trim();
-			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
-			String[] values = credentials.split(":",2);
-			
-			logger.info("[CompleteTaskController] Authentication from Acction to API. Username "+values[0] + "Password "+values[1]);
-			
-			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
-			String responseAd1Gate = ad1ServiceImpl.getNIK(groupAlias, locationAlias, isLocation);
-		
-			logger.info("--------[CompleteTaskController]RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
-			
-			if (responseAd1Gate.matches("(.*)"+values[0]+"(.*)"))
-			{					
+//			String base64Credentials = basicAuth.substring("Basic".length()).trim();
+//			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
+//			String[] values = credentials.split(":",2);
+//			
+//			logger.info("[CompleteTaskController] Authentication from Acction to API. Username "+values[0] + "Password "+values[1]);
+//			
+//			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
+//			String responseAd1Gate = ad1ServiceImpl.getNIK(groupAlias, locationAlias, isLocation);
+//		
+//			logger.info("--------[CompleteTaskController]RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
+//			
+//			if (responseAd1Gate.matches("(.*)"+values[0]+"(.*)"))
+//			{					
 				logger.info("-----[CompleteTaskController] USER MATCHES, PROCESSING COMPLETE TASK------");
 				
 				String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class, completeTaskRequestAcction);
@@ -148,12 +148,12 @@ public class CompleteTaskController
 				
 				logger.info("----------- [CompleteTaskController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 				return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
-			}
-			else
-			{	
-				logger.info("-----[CompleteTaskController] USER NOT FOUND, COMPLETE TASK FAILED------");
-				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
-			}
+//			}
+//			else
+//			{	
+//				logger.info("-----[CompleteTaskController] USER NOT FOUND, COMPLETE TASK FAILED------");
+//				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
+//			}
 		}else {
 			logger.info("-----[CompleteTaskController] AUTHORIZATION IS NOT BASIC------");
 			return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);

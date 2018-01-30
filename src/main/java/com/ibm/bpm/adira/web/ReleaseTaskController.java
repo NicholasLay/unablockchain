@@ -6,8 +6,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.sql.Timestamp;
-
 import javax.net.ssl.SSLContext;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -71,7 +69,7 @@ public class ReleaseTaskController
 				"BRMS 		="+brmsScoring+
 				"Mayor 		="+mayor;
 		
-		logger.info(new Timestamp(System.currentTimeMillis())+RequestLog);
+		logger.info(RequestLog);
 		
 		propertiesLoader = new PropertiesLoader();
 		
@@ -83,9 +81,9 @@ public class ReleaseTaskController
 				+ ":9443/rest/bpm/wle/v1/task/"+taskId+"?action=cancel";
 		*/
 		String walletBalanceUrl = bpmUrl + "/task/"+taskId+"?action=cancel";
-		logger.info(new Timestamp(System.currentTimeMillis())+"URL:"+ walletBalanceUrl);
+		logger.info("URL:"+ walletBalanceUrl);
 
-		logger.info(new Timestamp(System.currentTimeMillis())+"-----------ENTERING AUTHORIZATION-----------");
+		logger.info("-----------ENTERING AUTHORIZATION-----------");
 		
 		//String plainCreds = "acction:ADira2017";
 		String plainCreds = propertiesLoader.loadProperties("plaincreds");
@@ -98,7 +96,7 @@ public class ReleaseTaskController
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
 		
-		logger.info(new Timestamp(System.currentTimeMillis())+"-----------PROCESSING AUTHORIZATION-----------\"");
+		logger.info("\"-----------PROCESSING AUTHORIZATION-----------\"");
 		
 		RestTemplate restTemplate = getRestTemplate();
 		String response = restTemplate.postForObject(walletBalanceUrl, entity, String.class);
@@ -118,7 +116,7 @@ public class ReleaseTaskController
 			
 			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
 			String responseAd1Gate = ad1ServiceImpl.authResponse(values[0], values[1]);
-			logger.info(new Timestamp(System.currentTimeMillis())+"--------RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
+			logger.info("--------RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
 			
 			if (responseAd1Gate.equals(GlobalString.OK_MESSAGE))
 			{	
@@ -138,7 +136,7 @@ public class ReleaseTaskController
 			}
 			else
 			{
-				logger.info(new Timestamp(System.currentTimeMillis())+"-----------NOT OK RESPONSE -----------");
+				logger.info("-----------NOT OK RESPONSE -----------");
 				beanAcctionRelease.setOrderID(GlobalString.EMPTY_STRING);
 				beanAcctionRelease.setTaskID(GlobalString.EMPTY_INTEGER);
 				beanAcctionRelease.setStatus(GlobalString.OK_MESSAGE);
@@ -150,7 +148,7 @@ public class ReleaseTaskController
 
 		}
 
-		logger.info(new Timestamp(System.currentTimeMillis())+"-----------NOT BASIC AUTHORIZATION -----------");
+		logger.info("-----------NOT BASIC AUTHORIZATION -----------");
 		beanAcctionRelease.setOrderID(GlobalString.EMPTY_STRING);
 		beanAcctionRelease.setTaskID(GlobalString.EMPTY_INTEGER);
 		beanAcctionRelease.setStatus(GlobalString.AUTH_FAILED_AD1);
