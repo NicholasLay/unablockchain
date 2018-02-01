@@ -124,7 +124,7 @@ public class CompleteTaskSetupCAController
 				
 				
 				String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class, completeTaskRequestAcction);
-				Thread.sleep(5000);
+				
 				logger.info("----------- [CompleteTaskSetupCAController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 				
 				

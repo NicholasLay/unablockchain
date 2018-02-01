@@ -143,7 +143,7 @@ public class CompleteTaskController
 				logger.info("-----[CompleteTaskController] USER MATCHES, PROCESSING COMPLETE TASK------");
 				
 				String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class, completeTaskRequestAcction);
-				Thread.sleep(5000);
+				
 //				CompleteTaskResponseBean completeTaskResponseBPM = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
 				
 				logger.info("----------- [CompleteTaskController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");

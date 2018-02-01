@@ -124,7 +124,7 @@ public class CompleteTaskSynchronousController
 				
 				
 				String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class, completeTaskRequestAcction);
-				Thread.sleep(5000);
+				
 				logger.info("----------- [CompleteTaskSynchronus] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 				
 				
