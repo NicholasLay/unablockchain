@@ -161,11 +161,11 @@ public class CompleteTaskAsyncController
 			                logger.info("Status complete Task async : "+completeTaskBeanAsync.getStatus()+"");
 			                
 			                
-			                if (completeTaskBeanAsync.getStatus() == "200") {
+			                if ("200" == completeTaskBeanAsync.getStatus()) {
 			                	processService.processCurrentState(GlobalString.SERVIVE_NAME_COMPLETE_TASK,orderID,processID,taskID,maxLevel,approvalResult,currLevelOverrride);
 					        	return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
 			                }
-			                break; 
+			                
 			            }
 		        
 		}else {
@@ -177,7 +177,6 @@ public class CompleteTaskAsyncController
         	logger.info("-----[CompleteTaskAsyncController] COMPLETE TASK FAILED. Caused by :"+e+"------");
         	return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 		}
-		return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	}
 	
 	public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
