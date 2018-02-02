@@ -142,13 +142,13 @@ public class CompleteTaskAsyncController
 	
 		RestTemplate restTemplate = getRestTemplate();
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
+		try{
 		
 		if (basicAuth.startsWith("Basic")){
 				
 				logger.info("-----[CompleteTaskController] BASIC AUTHORIZATION COMPLETE, PROCESSING COMPLETE TASK------");
 				
-				 try
-			        {
+				
 			            while(true)
 			            {
 			                logger.info("[CompleteTaskAsyncController] PROCESSING COMPLETE TASK....");
@@ -158,23 +158,26 @@ public class CompleteTaskAsyncController
 							CompleteTaskResponseBean completeTaskBeanAsync = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
 			                logger.info("[CompleteTaskAsyncController] COMPLETE TASK SUCCESS");
 			                Thread.sleep(1000);
-			                break;
+			             
+			                
+			                if (completeTaskBeanAsync.getStatus() == "200") {
+			                	processService.processCurrentState(GlobalString.SERVIVE_NAME_COMPLETE_TASK,orderID,processID,taskID,maxLevel,approvalResult,currLevelOverrride);
+					        	return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
+			                }
+			                break; 
 			            }
-		        }catch(Exception e){
-			    
-		        	logger.info("-----[CompleteTaskAsyncController] COMPLETE TASK FAILED. Caused by :"+e+"------");
-		        	
-		        }finally {
-		        		 processService.processCurrentState(GlobalString.SERVIVE_NAME_COMPLETE_TASK,orderID,processID,taskID,maxLevel,approvalResult,currLevelOverrride);
-			        	 return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
-		        }
+		        
 		}else {
 			logger.info("-----[CompleteTaskController] AUTHORIZATION IS NOT BASIC------");
 			return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
 		}
-	
-		
-}
+	}
+		catch(Exception e){   
+        	logger.info("-----[CompleteTaskAsyncController] COMPLETE TASK FAILED. Caused by :"+e+"------");
+        	return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
+		}
+		return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
+	}
 	
 	public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
 		    TrustStrategy acceptingTrustStrategy = new TrustStrategy() {
