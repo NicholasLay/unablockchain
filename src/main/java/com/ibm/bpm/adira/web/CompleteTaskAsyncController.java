@@ -146,27 +146,27 @@ public class CompleteTaskAsyncController
 		
 		if (basicAuth.startsWith("Basic")){
 				
-				logger.info("-----[CompleteTaskAsyncController] BASIC AUTHORIZATION COMPLETE, PROCESSING COMPLETE TASK------");
-		
-			            while(true)
+				logger.info("-----[CompleteTaskAsyncController] BASIC AUTHORIZATION COMPLETE, PROCESSING COMPLETE TASK------");	
+			            CompleteTaskResponseBean completeTaskBeanAsync;
+						while(true)
 			            {
 			                logger.info("[CompleteTaskAsyncController] PROCESSING COMPLETE TASK....");
 			                String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class, completeTaskAsyncAcction);
 				
 							logger.info("----------- [CompleteTaskAsyncController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
-							CompleteTaskResponseBean completeTaskBeanAsync = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
+							completeTaskBeanAsync = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
 			                logger.info("[CompleteTaskAsyncController] COMPLETE TASK SUCCESS");
 			                Thread.sleep(1000);
 			             
 			                logger.info("Status complete Task async : "+completeTaskBeanAsync.getStatus()+"");
 			                
-			                
-			                if ("200" == completeTaskBeanAsync.getStatus()) {
-			                	processService.processCurrentState(GlobalString.SERVIVE_NAME_COMPLETE_TASK,orderID,processID,taskID,maxLevel,approvalResult,currLevelOverrride);
-					        	return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
-			                }
-			                
+			                break;
 			            }
+			            
+	            if ("200" == completeTaskBeanAsync.getStatus()) {
+                	processService.processCurrentState(GlobalString.SERVIVE_NAME_COMPLETE_TASK,orderID,processID,taskID,maxLevel,approvalResult,currLevelOverrride);
+		        	return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
+                }       
 		        
 		}else {
 			logger.info("-----[CompleteTaskAsyncController] AUTHORIZATION IS NOT BASIC------");
@@ -177,6 +177,7 @@ public class CompleteTaskAsyncController
         	logger.info("-----[CompleteTaskAsyncController] COMPLETE TASK FAILED. Caused by :"+e+"------");
         	return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 		}
+		return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	}
 	
 	public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
