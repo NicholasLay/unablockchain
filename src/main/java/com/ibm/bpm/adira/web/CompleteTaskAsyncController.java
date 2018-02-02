@@ -156,14 +156,13 @@ public class CompleteTaskAsyncController
 							logger.info("----------- [CompleteTaskAsyncController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 							completeTaskBeanAsync = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
 			                logger.info("[CompleteTaskAsyncController] COMPLETE TASK SUCCESS");
-			                Thread.sleep(1000);
 			             
 			                logger.info("Status complete Task async : "+completeTaskBeanAsync.getStatus()+"");
 			                
 			                break;
 			            }
 			            
-	            if ("200" == completeTaskBeanAsync.getStatus()) {
+	            if (completeTaskBeanAsync.getStatus().equals("200")) {
                 	processService.processCurrentState(GlobalString.SERVIVE_NAME_COMPLETE_TASK,orderID,processID,taskID,maxLevel,approvalResult,currLevelOverrride);
 		        	return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
                 }       
