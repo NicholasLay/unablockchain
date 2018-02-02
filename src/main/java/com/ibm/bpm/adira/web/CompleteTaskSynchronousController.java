@@ -119,21 +119,16 @@ public class CompleteTaskSynchronousController
 				}
 					
 				completeTaskRequestAcction = json.toJson(parameterComplete);
-			
 				logger.info("[CompleteTaskSynchronus]: Parameter Complete Task: "+completeTaskRequestAcction);
 				
-				
 				String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class, completeTaskRequestAcction);
-				
 				logger.info("----------- [CompleteTaskSynchronus] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 				
-				
 				String responseToAcction =  currentState(orderID, processID, taskID, maxLevel);
-				
 				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
 			}
 			else
-			{	
+			{	 
 				logger.info("-----[CompleteTaskSynchronus] USER NOT FOUND, COMPLETE TASK FAILED------");
 				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 			}
