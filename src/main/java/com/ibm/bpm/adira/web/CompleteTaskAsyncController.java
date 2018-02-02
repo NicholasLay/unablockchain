@@ -146,19 +146,20 @@ public class CompleteTaskAsyncController
 		
 		if (basicAuth.startsWith("Basic")){
 				
-				logger.info("-----[CompleteTaskController] BASIC AUTHORIZATION COMPLETE, PROCESSING COMPLETE TASK------");
-				
-				
+				logger.info("-----[CompleteTaskAsyncController] BASIC AUTHORIZATION COMPLETE, PROCESSING COMPLETE TASK------");
+		
 			            while(true)
 			            {
 			                logger.info("[CompleteTaskAsyncController] PROCESSING COMPLETE TASK....");
 			                String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class, completeTaskAsyncAcction);
 				
-							logger.info("----------- [CompleteTaskController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
+							logger.info("----------- [CompleteTaskAsyncController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 							CompleteTaskResponseBean completeTaskBeanAsync = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
 			                logger.info("[CompleteTaskAsyncController] COMPLETE TASK SUCCESS");
 			                Thread.sleep(1000);
 			             
+			                logger.info("Status complete Task async : "+completeTaskBeanAsync.getStatus()+"");
+			                
 			                
 			                if (completeTaskBeanAsync.getStatus() == "200") {
 			                	processService.processCurrentState(GlobalString.SERVIVE_NAME_COMPLETE_TASK,orderID,processID,taskID,maxLevel,approvalResult,currLevelOverrride);
@@ -168,7 +169,7 @@ public class CompleteTaskAsyncController
 			            }
 		        
 		}else {
-			logger.info("-----[CompleteTaskController] AUTHORIZATION IS NOT BASIC------");
+			logger.info("-----[CompleteTaskAsyncController] AUTHORIZATION IS NOT BASIC------");
 			return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
 		}
 	}
