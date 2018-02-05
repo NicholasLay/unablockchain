@@ -155,10 +155,8 @@ public class CompleteTaskAsyncController
 				
 							logger.info("----------- [CompleteTaskAsyncController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 							completeTaskBeanAsync = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
-			                logger.info("[CompleteTaskAsyncController] COMPLETE TASK SUCCESS");
-			             
-			                logger.info("Status complete Task async : "+completeTaskBeanAsync.getStatus()+"");
-			                
+			                logger.info("[CompleteTaskAsyncController] COMPLETE TASK SUCCESS, WITH STATUS = "+completeTaskBeanAsync.getStatus()+"");
+			                Thread.sleep(500);
 			                break;
 			            }
 			            
@@ -174,7 +172,7 @@ public class CompleteTaskAsyncController
 	}
 		catch(Exception e){   
         	logger.info("-----[CompleteTaskAsyncController] COMPLETE TASK FAILED. Caused by :"+e+"------");
-        	return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
+        	return new ResponseEntity(""+GlobalString.RESP_FAILED+". Exception : "+e+"", new HttpHeaders(),HttpStatus.FORBIDDEN);
 		}
 		return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	}

@@ -110,7 +110,7 @@ public class ProcessServiceImpl implements ProcessService {
     	
     	String currentStateURL = bpmUrl + "/process/"+processID+"?parts=all";
     	
-    	logger.info("-------------------- [ProcessServiceImpl] URL CURRENT STATE :"+currentStateURL+"------------------------------");
+    	logger.info("[ProcessServiceImpl] URL CURRENT STATE :"+currentStateURL+"");
     	
     	logger.info("Masuk Auth");
 		String plainCreds = propertiesLoader.loadProperties("plaincreds");
@@ -140,61 +140,113 @@ public class ProcessServiceImpl implements ProcessService {
 		
 		List<TasksCurrentState> emptyArray = new ArrayList<TasksCurrentState>();
 		
+		String lastTask = "RPPD";
+		int indexCounter = 1;
 		String assignTo = "";
 		String assignToType = "";
 		int taskIdNextask = 0;
 		int processId = 0;
 		String status = "";
+		int tasksCounter = currStateResponse.getData().getTasks().size();
 		
-		int indexCounter = currStateResponse.getData().getTasks().size();
-		
-		if (indexCounter > 0) 
+		if (tasksCounter > 0) 
 		{
 			for(TasksCurrentState tasks : currStateResponse.getData().getTasks()){
-			
-				assignTo = tasks.getName();
-				assignToType = tasks.getAssignedToType();	
-				taskIdNextask = tasks.getTkiid();
-				processId = tasks.getPiid();
-				status = tasks.getStatus();
-				Integer currentLevel = tasks.getData().getVariables().getCurrentLevel();
-				Integer rejectLevel = tasks.getData().getVariables().getRejectLevel();
 				
-				
-				
-				if(null == currentLevel) {
-					currentLevel = 0;
-				}
-				
-				logger.info("Detail for task:  "+tasks.getTkiid()+" is : "
-						+ "assignTo:  "+assignTo+""
-						+ "assignToType:  "+assignToType+""
-						+ "processId:  "+processID+""
-						+ "status:  "+status+"");
-				
-				if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
-				
-					logger.info("Status = "+status+", Task Added!");
+					assignTo = tasks.getName();
+					assignToType = tasks.getAssignedToType();	
+					taskIdNextask = tasks.getTkiid();
+					processId = tasks.getPiid();
+					status = tasks.getStatus();
+					Integer currentLevel = tasks.getData().getVariables().getCurrentLevel();
+					Integer rejectLevel = tasks.getData().getVariables().getRejectLevel();
 					
-					tasks.setDisplayName(tasks.getName());
-					tasks.setProcessID(processId);
-					tasks.setAssignTo(assignTo);
-					tasks.setAssignToType(assignToType);
-					tasks.setTaskID(taskIdNextask);
-					tasks.setMaxLevel(maxLevel);
-					tasks.setCurrentLevel(currentLevel);
-					tasks.setCurrentLevelOverride(currentLevelOverride);
-					tasks.setRejectLevel(rejectLevel);
+					if(null == currentLevel) {
+						currentLevel = 0;
+					}
 					
+					logger.info("Detail for task:  "+tasks.getTkiid()+" is : "
+							+ "assignTo:  "+assignTo+""
+							+ "assignToType:  "+assignToType+""
+							+ "processId:  "+processID+""
+							+ "status:  "+status+"");
 					
+					if(indexCounter == tasksCounter) {
+						if(!tasks.getName().equals(lastTask) && tasks.getStatus().equals("Closed")) {
+							responseCurrStateBPM = restTemplate.exchange(currentStateURL, HttpMethod.GET, entity, String.class);
+							responseBodyCurrState = responseCurrStateBPM.getBody();
+							currStateResponse = json.fromJson(responseBodyCurrState, CurrentStateResponseBean.class);
+							
+							for(TasksCurrentState getLastTasks : currStateResponse.getData().getTasks()) {
+							
+							assignTo = getLastTasks.getName();
+							assignToType = getLastTasks.getAssignedToType();	
+							taskIdNextask = getLastTasks.getTkiid();
+							processId = getLastTasks.getPiid();
+							status = getLastTasks.getStatus();
+							currentLevel = getLastTasks.getData().getVariables().getCurrentLevel();
+							rejectLevel = getLastTasks.getData().getVariables().getRejectLevel();
+							
+							if(null == currentLevel) {
+								currentLevel = 0;
+							}
+							
+							logger.info("Detail for task:  "+tasks.getTkiid()+" is : "
+									+ "assignTo:  "+assignTo+""
+									+ "assignToType:  "+assignToType+""
+									+ "processId:  "+processID+""
+									+ "status:  "+status+"");
+							
+							if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
+							
+								logger.info("Status = "+status+", Task Added!");
+								
+								getLastTasks.setDisplayName(tasks.getName());
+								getLastTasks.setProcessID(processId);
+								getLastTasks.setAssignTo(assignTo);
+								getLastTasks.setAssignToType(assignToType);
+								getLastTasks.setTaskID(taskIdNextask);
+								getLastTasks.setMaxLevel(maxLevel);
+								getLastTasks.setCurrentLevel(currentLevel);
+								getLastTasks.setCurrentLevelOverride(currentLevelOverride);
+								getLastTasks.setRejectLevel(rejectLevel);
+								
+								
+								taskDetailResponseToAcction.add(getLastTasks);
+								
+								tasksRequestAcction.setTasks(taskDetailResponseToAcction);
+							}else {
+								logger.info("Status = "+status+" , Task Depereciated!");
+								tasksRequestAcction.setTasks(emptyArray);
+							}
+						  }
+						}
+					}
 					
-					taskDetailResponseToAcction.add(tasks);
+					if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
 					
-					tasksRequestAcction.setTasks(taskDetailResponseToAcction);
-				}else {
-					logger.info("Status = "+status+" , Task Depereciated!");
-					tasksRequestAcction.setTasks(emptyArray);
-				}
+						logger.info("Status = "+status+", Task Added!");
+						
+						tasks.setDisplayName(tasks.getName());
+						tasks.setProcessID(processId);
+						tasks.setAssignTo(assignTo);
+						tasks.setAssignToType(assignToType);
+						tasks.setTaskID(taskIdNextask);
+						tasks.setMaxLevel(maxLevel);
+						tasks.setCurrentLevel(currentLevel);
+						tasks.setCurrentLevelOverride(currentLevelOverride);
+						tasks.setRejectLevel(rejectLevel);
+						indexCounter++;
+						
+						taskDetailResponseToAcction.add(tasks);
+						
+						tasksRequestAcction.setTasks(taskDetailResponseToAcction);
+					}else {
+						logger.info("Status = "+status+" , Task Depereciated!");
+						tasksRequestAcction.setTasks(emptyArray);
+						indexCounter++;
+					}
+				
 			}
 			logger.info("------------TOTAL RECEIVED TASKS: "+tasksRequestAcction.getTasks().size()+"-------------");
 		}else {
