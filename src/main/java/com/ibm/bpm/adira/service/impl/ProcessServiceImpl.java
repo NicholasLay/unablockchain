@@ -166,10 +166,10 @@ public class ProcessServiceImpl implements ProcessService {
 					}
 					
 					logger.info("Detail for task:  "+tasks.getTkiid()+" is : "
-							+ "assignTo:  "+assignTo+""
-							+ "assignToType:  "+assignToType+""
-							+ "processId:  "+processID+""
-							+ "status:  "+status+"");
+							+ " assignTo:  "+assignTo+""
+							+ " assignToType:  "+assignToType+""
+							+ " processId:  "+processID+""
+							+ " status:  "+status+"");
 					
 					if(indexCounter == tasksCounter) {
 						if(!tasks.getName().equals(lastTask) && tasks.getStatus().equals("Closed")) {
@@ -183,7 +183,7 @@ public class ProcessServiceImpl implements ProcessService {
 							assignToType = getLastTasks.getAssignedToType();	
 							taskIdNextask = getLastTasks.getTkiid();
 							processId = getLastTasks.getPiid();
-							status = getLastTasks.getStatus();
+							String newStatus = getLastTasks.getStatus();
 							currentLevel = getLastTasks.getData().getVariables().getCurrentLevel();
 							rejectLevel = getLastTasks.getData().getVariables().getRejectLevel();
 							
@@ -195,13 +195,13 @@ public class ProcessServiceImpl implements ProcessService {
 									+ "assignTo:  "+assignTo+""
 									+ "assignToType:  "+assignToType+""
 									+ "processId:  "+processID+""
-									+ "status:  "+status+"");
+									+ "status:  "+newStatus+"");
 							
-							if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
+							if (!newStatus.equals(GlobalString.STATUS_TASK_CLOSED)) {
 							
 								logger.info("Status = "+status+", Task Added!");
 								
-								getLastTasks.setDisplayName(tasks.getName());
+								getLastTasks.setDisplayName(getLastTasks.getName());
 								getLastTasks.setProcessID(processId);
 								getLastTasks.setAssignTo(assignTo);
 								getLastTasks.setAssignToType(assignToType);
@@ -215,11 +215,13 @@ public class ProcessServiceImpl implements ProcessService {
 								taskDetailResponseToAcction.add(getLastTasks);
 								
 								tasksRequestAcction.setTasks(taskDetailResponseToAcction);
+								
 							}else {
 								logger.info("Status = "+status+" , Task Depereciated!");
 								tasksRequestAcction.setTasks(emptyArray);
 							}
 						  }
+							break;
 						}
 					}
 					
