@@ -7,7 +7,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.net.ssl.SSLContext;
 
@@ -37,6 +39,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.ibm.bpm.adira.domain.AcctionCallBackRequestBean;
 import com.ibm.bpm.adira.domain.CompleteTaskRequestBean;
+import com.ibm.bpm.adira.domain.CompleteTaskResponseBean;
 import com.ibm.bpm.adira.domain.CurrentStateResponseBean;
 import com.ibm.bpm.adira.domain.GlobalString;
 import com.ibm.bpm.adira.domain.PropertiesLoader;
@@ -121,26 +124,41 @@ public class CompleteTaskSetupCAController
 				completeTaskRequestAcction = json.toJson(parameterComplete);
 			
 				logger.info("[CompleteTaskSetupCA]: Parameter Complete Task: "+completeTaskRequestAcction);
-				
-				
-				String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class, completeTaskRequestAcction);
-				
-				logger.info("----------- [CompleteTaskSetupCAController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
-				
-				
-				String responseToAcction =  currentState(orderID, processID, taskID, maxLevel);
-				
-				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
+			
+	           
+				CompleteTaskResponseBean completeTaskBeanAsync;
+				try{
+		            while(true)
+		            {
+		                logger.info("[CompleteTaskSetupCA] PROCESSING COMPLETE TASK....");
+		                String responseFinishTaskBPM = restTemplate.postForObject(completeTaskURL, entity, String.class, completeTaskRequestAcction);
+						
+						logger.info("----------- [CompleteTaskSetupCA] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
+						completeTaskBeanAsync = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
+		                logger.info("[CompleteTaskSetupCA] COMPLETE TASK SUCCESS, WITH STATUS = "+completeTaskBeanAsync.getStatus()+"");
+		                Thread.sleep(500);
+		                break;
+		            }
+		            
+		            if (completeTaskBeanAsync.getStatus().equals("200")) {
+		            	String responseToAcction =  currentState(orderID, processID, taskID, maxLevel);
+						return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
+	                }      
+				}catch(Exception e){   
+					logger.info("[CompleteTaskSetupCA] PROCESSING COMPLETE TASK FAILED. CAUSED BY : "+e+"");
+					return new ResponseEntity(GlobalString.RESP_FAILED+". CAUSED BY EXCEPTION: "+e+"", new HttpHeaders(),HttpStatus.OK);
+				}
 			}
 			else
 			{	
-				logger.info("-----[CompleteTaskSetupCAController] USER NOT FOUND, COMPLETE TASK FAILED------");
+				logger.info("-----[CompleteTaskSetupCA] USER NOT BASIC, COMPLETE TASK SETUP CA FAILED------");
 				return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 			}
 //		}else {
 //			logger.info("-----[CompleteTaskSetupCAController] AUTHORIZATION IS NOT BASIC------");
 //			return new ResponseEntity(GlobalString.AUTH_FAILED_AD1, new HttpHeaders(),HttpStatus.FORBIDDEN);
 //		}
+		return new ResponseEntity(GlobalString.RESP_FAILED+"ERROR GET REST TEMPLATE", new HttpHeaders(),HttpStatus.FORBIDDEN);
 }
 		
 			
@@ -148,6 +166,7 @@ public class CompleteTaskSetupCAController
     	
     	logger.info("--------------------------Entering current state--------------------------\n");
     	
+    	Integer tempTaskID = 0;
     	Gson json = new Gson();
     	propertiesLoader = new PropertiesLoader();
 		
@@ -169,7 +188,6 @@ public class CompleteTaskSetupCAController
 		
 		RestTemplate restTemplate = getRestTemplate();
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
-		Thread.sleep(5000);
     	ResponseEntity<String> responseCurrStateBPM = restTemplate.exchange(currentStateURL, HttpMethod.GET, entity, String.class);
     	
     	String responseBodyCurrState = responseCurrStateBPM.getBody();
@@ -184,56 +202,129 @@ public class CompleteTaskSetupCAController
 		
 		List<TasksCurrentState> emptyArray = new ArrayList<TasksCurrentState>();
 		
+		String lastTask = "RPPD";
+		int indexCounter = 1;
 		String assignTo = "";
 		String assignToType = "";
 		int taskIdNextask = 0;
 		int processId = 0;
 		String status = "";
 	
-		int indexCounter = currStateResponse.getData().getTasks().size();
+		int tasksCounter = currStateResponse.getData().getTasks().size();
 		
-		if (indexCounter > 0) 
+		if (tasksCounter > 0) 
 		{
 			for(TasksCurrentState tasks : currStateResponse.getData().getTasks()){
-			
-				assignTo = tasks.getName();
-				assignToType = tasks.getAssignedToType();	
-				taskIdNextask = tasks.getTkiid();
-				processId = tasks.getPiid();
-				status = tasks.getStatus();
-				Integer currentLevel = tasks.getData().getVariables().getCurrentLevel();
 				
-				if(null == currentLevel) {
-					currentLevel = 0;
-				}
-				
-				logger.info("Detail for task:  "+tasks.getTkiid()+" is : "
-						+ "assignTo:  "+assignTo+""
-						+ "assignToType:  "+assignToType+""
-						+ "processId:  "+processID+""
-						+ "status:  "+status+"");
-				
-				if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
-				
-					logger.info("Status = "+status+", Task Added!");
+					assignTo = tasks.getName();
+					assignToType = tasks.getAssignedToType();	
+					taskIdNextask = tasks.getTkiid();
+					processId = tasks.getPiid();
+					status = tasks.getStatus();
+					Integer currentLevel = tasks.getData().getVariables().getCurrentLevel();
+					Integer rejectLevel = tasks.getData().getVariables().getRejectLevel();
 					
-					tasks.setDisplayName(tasks.getName());
-					tasks.setProcessID(processId);
-					tasks.setAssignTo(assignTo);
-					tasks.setAssignToType(assignToType);
-					tasks.setTaskID(taskIdNextask);
-					tasks.setMaxLevel(maxLevel);
-					tasks.setCurrentLevel(currentLevel);
+					if(null == currentLevel) {
+						currentLevel = 0;
+					}
 					
-					taskDetailResponseToAcction.add(tasks);
+					logger.info("Detail for task:  "+tasks.getTkiid()+" is : "
+							+ " assignTo:  "+assignTo+""
+							+ " assignToType:  "+assignToType+""
+							+ " processId:  "+processID+""
+							+ " status:  "+status+"");
 					
-					tasksRequestAcction.setTasks(taskDetailResponseToAcction);
-				}else {
-					logger.info("Status = "+status+" , Task Depereciated!");
-					tasksRequestAcction.setTasks(emptyArray);
-				}
+					if(indexCounter == tasksCounter) {
+						Integer newTempTaskID = 0;
+						if(!tasks.getName().equals(lastTask) && tasks.getStatus().equals("Closed")) {
+							responseCurrStateBPM = restTemplate.exchange(currentStateURL, HttpMethod.GET, entity, String.class);
+							responseBodyCurrState = responseCurrStateBPM.getBody();
+							currStateResponse = json.fromJson(responseBodyCurrState, CurrentStateResponseBean.class);
+							
+							for(TasksCurrentState getLastTasks : currStateResponse.getData().getTasks()) {
+							
+							assignTo = getLastTasks.getName();
+							assignToType = getLastTasks.getAssignedToType();	
+							taskIdNextask = getLastTasks.getTkiid();
+							processId = getLastTasks.getPiid();
+							String newStatus = getLastTasks.getStatus();
+							currentLevel = getLastTasks.getData().getVariables().getCurrentLevel();
+							rejectLevel = getLastTasks.getData().getVariables().getRejectLevel();
+							
+							if(null == currentLevel) {
+								currentLevel = 0;
+							}
+							
+							logger.info("Detail for task:  "+getLastTasks.getTkiid()+" is : "
+									+ "assignTo:  "+assignTo+""
+									+ "assignToType:  "+assignToType+""
+									+ "processId:  "+processID+""
+									+ "status:  "+newStatus+"");
+							
+							if (!newStatus.equals(GlobalString.STATUS_TASK_CLOSED)) {
+						
+								if(getLastTasks.getTkiid() == newTempTaskID) {
+									logger.info("Task is same, Task Depreciated!");
+								}else {
+									logger.info("Status = "+status+", Task Added!");
+									
+									getLastTasks.setDisplayName(getLastTasks.getName());
+									getLastTasks.setProcessID(processId);
+									getLastTasks.setAssignTo(assignTo);
+									getLastTasks.setAssignToType(assignToType);
+									getLastTasks.setTaskID(taskIdNextask);
+									getLastTasks.setMaxLevel(maxLevel);
+									getLastTasks.setCurrentLevel(currentLevel);
+									getLastTasks.setRejectLevel(rejectLevel);
+									
+									taskDetailResponseToAcction.add(getLastTasks);
+									
+									tasksRequestAcction.setTasks(taskDetailResponseToAcction);
+								}
+								
+								newTempTaskID = getLastTasks.getTkiid();
+							}else {
+								logger.info("Status = "+status+" , Task Depreciated!");
+								tasksRequestAcction.setTasks(emptyArray);
+							}
+						  }
+							break;
+						}
+					}
+					
+					if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
+					
+						
+						if(tasks.getTkiid() == tempTaskID) {
+							logger.info("Task is same, Task Depreciated!");
+						}else {
+							logger.info("Status = "+status+", Task Added!");
+							
+							tasks.setDisplayName(tasks.getName());
+							tasks.setProcessID(processId);
+							tasks.setAssignTo(assignTo);
+							tasks.setAssignToType(assignToType);
+							tasks.setTaskID(taskIdNextask);
+							tasks.setMaxLevel(maxLevel);
+							tasks.setCurrentLevel(currentLevel);
+							tasks.setRejectLevel(rejectLevel);
+							indexCounter++;
+							
+							taskDetailResponseToAcction.add(tasks);
+						
+							tasksRequestAcction.setTasks(taskDetailResponseToAcction);
+						}
+						
+						tempTaskID = tasks.getTkiid();
+						
+					}else {
+						logger.info("Status = "+status+" , Task Depereciated!");
+						tasksRequestAcction.setTasks(emptyArray);
+						indexCounter++;
+					}
 			}
 			logger.info("------------TOTAL RECEIVED TASKS: "+tasksRequestAcction.getTasks().size()+"-------------");
+			
 		}else {
 				tasksRequestAcction.setTasks(emptyArray);
 		}

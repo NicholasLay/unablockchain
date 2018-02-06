@@ -6,7 +6,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import javax.net.ssl.SSLContext;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -107,8 +110,9 @@ public class ProcessServiceImpl implements ProcessService {
 		
     	String bpmUrl = propertiesLoader.loadProperties("bpmurl");
     	Gson json = new Gson();
-    	
-    	String currentStateURL = bpmUrl + "/process/"+processID+"?parts=all";
+    	Integer tempTaskID = 0;
+    	String currentStateURL = bpmUrl + "/process/"+processID+"?taskOffset=0&parts=all";
+  
     	
     	logger.info("[ProcessServiceImpl] URL CURRENT STATE :"+currentStateURL+"");
     	
@@ -129,6 +133,7 @@ public class ProcessServiceImpl implements ProcessService {
     	ResponseEntity<String> responseCurrStateBPM = restTemplate.exchange(currentStateURL, HttpMethod.GET, entity, String.class);
     	
     	String responseBodyCurrState = responseCurrStateBPM.getBody();
+
     	
 		logger.info("----------------[ProcessServiceImpl] Response from BPM GetCurrentState : \n "+ responseBodyCurrState+"\n-------------------");
 		
@@ -172,10 +177,12 @@ public class ProcessServiceImpl implements ProcessService {
 							+ " status:  "+status+"");
 					
 					if(indexCounter == tasksCounter) {
+						Integer tempTaskIdRestate = 0;
 						if(!tasks.getName().equals(lastTask) && tasks.getStatus().equals("Closed")) {
 							responseCurrStateBPM = restTemplate.exchange(currentStateURL, HttpMethod.GET, entity, String.class);
 							responseBodyCurrState = responseCurrStateBPM.getBody();
 							currStateResponse = json.fromJson(responseBodyCurrState, CurrentStateResponseBean.class);
+						
 							
 							for(TasksCurrentState getLastTasks : currStateResponse.getData().getTasks()) {
 							
@@ -191,7 +198,7 @@ public class ProcessServiceImpl implements ProcessService {
 								currentLevel = 0;
 							}
 							
-							logger.info("Detail for task:  "+tasks.getTkiid()+" is : "
+							logger.info("Detail for task:  "+getLastTasks.getTkiid()+" is : "
 									+ "assignTo:  "+assignTo+""
 									+ "assignToType:  "+assignToType+""
 									+ "processId:  "+processID+""
@@ -199,22 +206,28 @@ public class ProcessServiceImpl implements ProcessService {
 							
 							if (!newStatus.equals(GlobalString.STATUS_TASK_CLOSED)) {
 							
-								logger.info("Status = "+status+", Task Added!");
+								if(getLastTasks.getTkiid() == tempTaskIdRestate) {
+									logger.info("Task is same, Task Depreciated");
+								}else {
+									logger.info("Status = "+status+", Task Added!");
+									
+									getLastTasks.setDisplayName(getLastTasks.getName());
+									getLastTasks.setProcessID(processId);
+									getLastTasks.setAssignTo(assignTo);
+									getLastTasks.setAssignToType(assignToType);
+									getLastTasks.setTaskID(taskIdNextask);
+									getLastTasks.setMaxLevel(maxLevel);
+									getLastTasks.setCurrentLevel(currentLevel);
+									getLastTasks.setCurrentLevelOverride(currentLevelOverride);
+									getLastTasks.setRejectLevel(rejectLevel);
+									
+									taskDetailResponseToAcction.add(getLastTasks);
+									
+									tasksRequestAcction.setTasks(taskDetailResponseToAcction);
+								}
 								
-								getLastTasks.setDisplayName(getLastTasks.getName());
-								getLastTasks.setProcessID(processId);
-								getLastTasks.setAssignTo(assignTo);
-								getLastTasks.setAssignToType(assignToType);
-								getLastTasks.setTaskID(taskIdNextask);
-								getLastTasks.setMaxLevel(maxLevel);
-								getLastTasks.setCurrentLevel(currentLevel);
-								getLastTasks.setCurrentLevelOverride(currentLevelOverride);
-								getLastTasks.setRejectLevel(rejectLevel);
 								
-								
-								taskDetailResponseToAcction.add(getLastTasks);
-								
-								tasksRequestAcction.setTasks(taskDetailResponseToAcction);
+								tempTaskIdRestate = getLastTasks.getTkiid();
 								
 							}else {
 								logger.info("Status = "+status+" , Task Depereciated!");
@@ -227,22 +240,27 @@ public class ProcessServiceImpl implements ProcessService {
 					
 					if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
 					
-						logger.info("Status = "+status+", Task Added!");
+						if(tasks.getTkiid() == tempTaskID) {
+							logger.info("Task is same, Task Depreciated");
+						}else {
+							logger.info("Status = "+status+", Task Added!");
+							
+							tasks.setDisplayName(tasks.getName());
+							tasks.setProcessID(processId);
+							tasks.setAssignTo(assignTo);
+							tasks.setAssignToType(assignToType);
+							tasks.setTaskID(taskIdNextask);
+							tasks.setMaxLevel(maxLevel);
+							tasks.setCurrentLevel(currentLevel);
+							tasks.setCurrentLevelOverride(currentLevelOverride);
+							tasks.setRejectLevel(rejectLevel);
+							indexCounter++;
+							
+							taskDetailResponseToAcction.add(tasks);
 						
-						tasks.setDisplayName(tasks.getName());
-						tasks.setProcessID(processId);
-						tasks.setAssignTo(assignTo);
-						tasks.setAssignToType(assignToType);
-						tasks.setTaskID(taskIdNextask);
-						tasks.setMaxLevel(maxLevel);
-						tasks.setCurrentLevel(currentLevel);
-						tasks.setCurrentLevelOverride(currentLevelOverride);
-						tasks.setRejectLevel(rejectLevel);
-						indexCounter++;
+							tasksRequestAcction.setTasks(taskDetailResponseToAcction);
+						}
 						
-						taskDetailResponseToAcction.add(tasks);
-						
-						tasksRequestAcction.setTasks(taskDetailResponseToAcction);
 					}else {
 						logger.info("Status = "+status+" , Task Depereciated!");
 						tasksRequestAcction.setTasks(emptyArray);
@@ -251,6 +269,7 @@ public class ProcessServiceImpl implements ProcessService {
 				
 			}
 			logger.info("------------TOTAL RECEIVED TASKS: "+tasksRequestAcction.getTasks().size()+"-------------");
+			
 		}else {
 				tasksRequestAcction.setTasks(emptyArray);
 		}

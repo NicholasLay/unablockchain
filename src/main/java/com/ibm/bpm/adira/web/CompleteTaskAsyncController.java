@@ -172,7 +172,7 @@ public class CompleteTaskAsyncController
 	}
 		catch(Exception e){   
         	logger.info("-----[CompleteTaskAsyncController] COMPLETE TASK FAILED. Caused by :"+e+"------");
-        	return new ResponseEntity(""+GlobalString.RESP_FAILED+". Exception : "+e+"", new HttpHeaders(),HttpStatus.FORBIDDEN);
+        	return new ResponseEntity(""+GlobalString.RESP_FAILED+". EXCEPTION : "+e+"", new HttpHeaders(),HttpStatus.FORBIDDEN);
 		}
 		return new ResponseEntity(GlobalString.RESP_FAILED, new HttpHeaders(),HttpStatus.FORBIDDEN);
 	}
