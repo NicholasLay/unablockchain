@@ -371,7 +371,12 @@ public class CompleteTaskSynchronousController
 			}
 				
 		}
-			logger.info("------------TOTAL RECEIVED TASKS: "+tasksRequestAcction.getTasks().size()+"-------------");
+			if(null == tasksRequestAcction.getTasks()) {
+				tasksRequestAcction.setTasks(emptyArray);
+				logger.info("------------TASK TO SEND TO ACCTION IS EMPTY------------");
+			}else {
+				logger.info("------------TOTAL RECEIVED TASKS: "+tasksRequestAcction.getTasks().size()+"-------------");
+			}
 			
 	}else {
 			tasksRequestAcction.setTasks(emptyArray);

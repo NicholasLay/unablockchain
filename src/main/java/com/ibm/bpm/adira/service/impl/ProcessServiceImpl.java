@@ -160,7 +160,7 @@ public class ProcessServiceImpl implements ProcessService {
 		 	{
 				for(TasksCurrentState tasks : currStateResponse.getData().getTasks()){
 				
-					assignTo = tasks.getName();
+					assignTo = tasks.getName();	
 					assignToType = tasks.getAssignedToType();	
 					taskIdNextask = tasks.getTkiid();
 					processId = tasks.getPiid();
@@ -278,7 +278,13 @@ public class ProcessServiceImpl implements ProcessService {
 			}
 				
 		}
-			logger.info("------------TOTAL RECEIVED TASKS: "+tasksRequestAcction.getTasks().size()+"-------------");
+			if(null == tasksRequestAcction.getTasks()) {
+				tasksRequestAcction.setTasks(emptyArray);
+				logger.info("------------TASK TO SEND TO ACCTION IS EMPTY------------");
+			}else {
+				logger.info("------------TOTAL RECEIVED TASKS: "+tasksRequestAcction.getTasks().size()+"-------------");
+			}
+				
 			
 	}else {
 			tasksRequestAcction.setTasks(emptyArray);
