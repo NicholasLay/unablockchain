@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Set;
 
 import javax.net.ssl.SSLContext;
+import javax.xml.bind.annotation.XmlElementDecl.GLOBAL;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -134,7 +136,6 @@ public class ProcessServiceImpl implements ProcessService {
     	
     	String responseBodyCurrState = responseCurrStateBPM.getBody();
 
-    	
 		logger.info("----------------[ProcessServiceImpl] Response from BPM GetCurrentState : \n "+ responseBodyCurrState+"\n-------------------");
 		
 		CurrentStateResponseBean currStateResponse = json.fromJson(responseBodyCurrState, CurrentStateResponseBean.class);
@@ -145,7 +146,8 @@ public class ProcessServiceImpl implements ProcessService {
 		
 		List<TasksCurrentState> emptyArray = new ArrayList<TasksCurrentState>();
 		
-		String lastTask = "RPPD";
+		List<String> statusChecker = new ArrayList<>();
+		
 		int indexCounter = 1;
 		String assignTo = "";
 		String assignToType = "";
@@ -155,8 +157,8 @@ public class ProcessServiceImpl implements ProcessService {
 		int tasksCounter = currStateResponse.getData().getTasks().size();
 		
 		if (tasksCounter > 0) 
-		{
-			for(TasksCurrentState tasks : currStateResponse.getData().getTasks()){
+		 	{
+				for(TasksCurrentState tasks : currStateResponse.getData().getTasks()){
 				
 					assignTo = tasks.getName();
 					assignToType = tasks.getAssignedToType();	
@@ -166,23 +168,28 @@ public class ProcessServiceImpl implements ProcessService {
 					Integer currentLevel = tasks.getData().getVariables().getCurrentLevel();
 					Integer rejectLevel = tasks.getData().getVariables().getRejectLevel();
 					
+					statusChecker.add(tasks.getStatus());
+				
 					if(null == currentLevel) {
 						currentLevel = 0;
 					}
 					
-					logger.info("Detail for task:  "+tasks.getTkiid()+" is : "
-							+ " assignTo:  "+assignTo+""
-							+ " assignToType:  "+assignToType+""
-							+ " processId:  "+processID+""
-							+ " status:  "+status+"");
+					logger.info("Detail for task:"+tasks.getTkiid()+" is: "
+							+ "assignTo: "+assignTo+" "
+							+ "assignToType: "+assignToType+" "
+							+ "processId: "+processID+" "
+							+ "status: "+status+"");
 					
 					if(indexCounter == tasksCounter) {
-						Integer tempTaskIdRestate = 0;
-						if(!tasks.getName().equals(lastTask) && tasks.getStatus().equals("Closed")) {
+						
+						if (!statusChecker.contains(GlobalString.STATUS_TASK_RECEIVED) && !tasks.getName().equals(GlobalString.LAST_TASK_BPM)) {
+							Integer tempTaskIdRestate = 0;
+							
+							logger.info("TASK WITH STATUS RECEIVED IS NOT FOUND. RE STATING AGAIN....");
+							
 							responseCurrStateBPM = restTemplate.exchange(currentStateURL, HttpMethod.GET, entity, String.class);
 							responseBodyCurrState = responseCurrStateBPM.getBody();
 							currStateResponse = json.fromJson(responseBodyCurrState, CurrentStateResponseBean.class);
-						
 							
 							for(TasksCurrentState getLastTasks : currStateResponse.getData().getTasks()) {
 							
@@ -198,15 +205,16 @@ public class ProcessServiceImpl implements ProcessService {
 								currentLevel = 0;
 							}
 							
-							logger.info("Detail for task:  "+getLastTasks.getTkiid()+" is : "
-									+ "assignTo:  "+assignTo+""
-									+ "assignToType:  "+assignToType+""
-									+ "processId:  "+processID+""
-									+ "status:  "+newStatus+"");
+							logger.info("Detail for task: "+getLastTasks.getTkiid()+" is: "
+									+"assignTo:"+assignTo+" "
+									+"assignToType:"+assignToType+" "
+									+"processId:"+processID+" "
+									+"status:"+newStatus+"");
 							
 							if (!newStatus.equals(GlobalString.STATUS_TASK_CLOSED)) {
 							
 								if(getLastTasks.getTkiid() == tempTaskIdRestate) {
+									//Validation to check same tasks
 									logger.info("Task is same, Task Depreciated");
 								}else {
 									logger.info("Status = "+status+", Task Added!");
@@ -224,6 +232,7 @@ public class ProcessServiceImpl implements ProcessService {
 									taskDetailResponseToAcction.add(getLastTasks);
 									
 									tasksRequestAcction.setTasks(taskDetailResponseToAcction);
+								
 								}
 								
 								
@@ -231,52 +240,55 @@ public class ProcessServiceImpl implements ProcessService {
 								
 							}else {
 								logger.info("Status = "+status+" , Task Depereciated!");
-								tasksRequestAcction.setTasks(emptyArray);
 							}
 						  }
-							break;
-						}
+						break;
+				        } 
 					}
 					
-					if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
+			if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
+			
+				if(tasks.getTkiid() == tempTaskID) {
+					logger.info("Task is same, Task Depreciated");
+				}else {
+					logger.info("Status = "+status+", Task Added!");
 					
-						if(tasks.getTkiid() == tempTaskID) {
-							logger.info("Task is same, Task Depreciated");
-						}else {
-							logger.info("Status = "+status+", Task Added!");
-							
-							tasks.setDisplayName(tasks.getName());
-							tasks.setProcessID(processId);
-							tasks.setAssignTo(assignTo);
-							tasks.setAssignToType(assignToType);
-							tasks.setTaskID(taskIdNextask);
-							tasks.setMaxLevel(maxLevel);
-							tasks.setCurrentLevel(currentLevel);
-							tasks.setCurrentLevelOverride(currentLevelOverride);
-							tasks.setRejectLevel(rejectLevel);
-							indexCounter++;
-							
-							taskDetailResponseToAcction.add(tasks);
-						
-							tasksRequestAcction.setTasks(taskDetailResponseToAcction);
-						}
-						
-					}else {
-						logger.info("Status = "+status+" , Task Depereciated!");
-						tasksRequestAcction.setTasks(emptyArray);
-						indexCounter++;
-					}
+					tasks.setDisplayName(tasks.getName());
+					tasks.setProcessID(processId);
+					tasks.setAssignTo(assignTo);
+					tasks.setAssignToType(assignToType);
+					tasks.setTaskID(taskIdNextask);
+					tasks.setMaxLevel(maxLevel);
+					tasks.setCurrentLevel(currentLevel);
+					tasks.setCurrentLevelOverride(currentLevelOverride);
+					tasks.setRejectLevel(rejectLevel);
+					indexCounter++;
+					
+					taskDetailResponseToAcction.add(tasks);
+					tasksRequestAcction.setTasks(taskDetailResponseToAcction);
+					
+				}
 				
+			}else {
+				logger.info("Status = "+status+" , Task Depereciated!");
+				indexCounter++;
+				if(tasks.getName().equals(GlobalString.LAST_TASK_BPM)) {
+					tasksRequestAcction.setTasks(emptyArray);
+				}	
 			}
+				
+		}
 			logger.info("------------TOTAL RECEIVED TASKS: "+tasksRequestAcction.getTasks().size()+"-------------");
 			
-		}else {
-				tasksRequestAcction.setTasks(emptyArray);
-		}
+	}else {
+			tasksRequestAcction.setTasks(emptyArray);
+	}
 		callBackToAcctionCurrentState(orderID, processID,tasksRequestAcction,taskID,approvalResult);
 	
     }
   
+    
+    
     public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
 	    TrustStrategy acceptingTrustStrategy = new TrustStrategy() {
 	        @Override

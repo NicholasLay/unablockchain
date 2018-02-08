@@ -71,7 +71,7 @@ public class CompleteTaskSynchronousController
 		Integer maxLevel 			 = completeTaskSynchronous.getMaxLevel();
 		Boolean isDacor 			 = completeTaskSynchronous.getIsDacor();
 		Boolean isLocation 			 = false;
-		Integer currLevelOverrride	 = completeTaskSynchronous.getCurrentLevelOverride();
+		Integer currentLevelOverride	 = completeTaskSynchronous.getCurrentLevelOverride();
 		String approvalResult 		 = completeTaskSynchronous.getApprovalResult();
 		
 		
@@ -149,15 +149,15 @@ public class CompleteTaskSynchronousController
 					parameterComplete.setIsDacorFDE(completeTaskSynchronous.getIsDacorFDE());
 				}
 				if(null != completeTaskSynchronous.getCurrentLevelOverride()) {
-					parameterComplete.setCurrentLevelOverride(currLevelOverrride);
+					parameterComplete.setCurrentLevelOverride(currentLevelOverride);
 				}
 				if(null != maxLevel) {
 					parameterComplete.setMaxLevel(maxLevel);
 				}else {
 					maxLevel = 0;
 				}
-				if(null == currLevelOverrride) {
-					currLevelOverrride= 0;
+				if(null == currentLevelOverride) {
+					currentLevelOverride= 0;
 				}
 					
 				completeTaskRequestAcction = json.toJson(parameterComplete);
@@ -179,7 +179,7 @@ public class CompleteTaskSynchronousController
 		            }
 		            
 		            if (completeTaskBeanAsync.getStatus().equals("200")) {
-		            	String responseToAcction =  currentState(orderID, processID, taskID, maxLevel);
+		            	String responseToAcction =  currentState(orderID, processID, taskID, maxLevel,currentLevelOverride);
 						return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
 	                }      
 				}catch(Exception e){   
@@ -200,7 +200,7 @@ public class CompleteTaskSynchronousController
 }
 		
 			
-	public String currentState(String orderID,int processID ,int taskID, Integer maxLevel) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, InterruptedException{
+	public String currentState(String orderID,int processID ,int taskID, Integer maxLevel, Integer currentLevelOverride) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, InterruptedException{
     	
     	logger.info("--------------------------Entering current state--------------------------\n");
     	
@@ -240,40 +240,49 @@ public class CompleteTaskSynchronousController
 		List<TasksCurrentState> taskDetailResponseToAcction = new ArrayList<TasksCurrentState>();
 		
 		List<TasksCurrentState> emptyArray = new ArrayList<TasksCurrentState>();
-		String lastTask = "RPPD";
+
+		List<String> statusChecker = new ArrayList<>();
+		
 		int indexCounter = 1;
 		String assignTo = "";
 		String assignToType = "";
 		int taskIdNextask = 0;
 		int processId = 0;
 		String status = "";
-	
+		
 		int tasksCounter = currStateResponse.getData().getTasks().size();
 		
 		if (tasksCounter > 0) 
-		{
+	 	{
 			for(TasksCurrentState tasks : currStateResponse.getData().getTasks()){
+			
+				assignTo = tasks.getName();
+				assignToType = tasks.getAssignedToType();	
+				taskIdNextask = tasks.getTkiid();
+				processId = tasks.getPiid();
+				status = tasks.getStatus();
+				Integer currentLevel = tasks.getData().getVariables().getCurrentLevel();
+				Integer rejectLevel = tasks.getData().getVariables().getRejectLevel();
 				
-					assignTo = tasks.getName();
-					assignToType = tasks.getAssignedToType();	
-					taskIdNextask = tasks.getTkiid();
-					processId = tasks.getPiid();
-					status = tasks.getStatus();
-					Integer currentLevel = tasks.getData().getVariables().getCurrentLevel();
-					Integer rejectLevel = tasks.getData().getVariables().getRejectLevel();
-					
-					if(null == currentLevel) {
-						currentLevel = 0;
-					}
-					
-					logger.info("Detail for task:  "+tasks.getTkiid()+" is : "
-							+ " assignTo:  "+assignTo+""
-							+ " assignToType:  "+assignToType+""
-							+ " processId:  "+processID+""
-							+ " status:  "+status+"");
-					
+				statusChecker.add(tasks.getStatus());
+			
+				if(null == currentLevel) {
+					currentLevel = 0;
+				}
+				
+				logger.info("Detail for task:"+tasks.getTkiid()+" is: "
+						+ "assignTo: "+assignTo+" "
+						+ "assignToType: "+assignToType+" "
+						+ "processId: "+processID+" "
+						+ "status: "+status+"");
+				
 					if(indexCounter == tasksCounter) {
-						if(!tasks.getName().equals(lastTask) && tasks.getStatus().equals("Closed")) {
+						
+						if (!statusChecker.contains(GlobalString.STATUS_TASK_RECEIVED) && !tasks.getName().equals(GlobalString.LAST_TASK_BPM)) {
+							Integer tempTaskIdRestate = 0;
+							
+							logger.info("TASK WITH STATUS RECEIVED IS NOT FOUND. RE STATING AGAIN....");
+							
 							responseCurrStateBPM = restTemplate.exchange(currentStateURL, HttpMethod.GET, entity, String.class);
 							responseBodyCurrState = responseCurrStateBPM.getBody();
 							currStateResponse = json.fromJson(responseBodyCurrState, CurrentStateResponseBean.class);
@@ -292,73 +301,81 @@ public class CompleteTaskSynchronousController
 								currentLevel = 0;
 							}
 							
-							logger.info("Detail for task:"+getLastTasks.getTkiid()+" is : "
-									+"assignTo: "+assignTo+""
-									+"assignToType: "+assignToType+""
-									+"processId: "+processID+""
-									+"status: "+newStatus+"");
+							logger.info("Detail for task: "+getLastTasks.getTkiid()+" is: "
+									+"assignTo:"+assignTo+" "
+									+"assignToType:"+assignToType+" "
+									+"processId:"+processID+" "
+									+"status:"+newStatus+"");
 							
 							if (!newStatus.equals(GlobalString.STATUS_TASK_CLOSED)) {
 							
-								logger.info("Status = "+status+", Task Added!");
-								
-								getLastTasks.setDisplayName(getLastTasks.getName());
-								getLastTasks.setProcessID(processId);
-								getLastTasks.setAssignTo(assignTo);
-								getLastTasks.setAssignToType(assignToType);
-								getLastTasks.setTaskID(taskIdNextask);
-								getLastTasks.setMaxLevel(maxLevel);
-								getLastTasks.setCurrentLevel(currentLevel);
-								getLastTasks.setRejectLevel(rejectLevel);
-								
-								taskDetailResponseToAcction.add(getLastTasks);
-								
-								tasksRequestAcction.setTasks(taskDetailResponseToAcction);
+								if(getLastTasks.getTkiid() == tempTaskIdRestate) {
+									//Validation to check same tasks
+									logger.info("Task is same, Task Depreciated");
+								}else {
+									logger.info("Status = "+status+", Task Added!");
+									
+									getLastTasks.setDisplayName(getLastTasks.getName());
+									getLastTasks.setProcessID(processId);
+									getLastTasks.setAssignTo(assignTo);
+									getLastTasks.setAssignToType(assignToType);
+									getLastTasks.setTaskID(taskIdNextask);
+									getLastTasks.setMaxLevel(maxLevel);
+									getLastTasks.setCurrentLevel(currentLevel);
+									getLastTasks.setCurrentLevelOverride(currentLevelOverride);
+									getLastTasks.setRejectLevel(rejectLevel);
+									
+									taskDetailResponseToAcction.add(getLastTasks);
+									
+									tasksRequestAcction.setTasks(taskDetailResponseToAcction);
+								}
+								tempTaskIdRestate = getLastTasks.getTkiid();
 								
 							}else {
 								logger.info("Status = "+status+" , Task Depereciated!");
-								tasksRequestAcction.setTasks(emptyArray);
 							}
 						  }
-							break;
-						}
+						break;
+				        } 
 					}
 					
-					if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
+			if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
+			
+				if(tasks.getTkiid() == tempTaskID) {
+					logger.info("Task is same, Task Depreciated");
+				}else {
+					logger.info("Status = "+status+", Task Added!");
 					
-						logger.info("Status = "+status+", Task Added!");
-						
-						if(tasks.getTkiid() == tempTaskID) {
-							logger.info("Task is same, Task Depreciated");
-						}else {
-							tasks.setDisplayName(tasks.getName());
-							tasks.setProcessID(processId);
-							tasks.setAssignTo(assignTo);
-							tasks.setAssignToType(assignToType);
-							tasks.setTaskID(taskIdNextask);
-							tasks.setMaxLevel(maxLevel);
-							tasks.setCurrentLevel(currentLevel);
-							tasks.setRejectLevel(rejectLevel);
-							indexCounter++;
-							
-							taskDetailResponseToAcction.add(tasks);
-							
-							tasksRequestAcction.setTasks(taskDetailResponseToAcction);
-						}
-						
-						 tempTaskID = tasks.getTkiid();
-						
-					}else {
-						logger.info("Status = "+status+" , Task Depereciated!");
-						tasksRequestAcction.setTasks(emptyArray);
-						indexCounter++;
-					}
+					tasks.setDisplayName(tasks.getName());
+					tasks.setProcessID(processId);
+					tasks.setAssignTo(assignTo);
+					tasks.setAssignToType(assignToType);
+					tasks.setTaskID(taskIdNextask);
+					tasks.setMaxLevel(maxLevel);
+					tasks.setCurrentLevel(currentLevel);
+					tasks.setCurrentLevelOverride(currentLevelOverride);
+					tasks.setRejectLevel(rejectLevel);
+					indexCounter++;
+					
+					taskDetailResponseToAcction.add(tasks);
+					tasksRequestAcction.setTasks(taskDetailResponseToAcction);
+					
+				}
+				
+			}else {
+				logger.info("Status = "+status+" , Task Depereciated!");
+				indexCounter++;
+				if(tasks.getName().equals(GlobalString.LAST_TASK_BPM)) {
+					tasksRequestAcction.setTasks(emptyArray);
+				}	
 			}
+				
+		}
 			logger.info("------------TOTAL RECEIVED TASKS: "+tasksRequestAcction.getTasks().size()+"-------------");
 			
-		}else {
-				tasksRequestAcction.setTasks(emptyArray);
-		}
+	}else {
+			tasksRequestAcction.setTasks(emptyArray);
+	}
 			
 		AcctionCallBackRequestBean acctionBean = new AcctionCallBackRequestBean();
     	

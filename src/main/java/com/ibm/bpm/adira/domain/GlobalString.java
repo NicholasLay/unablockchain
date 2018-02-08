@@ -14,8 +14,9 @@ public class GlobalString {
 	public static final String RESP_SUCESS 					= "Sucess";
 	public static final String SERVICE_NAME_CURRENT_STATE 	= "CurrentState";
 	public static final String SERVIVE_NAME_COMPLETE_TASK 	= "CompleteTask";
+	public static final String IBM_BPM_PLAIN_CREDENTIALS 	= "acction:ADira2017";
+	public static final String DATE_FORMAT 					= "dd/MM/yyyy HH:mm:ss";
+	public static final String LAST_TASK_BPM				= "RPPD";
+	public static final String STATUS_TASK_RECEIVED			= "Received";
 	public static final String STATUS_TASK_CLOSED			= "Closed";
-	public static final String IBM_BPM_PLAIN_CREDENTIALS = "acction:ADira2017";
-	public static final String DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
-
 }
