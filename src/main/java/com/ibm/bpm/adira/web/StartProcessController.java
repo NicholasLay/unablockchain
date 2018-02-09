@@ -99,12 +99,12 @@ public class StartProcessController
 		logger.info(new Timestamp(System.currentTimeMillis())+"-----------[StartProcessController] ENTERING AUTHORIZATION IBM BPM-----------");
 		
 		String plainCreds = propertiesLoader.loadProperties("plaincreds");
-		byte[] plainCredsBytes = plainCreds.getBytes();
-		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
-		String base64Creds = new String(base64CredsBytes);
+		//byte[] plainCredsBytes = plainCreds.getBytes();
+		//byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
+		//String base64Creds = new String(base64CredsBytes);
 		
 		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.add("Authorization", "Basic " + base64Creds);
+		httpHeaders.add("Authorization", "Basic " + plainCreds);
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
 		

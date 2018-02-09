@@ -84,12 +84,12 @@ public class CompleteTaskSetupCAController
     	
     	logger.info("Masuk Auth");
 		String plainCreds = propertiesLoader.loadProperties("plaincreds");
-    	byte[] plainCredsBytes = plainCreds.getBytes();
-		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
-		String base64Creds = new String(base64CredsBytes);
+    	//byte[] plainCredsBytes = plainCreds.getBytes();
+		//byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
+		//String base64Creds = new String(base64CredsBytes);
 	 
 		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.add("Authorization", "Basic " + base64Creds);
+		httpHeaders.add("Authorization", "Basic " + plainCreds);
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
 	
 		RestTemplate restTemplate = getRestTemplate();
@@ -177,12 +177,12 @@ public class CompleteTaskSetupCAController
 		
     	logger.info("Masuk Auth");
     	String plainCreds = propertiesLoader.loadProperties("plaincreds");
-    	byte[] plainCredsBytes = plainCreds.getBytes();
-		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
-		String base64Creds = new String(base64CredsBytes);
+    	//byte[] plainCredsBytes = plainCreds.getBytes();
+		//byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
+		//String base64Creds = new String(base64CredsBytes);
 	 
 		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.add("Authorization", "Basic " + base64Creds);
+		httpHeaders.add("Authorization", "Basic " + plainCreds);
 		httpHeaders.setContentType(MediaType.APPLICATION_XML);
 		logger.info("Auth is being processed");
 		
