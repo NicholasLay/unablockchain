@@ -73,7 +73,7 @@ public class CompleteTaskAsyncController
 		String approvalResult 		 = completeTaskAsync.getApprovalResult();
 		Integer maxLevel			 = completeTaskAsync.getMaxLevel();
 		Integer currLevelOverrride	 = completeTaskAsync.getCurrentLevelOverride();
-		
+		Integer docVerificationResult= completeTaskAsync.getDocVerificationResult();
 		
 		logger.info("[CompleteTaskController] Request Complete Task From Acction :"+json.toJson(completeTaskAsync)+"");
 		
@@ -119,6 +119,9 @@ public class CompleteTaskAsyncController
 		}
 		if(null == currLevelOverrride) {
 			currLevelOverrride= 0;
+		}
+		if(null != docVerificationResult) {
+			parameterComplete.setDocVerificationResult(docVerificationResult);
 		}
 		
 		completeTaskAsyncAcction = json.toJson(parameterComplete);

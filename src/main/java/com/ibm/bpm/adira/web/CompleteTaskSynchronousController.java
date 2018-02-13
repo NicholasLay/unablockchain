@@ -71,9 +71,9 @@ public class CompleteTaskSynchronousController
 		Integer maxLevel 			 = completeTaskSynchronous.getMaxLevel();
 		Boolean isDacor 			 = completeTaskSynchronous.getIsDacor();
 		Boolean isLocation 			 = false;
-		Integer currentLevelOverride	 = completeTaskSynchronous.getCurrentLevelOverride();
+		Integer currentLevelOverride = completeTaskSynchronous.getCurrentLevelOverride();
 		String approvalResult 		 = completeTaskSynchronous.getApprovalResult();
-		
+		Integer docVerificationResult= completeTaskSynchronous.getDocVerificationResult();
 		
 		
 		String logTracker = json.toJson(completeTaskSynchronous);
@@ -158,6 +158,9 @@ public class CompleteTaskSynchronousController
 				}
 				if(null == currentLevelOverride) {
 					currentLevelOverride= 0;
+				}
+				if(null != docVerificationResult) {
+					parameterComplete.setDocVerificationResult(docVerificationResult);
 				}
 					
 				completeTaskRequestAcction = json.toJson(parameterComplete);

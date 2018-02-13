@@ -22,6 +22,7 @@ public class GeneralRequestParameter {
 	public Boolean isDacorFDE;
 	public Boolean isDacorDR;
 	public Integer currentLevelOverride;
+	public Integer docVerificationResult;
 	
 	public GeneralRequestParameter(){
 		
@@ -37,6 +38,15 @@ public class GeneralRequestParameter {
 	}
 
 	
+	
+	public Integer getDocVerificationResult() {
+		return docVerificationResult;
+	}
+
+	public void setDocVerificationResult(Integer docVerificationResult) {
+		this.docVerificationResult = docVerificationResult;
+	}
+
 	public Integer getCurrentLevelOverride() {
 		return currentLevelOverride;
 	}
