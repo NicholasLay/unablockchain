@@ -29,7 +29,7 @@ public class CompleteTaskRequestBean
 	public Boolean isDacorFDE;
 	public Boolean isDacorDR;
 	public Integer currentLevelOverride;
-	public Integer docVerificationResult;
+	public String docVerificationResult;
 	
 	
 	
@@ -61,11 +61,11 @@ public class CompleteTaskRequestBean
 	
 	
 	
-	public Integer getDocVerificationResult() {
+	public String getDocVerificationResult() {
 		return docVerificationResult;
 	}
 
-	public void setDocVerificationResult(Integer docVerificationResult) {
+	public void setDocVerificationResult(String docVerificationResult) {
 		this.docVerificationResult = docVerificationResult;
 	}
 
