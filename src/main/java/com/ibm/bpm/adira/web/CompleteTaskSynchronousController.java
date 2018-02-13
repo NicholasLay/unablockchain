@@ -73,7 +73,7 @@ public class CompleteTaskSynchronousController
 		Boolean isLocation 			 = false;
 		Integer currentLevelOverride = completeTaskSynchronous.getCurrentLevelOverride();
 		String approvalResult 		 = completeTaskSynchronous.getApprovalResult();
-		Integer docVerificationResult= completeTaskSynchronous.getDocVerificationResult();
+		String docVerificationResult= completeTaskSynchronous.getDocVerificationResult();
 		
 		
 		String logTracker = json.toJson(completeTaskSynchronous);

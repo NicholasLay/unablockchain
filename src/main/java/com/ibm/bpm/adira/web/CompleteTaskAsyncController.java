@@ -73,7 +73,7 @@ public class CompleteTaskAsyncController
 		String approvalResult 		 = completeTaskAsync.getApprovalResult();
 		Integer maxLevel			 = completeTaskAsync.getMaxLevel();
 		Integer currLevelOverrride	 = completeTaskAsync.getCurrentLevelOverride();
-		Integer docVerificationResult= completeTaskAsync.getDocVerificationResult();
+		String docVerificationResult= completeTaskAsync.getDocVerificationResult();
 		
 		logger.info("[CompleteTaskController] Request Complete Task From Acction :"+json.toJson(completeTaskAsync)+"");
 		

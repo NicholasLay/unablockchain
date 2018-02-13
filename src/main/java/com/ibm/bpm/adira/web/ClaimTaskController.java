@@ -70,7 +70,7 @@ public class ClaimTaskController {
 				);
 		
 		propertiesLoader = new PropertiesLoader();
-		String bpmUrl = propertiesLoader.loadProperties("bpmUrl");
+		String bpmUrl = propertiesLoader.loadProperties("bpmurl");
 		//String bpmip = propertiesLoader.loadProperties("bpmip");
 		/*
 		String walletBalanceUrl = "https://"
