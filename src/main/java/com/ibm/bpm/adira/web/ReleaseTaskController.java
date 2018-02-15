@@ -107,19 +107,19 @@ public class ReleaseTaskController
 	
 		if (basicAuth.startsWith("Basic"))
 		{
-			String base64Credentials = basicAuth.substring("Basic".length()).trim();
-			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
-			String[] values = credentials.split(":",2);
+//			String base64Credentials = basicAuth.substring("Basic".length()).trim();
+//			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
+//			String[] values = credentials.split(":",2);
+//			
+//			logger.info("USERNAME "+values[0]);
+//			logger.info("PASSWORD "+values[1]);
+//			
+//			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
+//			String responseAd1Gate = ad1ServiceImpl.authResponse(values[0], values[1]);
+//			logger.info("--------RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
 			
-			logger.info("USERNAME "+values[0]);
-			logger.info("PASSWORD "+values[1]);
-			
-			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
-			String responseAd1Gate = ad1ServiceImpl.authResponse(values[0], values[1]);
-			logger.info("--------RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
-			
-			if (responseAd1Gate.equals(GlobalString.OK_MESSAGE))
-			{	
+//			if (responseAd1Gate.equals(GlobalString.OK_MESSAGE))
+//			{	
 				
 				if(response == null || response.isEmpty()) {
 					ReleaseTaskResponseBean responseReleaseSucessBPM = new ReleaseTaskResponseBean();
@@ -133,21 +133,21 @@ public class ReleaseTaskController
 				}
 				
 				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
-			}
-			else
-			{
-				logger.info("-----------NOT OK RESPONSE -----------");
-				beanAcctionRelease.setOrderID(GlobalString.EMPTY_STRING);
-				beanAcctionRelease.setTaskID(GlobalString.EMPTY_INTEGER);
-				beanAcctionRelease.setStatus(GlobalString.OK_MESSAGE);
-				
-				responseToAcction = json.toJson(beanAcctionRelease);
-				
-				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
-			}
-
-		}
-
+//			}
+////			else
+////			{
+//				logger.info("-----------NOT OK RESPONSE -----------");
+//				beanAcctionRelease.setOrderID(GlobalString.EMPTY_STRING);
+//				beanAcctionRelease.setTaskID(GlobalString.EMPTY_INTEGER);
+//				beanAcctionRelease.setStatus(GlobalString.OK_MESSAGE);
+//				
+//				responseToAcction = json.toJson(beanAcctionRelease);
+//				
+//				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
+//			}
+//
+		}else {
+				//bypass ad1gate authorization ad1 gates
 		logger.info("-----------NOT BASIC AUTHORIZATION -----------");
 		beanAcctionRelease.setOrderID(GlobalString.EMPTY_STRING);
 		beanAcctionRelease.setTaskID(GlobalString.EMPTY_INTEGER);
@@ -156,7 +156,7 @@ public class ReleaseTaskController
 		responseToAcction = json.toJson(beanAcctionRelease);
 		
 		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
-	
+		}
 	}
 	
 	public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {

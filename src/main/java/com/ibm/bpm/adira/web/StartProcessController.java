@@ -135,24 +135,24 @@ public class StartProcessController
 		
 		if (basicAuth.startsWith("Basic"))
 		{
-			String base64Credentials = basicAuth.substring("Basic".length()).trim();
+//			String base64Credentials = basicAuth.substring("Basic".length()).trim();
+//			
+//			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
+//			
+//			String[] values = credentials.split(":",2);
+//			
+//			logger.info("USERNAME "+values[0]);
+//			logger.info("PASSWORD "+values[1]);
+//			
+//			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
+//			
+//			String responseAd1Gate = ad1ServiceImpl.authResponse(values[0], values[1]);
+//			
+//			logger.info(new Timestamp(System.currentTimeMillis())+"--------RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
+//			
 			
-			String credentials = new String(Base64.decodeBase64(base64Credentials),Charset.forName("UTF-8"));
-			
-			String[] values = credentials.split(":",2);
-			
-			logger.info("USERNAME "+values[0]);
-			logger.info("PASSWORD "+values[1]);
-			
-			Ad1ServiceImpl ad1ServiceImpl = new Ad1ServiceImpl();
-			
-			String responseAd1Gate = ad1ServiceImpl.authResponse(values[0], values[1]);
-			
-			logger.info(new Timestamp(System.currentTimeMillis())+"--------RESPONSE From AD1GATE :  "+ responseAd1Gate +"-------------");
-			
-			
-			if (responseAd1Gate.equals(GlobalString.OK_MESSAGE))
-			{	
+//			if (RESPONSEAD1GATE.EQUALS(GLOBALSTRING.OK_MESSAGE))
+//			{	
 				logger.info(new Timestamp(System.currentTimeMillis())+"-----------SUCCESS ENTERING RESPONSE -----------");
 				beanAcction.setProcessInstanceName(processInstanceName);
 				beanAcction.setDisplayName(displayName);
@@ -169,29 +169,30 @@ public class StartProcessController
 				logger.info(new Timestamp(System.currentTimeMillis())+"-----------RESPONSE TO  ACCTION START PROCESS :"+responseToAcction+"-----------");
 				
 				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.OK);
-			}
-			else
-			{
-				logger.info(new Timestamp(System.currentTimeMillis())+"-----------NOT OK RESPONSE -----------");
-				beanAcction.setOrderID(GlobalString.EMPTY_STRING);
-				beanAcction.setProcessID(GlobalString.EMPTY_INTEGER);
-				beanAcction.setProcessInstanceName(GlobalString.EMPTY_STRING);;
-				beanAcction.setDisplayName(GlobalString.EMPTY_STRING);
-				beanAcction.setTaskID(GlobalString.EMPTY_INTEGER);
-				beanAcction.setAssignedToType(GlobalString.EMPTY_STRING);
-				beanAcction.setAssignTo(GlobalString.EMPTY_STRING);
-				beanAcction.setStartTime(GlobalString.EMPTY_STRING);
-				beanAcction.setDueTime(GlobalString.EMPTY_STRING);
-				
-				responseToAcction = json.toJson(beanAcction);
-				
-				logger.info(new Timestamp(System.currentTimeMillis())+"-----------RESPONSE TO  ACCTION START PROCESS :"+responseToAcction+"-----------");
-				
-				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
-			}
+//			}
+////			else
+//			{
+//				logger.info(new Timestamp(System.currentTimeMillis())+"-----------NOT OK RESPONSE -----------");
+//				beanAcction.setOrderID(GlobalString.EMPTY_STRING);
+//				beanAcction.setProcessID(GlobalString.EMPTY_INTEGER);
+//				beanAcction.setProcessInstanceName(GlobalString.EMPTY_STRING);;
+//				beanAcction.setDisplayName(GlobalString.EMPTY_STRING);
+//				beanAcction.setTaskID(GlobalString.EMPTY_INTEGER);
+//				beanAcction.setAssignedToType(GlobalString.EMPTY_STRING);
+//				beanAcction.setAssignTo(GlobalString.EMPTY_STRING);
+//				beanAcction.setStartTime(GlobalString.EMPTY_STRING);
+//				beanAcction.setDueTime(GlobalString.EMPTY_STRING);
+//				
+//				responseToAcction = json.toJson(beanAcction);
+//				
+//				logger.info(new Timestamp(System.currentTimeMillis())+"-----------RESPONSE TO  ACCTION START PROCESS :"+responseToAcction+"-----------");
+//				
+//				return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
+//			}
 
-		}
-
+		}else 
+		{
+			// remove Ad1Gate authorization ad1 gates
 		logger.info(new Timestamp(System.currentTimeMillis())+"-----------NOT BASIC AUTHORIZATION -----------");
 		beanAcction.setOrderID(GlobalString.EMPTY_STRING);
 		beanAcction.setProcessID(GlobalString.EMPTY_INTEGER);
@@ -207,6 +208,7 @@ public class StartProcessController
 		logger.info(new Timestamp(System.currentTimeMillis())+"-----------RESPONSE TO  ACCTION START PROCESS :"+responseToAcction+"-----------");
 		
 		return new ResponseEntity(responseToAcction, new HttpHeaders(),HttpStatus.FORBIDDEN);
+		}
 	}
 	
 	public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
