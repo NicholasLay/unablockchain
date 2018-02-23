@@ -187,6 +187,9 @@ public class ProcessServiceImpl implements ProcessService {
 							
 							logger.info("TASK WITH STATUS RECEIVED IS NOT FOUND. RE STATING AGAIN....");
 							
+							try {
+							Thread.sleep(5000);
+							
 							responseCurrStateBPM = restTemplate.exchange(currentStateURL, HttpMethod.GET, entity, String.class);
 							responseBodyCurrState = responseCurrStateBPM.getBody();
 							currStateResponse = json.fromJson(responseBodyCurrState, CurrentStateResponseBean.class);
@@ -242,9 +245,13 @@ public class ProcessServiceImpl implements ProcessService {
 								logger.info("Status = "+status+" , Task Depereciated!");
 							}
 						  }
-						break;
-				        } 
+
+					} catch (InterruptedException e) {
+						System.out.println("EXCEPTION INVOKED, CAUSED BY: "+e+"");
 					}
+				break;
+		        } 
+			}
 					
 			if (!status.equals(GlobalString.STATUS_TASK_CLOSED)) {
 			
