@@ -177,7 +177,7 @@ public class CompleteTaskSynchronousController
 						logger.info("----------- [CompleteTaskSynchronus] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 						completeTaskBeanAsync = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
 		                logger.info("[CompleteTaskSynchronus] COMPLETE TASK SUCCESS, WITH STATUS = "+completeTaskBeanAsync.getStatus()+"");
-		                Thread.sleep(500);
+		                Thread.sleep(2000);
 		                break;
 		            }
 		            
@@ -285,6 +285,7 @@ public class CompleteTaskSynchronousController
 							Integer tempTaskIdRestate = 0;
 							
 							logger.info("TASK WITH STATUS RECEIVED IS NOT FOUND. RE STATING AGAIN....");
+							Thread.sleep(5000);
 							
 							responseCurrStateBPM = restTemplate.exchange(currentStateURL, HttpMethod.GET, entity, String.class);
 							responseBodyCurrState = responseCurrStateBPM.getBody();

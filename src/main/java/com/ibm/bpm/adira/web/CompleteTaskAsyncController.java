@@ -159,7 +159,7 @@ public class CompleteTaskAsyncController
 							logger.info("----------- [CompleteTaskAsyncController] Response JSON CompeleteTask from BPM: \n"+ responseFinishTaskBPM+"-------------");
 							completeTaskBeanAsync = json.fromJson(responseFinishTaskBPM, CompleteTaskResponseBean.class);
 			                logger.info("[CompleteTaskAsyncController] COMPLETE TASK SUCCESS, WITH STATUS = "+completeTaskBeanAsync.getStatus()+"");
-			                Thread.sleep(500);
+			                Thread.sleep(2000);
 			                break;
 			            }
 			            
