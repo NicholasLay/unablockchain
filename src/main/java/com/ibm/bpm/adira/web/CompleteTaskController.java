@@ -64,6 +64,7 @@ public class CompleteTaskController
 		String locationAlias 		 = completeTaskRequest.getLocationAlias();
 		Boolean isLocation 			 = false;
 		Integer currLevelOverride	 = completeTaskRequest.getCurrentLevelOverride();
+		Integer lastApprovalLevel 	 = completeTaskRequest.getLastApprovalLevel();
 		
 		logger.info("[CompleteTaskController] Request Complete Task Acction :"+json.toJson(completeTaskRequest)+"");
 		
@@ -99,6 +100,9 @@ public class CompleteTaskController
 		}
 		if(null != completeTaskRequest.getCurrentLevelOverride()) {
 			parameterComplete.setCurrentLevelOverride(currLevelOverride);
+		}
+		if(null != lastApprovalLevel) {
+			parameterComplete.setLastApprovalLevel(lastApprovalLevel);
 		}
 		
 		completeTaskRequestAcction = json.toJson(parameterComplete);

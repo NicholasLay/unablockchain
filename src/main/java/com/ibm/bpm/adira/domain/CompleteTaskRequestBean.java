@@ -30,6 +30,7 @@ public class CompleteTaskRequestBean
 	public Boolean isDacorDR;
 	public Integer currentLevelOverride;
 	public String docVerificationResult;
+	public Integer lastApprovalLevel;
 	
 	
 	
@@ -61,6 +62,14 @@ public class CompleteTaskRequestBean
 	
 	
 	
+	public Integer getLastApprovalLevel() {
+		return lastApprovalLevel;
+	}
+
+	public void setLastApprovalLevel(Integer lastApprovalLevel) {
+		this.lastApprovalLevel = lastApprovalLevel;
+	}
+
 	public String getDocVerificationResult() {
 		return docVerificationResult;
 	}

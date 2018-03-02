@@ -14,6 +14,7 @@ import javax.net.ssl.SSLContext;
 import javax.xml.bind.annotation.XmlElementDecl.GLOBAL;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.conn.scheme.LayeredSchemeSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
@@ -46,7 +47,7 @@ public class ProcessServiceImpl implements ProcessService {
    
     @Async("processExecutor")
 	@Override
-	public void processCurrentState(String service, String orderID, int processID , int taskID, Integer maxLevel, String approvalResult, Integer currentLevelOverride)  {
+	public void processCurrentState(String service, String orderID, int processID , int taskID, Integer maxLevel, String approvalResult, Integer currentLevelOverride,Integer lastApprovalLevel)  {
 		// TODO Auto-generated method stub
     	
     	 logger.info("Received request to process in ProcessServiceImpl.process()");
@@ -54,7 +55,7 @@ public class ProcessServiceImpl implements ProcessService {
          logger.info("Process Service Impl:Service="+service+ ", orderID="+orderID+ ", processID="+processID+"");
          
      	try {
-     		currentState(orderID, processID,taskID,maxLevel,approvalResult, currentLevelOverride);
+     		currentState(orderID, processID,taskID,maxLevel,approvalResult, currentLevelOverride,lastApprovalLevel);
 		} catch (KeyManagementException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -68,7 +69,7 @@ public class ProcessServiceImpl implements ProcessService {
          
 	}
     
-    public void callBackToAcctionCurrentState(String orderID,int processID, AcctionCallBackRequestBean nextTaskId, int taskID, String approvalResult)
+    public void callBackToAcctionCurrentState(String orderID,int processID, AcctionCallBackRequestBean nextTaskId, int taskID, String approvalResult, Integer lastApprovalLevel)
     {
     	RestTemplate restTemplate = new RestTemplate();
     	Gson json = new Gson();
@@ -85,6 +86,7 @@ public class ProcessServiceImpl implements ProcessService {
     	currentTaskRequest.setProcessID(processID);
     	currentTaskRequest.setTaskID(taskID);
     	currentTaskRequest.setApprovalResult(approvalResult);
+    	currentTaskRequest.setLastApprovalLevel(lastApprovalLevel);
     	
     	acctionBean.setCurrentTask(currentTaskRequest);   	
     	acctionBean.setTasks(nextTaskId.getTasks());
@@ -104,7 +106,7 @@ public class ProcessServiceImpl implements ProcessService {
     }
     
     @SuppressWarnings({ "unchecked", "null" })
-    public void currentState(String orderID,int processID ,int taskID, Integer maxLevel, String approvalResult, Integer currentLevelOverride) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException{
+    public void currentState(String orderID,int processID ,int taskID, Integer maxLevel, String approvalResult, Integer currentLevelOverride, Integer lastApprovalLevel) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException{
     	
     	logger.info("--------------------------Entering current state--------------------------\n");
     	
@@ -296,7 +298,7 @@ public class ProcessServiceImpl implements ProcessService {
 	}else {
 			tasksRequestAcction.setTasks(emptyArray);
 	}
-		callBackToAcctionCurrentState(orderID, processID,tasksRequestAcction,taskID,approvalResult);
+		callBackToAcctionCurrentState(orderID, processID,tasksRequestAcction,taskID,approvalResult,lastApprovalLevel);
 	
     }
   

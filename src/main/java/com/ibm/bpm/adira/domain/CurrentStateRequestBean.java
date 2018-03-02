@@ -18,25 +18,27 @@ public class CurrentStateRequestBean {
 	public Integer maxLevel;
 	public String approvalResult;
 	public Integer currentlevelOverride;
-	
+	public Integer lastApprovalLevel;
 	
 	public CurrentStateRequestBean(){
 
 	}
-	
-	
-	
+
 	public Integer getCurrentlevelOverride() {
 		return currentlevelOverride;
 	}
-
-
 
 	public void setCurrentlevelOverride(Integer currentlevelOverride) {
 		this.currentlevelOverride = currentlevelOverride;
 	}
 
+	public Integer getLastApprovalLevel() {
+		return lastApprovalLevel;
+	}
 
+	public void setLastApprovalLevel(Integer lastApprovalLevel) {
+		this.lastApprovalLevel = lastApprovalLevel;
+	}
 
 	public String getApprovalResult() {
 		return approvalResult;

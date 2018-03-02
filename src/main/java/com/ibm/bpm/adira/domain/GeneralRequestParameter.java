@@ -23,6 +23,7 @@ public class GeneralRequestParameter {
 	public Boolean isDacorDR;
 	public Integer currentLevelOverride;
 	public String docVerificationResult;
+	public Integer lastApprovalLevel;
 	
 	public GeneralRequestParameter(){
 		
@@ -38,7 +39,14 @@ public class GeneralRequestParameter {
 	}
 
 	
-	
+	public Integer getLastApprovalLevel() {
+		return lastApprovalLevel;
+	}
+
+	public void setLastApprovalLevel(Integer lastApprovalLevel) {
+		this.lastApprovalLevel = lastApprovalLevel;
+	}
+
 	public String getDocVerificationResult() {
 		return docVerificationResult;
 	}

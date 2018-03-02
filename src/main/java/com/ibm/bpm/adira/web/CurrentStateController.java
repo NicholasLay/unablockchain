@@ -65,7 +65,8 @@ public class CurrentStateController
 		Boolean isLocation 			 = false;
 		Integer maxLevel 			 = currStateReq.getMaxLevel();
 		String approvalResult		 = currStateReq.getApprovalResult();
-		Integer currLevelOverrride	 = currStateReq.getCurrentlevelOverride(); 
+		Integer currLevelOverrride	 = currStateReq.getCurrentlevelOverride();
+		Integer lastApprovalLevel 	 = currStateReq.getLastApprovalLevel();
 		
 		if(null == maxLevel) {
 			maxLevel = 0;
@@ -98,7 +99,7 @@ public class CurrentStateController
 //			{	
 				logger.info("-----------[CurrentStateController]USER MATCHES, SUCCSESS ENTERING AUTHORIZATION -----------");
 				
-				processService.processCurrentState(GlobalString.SERVICE_NAME_CURRENT_STATE,orderId,processId,taskId,maxLevel,approvalResult,currLevelOverrride);
+				processService.processCurrentState(GlobalString.SERVICE_NAME_CURRENT_STATE,orderId,processId,taskId,maxLevel,approvalResult,currLevelOverrride,lastApprovalLevel);
 				
 				return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
 //			}

@@ -42,9 +42,16 @@ public class CurrentTask{
 		public String assignTo;
 		public String assignToType;
 		public String approvalResult;
+		public Integer lastApprovalLevel;
 		
 		
 		
+		public Integer getLastApprovalLevel() {
+			return lastApprovalLevel;
+		}
+		public void setLastApprovalLevel(Integer lastApprovalLevel) {
+			this.lastApprovalLevel = lastApprovalLevel;
+		}
 		public String getApprovalResult() {
 			return approvalResult;
 		}

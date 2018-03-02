@@ -73,7 +73,9 @@ public class CompleteTaskAsyncController
 		String approvalResult 		 = completeTaskAsync.getApprovalResult();
 		Integer maxLevel			 = completeTaskAsync.getMaxLevel();
 		Integer currLevelOverrride	 = completeTaskAsync.getCurrentLevelOverride();
-		String docVerificationResult= completeTaskAsync.getDocVerificationResult();
+		String docVerificationResult = completeTaskAsync.getDocVerificationResult();
+		Integer lastApprovalLevel	 = completeTaskAsync.getLastApprovalLevel();
+		
 		
 		logger.info("[CompleteTaskController] Request Complete Task From Acction :"+json.toJson(completeTaskAsync)+"");
 		
@@ -123,6 +125,11 @@ public class CompleteTaskAsyncController
 		if(null != docVerificationResult) {
 			parameterComplete.setDocVerificationResult(docVerificationResult);
 		}
+		if(null != lastApprovalLevel) {
+			parameterComplete.setLastApprovalLevel(lastApprovalLevel);
+		}else {
+			lastApprovalLevel = 0;
+		}
 		
 		completeTaskAsyncAcction = json.toJson(parameterComplete);
     	logger.info("[CompleteTaskAsyncController] Complete JSON Parameter : "+completeTaskAsyncAcction+"");
@@ -145,6 +152,7 @@ public class CompleteTaskAsyncController
 	
 		RestTemplate restTemplate = getRestTemplate();
 		HttpEntity<String> entity = new HttpEntity<String>("",httpHeaders);
+		 
 		try{
 		
 		if (basicAuth.startsWith("Basic")){
@@ -164,7 +172,7 @@ public class CompleteTaskAsyncController
 			            }
 			            
 	            if (completeTaskBeanAsync.getStatus().equals("200")) {
-                	processService.processCurrentState(GlobalString.SERVIVE_NAME_COMPLETE_TASK,orderID,processID,taskID,maxLevel,approvalResult,currLevelOverrride);
+                	processService.processCurrentState(GlobalString.SERVIVE_NAME_COMPLETE_TASK,orderID,processID,taskID,maxLevel,approvalResult,currLevelOverrride,lastApprovalLevel);
 		        	return new ResponseEntity(GlobalString.RESP_SUCESS, new HttpHeaders(),HttpStatus.OK);
                 }       
 		        
