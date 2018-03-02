@@ -77,7 +77,10 @@ public class CurrentStateController
 		if(null == currLevelOverrride) {
 			currLevelOverrride= 0;
 		}
-				
+		if(null == lastApprovalLevel) {
+			lastApprovalLevel = 0;
+		}
+		
 		String logTracker = json.toJson(currStateReq);
 		
 		logger.info("[CurrentStateController] Request CurrentState Acction :"+logTracker+"");

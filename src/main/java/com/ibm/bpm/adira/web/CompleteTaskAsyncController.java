@@ -125,9 +125,7 @@ public class CompleteTaskAsyncController
 		if(null != docVerificationResult) {
 			parameterComplete.setDocVerificationResult(docVerificationResult);
 		}
-		if(null != lastApprovalLevel) {
-			parameterComplete.setLastApprovalLevel(lastApprovalLevel);
-		}else {
+		if(null == lastApprovalLevel) {
 			lastApprovalLevel = 0;
 		}
 		
