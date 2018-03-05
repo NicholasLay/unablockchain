@@ -31,9 +31,18 @@ public class CompleteTaskRequestBean
 	public Integer currentLevelOverride;
 	public String docVerificationResult;
 	public Integer lastApprovalLevel;
+	public Integer brmsScoring;
 	
 	
 	
+	public Integer getBrmsScoring() {
+		return brmsScoring;
+	}
+
+	public void setBrmsScoring(Integer brmsScoring) {
+		this.brmsScoring = brmsScoring;
+	}
+
 	public CompleteTaskRequestBean(){
 
 	}

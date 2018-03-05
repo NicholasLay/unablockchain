@@ -87,9 +87,12 @@ public class CompleteTaskController
 		if(null != completeTaskRequest.getIsDacor()) {
 			parameterComplete.setIsDacor(completeTaskRequest.getIsDacor());
 		}
-		if(null != completeTaskRequest.getApprovalResult()) {
+//		if(null != completeTaskRequest.getApprovalResult()) {
+		/*if(null != completeTaskRequest.getApprovalResult() && !completeTaskRequest.getApprovalResult().equalsIgnoreCase("ESKA")
+				&& !completeTaskRequest.getApprovalResult().equalsIgnoreCase("BAND") 
+				&& !completeTaskRequest.getApprovalResult().equalsIgnoreCase("OVDA")) { 
 			parameterComplete.setApprovalResult(completeTaskRequest.getApprovalResult());
-		}
+		}*/
 		if(null != completeTaskRequest.getIsSignPK()) {
 			parameterComplete.setIsSignPK(completeTaskRequest.getIsSignPK());
 		}
@@ -99,9 +102,12 @@ public class CompleteTaskController
 		if(null != completeTaskRequest.getIsDacorFDE()) {
 			parameterComplete.setIsDacorFDE(completeTaskRequest.getIsDacorFDE());
 		}
-		if(null != completeTaskRequest.getCurrentLevelOverride()) {
+		/*if(null != completeTaskRequest.getCurrentLevelOverride()) {
 			parameterComplete.setCurrentLevelOverride(currLevelOverride);
-		}
+		}*/
+		if(null != completeTaskRequest.getLastApprovalLevel()) {
+			parameterComplete.setLastApprovalLevel(lastApprovalLevel);
+		} 
 	
 		
 		completeTaskRequestAcction = json.toJson(parameterComplete);

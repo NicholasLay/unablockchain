@@ -129,6 +129,10 @@ public class CompleteTaskAsyncController
 			lastApprovalLevel = 0;
 		}
 		
+		if(null != completeTaskAsync.getBrmsScoring()) {
+			parameterComplete.setBrmsScoring(completeTaskAsync.getBrmsScoring());
+		}
+		
 		completeTaskAsyncAcction = json.toJson(parameterComplete);
     	logger.info("[CompleteTaskAsyncController] Complete JSON Parameter : "+completeTaskAsyncAcction+"");
 		
