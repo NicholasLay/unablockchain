@@ -1,0 +1,10 @@
+com\una\core\general\PropertiesLoader.class
+com\una\core\unainsurance\Application.class
+com\una\core\DAO\TestingDAO.class
+com\una\core\service\TestingService.class
+com\una\core\web\TestingClassController.class
+com\una\core\general\GlobalString.class
+com\una\core\model\TestingBean.class
+com\una\core\web\TestingClassController$1.class
+com\una\core\service\TestingServicesImpl.class
+com\una\core\DAO\TestingDAOImpl.class
