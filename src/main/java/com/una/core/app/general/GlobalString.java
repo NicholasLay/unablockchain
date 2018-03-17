@@ -14,6 +14,6 @@ public class GlobalString {
 	
 	
 	
-	//Link value
+	//link path
 	public static final String EXAMPLE_URL		= "/example";		
 }
